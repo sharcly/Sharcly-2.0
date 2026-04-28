@@ -4,21 +4,28 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { sendVerificationEmail } from "./email.service";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret";
+const ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || "fallback_access_secret";
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "fallback_refresh_secret";
 const ACCESS_TOKEN_EXPIRY = "24h";
 const REFRESH_TOKEN_EXPIRY = "7d";
+
+if (process.env.NODE_ENV === "production") {
+  if (!process.env.JWT_SECRET || !process.env.REFRESH_TOKEN_SECRET) {
+    throw new Error("JWT_SECRET and REFRESH_TOKEN_SECRET must be set in production");
+  }
+}
 
 export class AuthService {
   static async generateTokens(userId: string, roleSlug: string) {
     const accessToken = jwt.sign(
       { id: userId, role: roleSlug.toLowerCase() },
-      JWT_SECRET,
+      ACCESS_TOKEN_SECRET,
       { expiresIn: ACCESS_TOKEN_EXPIRY }
     );
 
     const refreshToken = jwt.sign(
       { id: userId },
-      JWT_SECRET,
+      REFRESH_TOKEN_SECRET,
       { expiresIn: REFRESH_TOKEN_EXPIRY }
     );
 
@@ -135,7 +142,7 @@ export class AuthService {
   static async refreshTokens(refreshToken: string) {
     let payload: any;
     try {
-      payload = jwt.verify(refreshToken, JWT_SECRET);
+      payload = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
     } catch (err) {
       throw new Error("Invalid refresh token");
     }
@@ -173,7 +180,7 @@ export class AuthService {
       throw new Error("User not found");
     }
 
-    const { password: _, refreshToken: __, ...userWithoutSensitiveData } = user;
+    const { password: _, refreshToken: __, verificationToken: ___, ...userWithoutSensitiveData } = user;
     return userWithoutSensitiveData;
   }
 
@@ -185,11 +192,10 @@ export class AuthService {
       throw new Error("User not found");
     }
 
-    if (currentPassword) {
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) {
-         throw new Error("Current password is incorrect");
-      }
+    // Always required — no optional check
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      throw new Error("Current password is incorrect");
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 12);

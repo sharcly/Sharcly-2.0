@@ -7,6 +7,7 @@ import {
   updateOrderStatus 
 } from "./order.controller";
 import { authenticate, authorize, optionalAuth } from "../../common/middlewares/auth.middleware";
+import { validate, CreateOrderSchema, UpdateOrderStatusSchema } from "../../common/middlewares/validate.middleware";
 
 const router = Router();
 
@@ -40,7 +41,7 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.post("/", optionalAuth, createOrder);
+router.post("/", optionalAuth, validate(CreateOrderSchema), createOrder);
 
 /**
  * @swagger
@@ -122,6 +123,6 @@ router.get("/:id", authenticate, getOrderById);
  *       200:
  *         description: Order status updated successfully
  */
-router.patch("/:id/status", authenticate, authorize("orders.manage"), updateOrderStatus);
+router.patch("/:id/status", authenticate, authorize("orders.manage"), validate(UpdateOrderStatusSchema), updateOrderStatus);
 
 export default router;

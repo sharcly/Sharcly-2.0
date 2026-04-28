@@ -10,7 +10,8 @@ import {
   Search, 
   X,
   User,
-  LayoutGrid
+  LayoutGrid,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { toggleCart } from "@/store/slices/cartSlice";
+import { MiniSearch } from "@/components/mini-search";
 
 const NAV_LINKS = [
   { name: "New Arrivals", href: "/products?status=new" },
@@ -43,6 +45,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
   const { user, logout } = useAuth();
@@ -99,13 +102,24 @@ export function Navbar() {
 
           {/* Action Icons */}
           <div className="flex items-center gap-3">
-             <button className="p-2 rounded-full hover:bg-neutral-50 transition-colors text-[#062D1B]/40 hover:text-[#062D1B]">
-                <Search className="size-4" />
-             </button>
+             <div className="relative">
+                <button 
+                  onClick={() => setSearchOpen(!searchOpen)}
+                  className={cn(
+                    "p-2 rounded-full transition-all duration-300",
+                    searchOpen ? "bg-black text-white" : "hover:bg-neutral-50 text-[#062D1B]/40 hover:text-[#062D1B]"
+                  )}
+                >
+                   {searchOpen ? <X className="size-4" /> : <Search className="size-4" />}
+                </button>
+                <MiniSearch open={searchOpen} setOpen={setSearchOpen} />
+             </div>
+             
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                   <button className="p-2 rounded-full hover:bg-neutral-50 transition-colors text-[#062D1B]/40 hover:text-[#062D1B]">
+                   <button className="px-2 py-1.5 rounded-full hover:bg-neutral-50 transition-colors text-[#062D1B]/40 hover:text-[#062D1B] flex items-center gap-1">
                       <User className="size-4" />
+                      <ChevronDown className="size-3 opacity-50" />
                    </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl border-black/5 shadow-xl bg-white/95 backdrop-blur-xl">
@@ -132,7 +146,7 @@ export function Navbar() {
                            )}
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator className="bg-black/5" />
-                        <DropdownMenuItem onClick={logout} className="rounded-xl cursor-pointer text-xs font-bold text-rose-500 focus:text-rose-600 focus:bg-rose-500/10 py-2.5">
+                        <DropdownMenuItem onSelect={logout} className="rounded-xl cursor-pointer text-xs font-bold text-rose-500 focus:text-rose-600 focus:bg-rose-500/10 py-2.5">
                            Sign Out
                         </DropdownMenuItem>
                      </>
@@ -190,6 +204,24 @@ export function Navbar() {
                              {link.name}
                            </Link>
                          ))}
+                         
+                         {user ? (
+                           <>
+                             <div className="h-px bg-black/5 my-2" />
+                             <Link href="/account" className="text-sm font-bold uppercase tracking-widest">My Account</Link>
+                             <button 
+                               onClick={logout}
+                               className="text-sm font-bold uppercase tracking-widest text-rose-500 text-left"
+                             >
+                               Sign Out
+                             </button>
+                           </>
+                         ) : (
+                           <>
+                             <div className="h-px bg-black/5 my-2" />
+                             <Link href="/login" className="text-sm font-bold uppercase tracking-widest">Sign In</Link>
+                           </>
+                         )}
                       </div>
                    </SheetContent>
                 </Sheet>

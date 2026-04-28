@@ -13,6 +13,7 @@ import {
   deleteRole
 } from "./admin.controller";
 import { authenticate, authorize } from "../../common/middlewares/auth.middleware";
+import { validate, AdminCreateUserSchema, AdminUpdateUserSchema } from "../../common/middlewares/validate.middleware";
 
 const router = Router();
 
@@ -71,7 +72,7 @@ router.get("/users", getAllUsers);
  *       201:
  *         description: User created successfully
  */
-router.post("/users", adminCreateUser);
+router.post("/users", validate(AdminCreateUserSchema), adminCreateUser);
 
 /**
  * @swagger
@@ -101,7 +102,7 @@ router.post("/users", adminCreateUser);
  *       200:
  *         description: User updated successfully
  */
-router.patch("/users/:id", adminUpdateUser);
+router.patch("/users/:id", validate(AdminUpdateUserSchema), adminUpdateUser);
 
 /**
  * @swagger

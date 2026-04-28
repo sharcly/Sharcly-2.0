@@ -21,6 +21,7 @@ import {
 } from "./product.controller";
 import { authenticate, authorize } from "../../common/middlewares/auth.middleware";
 import { upload } from "../../common/utils/cloudinary.ts";
+import { validate, CreateProductSchema, UpdateProductSchema } from "../../common/middlewares/validate.middleware";
 
 const router = Router();
 
@@ -100,7 +101,8 @@ router.get("/:slug", getProductBySlug);
  *       403:
  *         description: Forbidden (Admin/Manager only)
  */
-router.post("/", authenticate, authorize("products.create"), upload.any(), createProduct);
+// Note: validate() runs after upload.any() so that body fields from multipart are parsed
+router.post("/", authenticate, authorize("products.create"), upload.any(), validate(CreateProductSchema), createProduct);
 
 /**
  * @swagger
@@ -120,7 +122,7 @@ router.post("/", authenticate, authorize("products.create"), upload.any(), creat
  *       200:
  *         description: Product updated successfully
  */
-router.patch("/:id", authenticate, authorize("products.update"), upload.any(), updateProduct);
+router.patch("/:id", authenticate, authorize("products.update"), upload.any(), validate(UpdateProductSchema), updateProduct);
 
 /**
  * @swagger

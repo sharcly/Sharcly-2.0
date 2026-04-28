@@ -2,15 +2,30 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { canAccess } from "@/lib/permissions";
 import { Role } from "@/config/navigation.config";
+import { jwtVerify } from "jose";
 
-export function middleware(request: NextRequest) {
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "fallback_access_secret"
+);
+
+// Verify JWT token signature and expiry
+async function verifyToken(token: string): Promise<boolean> {
+  try {
+    await jwtVerify(token, JWT_SECRET);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public paths
+  // Public paths — no auth needed
   if (
-    pathname === "/login" || 
-    pathname === "/register" || 
-    pathname === "/" || 
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/" ||
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/") ||
     pathname.includes(".")
@@ -18,28 +33,45 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("token")?.value;
+  // Get token from cookie (set by frontend login) or httpOnly cookie (set by backend)
+  const token =
+    request.cookies.get("token")?.value ||
+    request.cookies.get("access_token")?.value;
   const role = request.cookies.get("role")?.value as Role | undefined;
 
-  // Protect dashboard routes
-  const isDashboardPath = 
-    pathname.startsWith("/dashboard") || 
+  // Protect dashboard and account routes
+  const isDashboardPath =
+    pathname.startsWith("/dashboard") ||
     pathname.startsWith("/account");
 
   if (isDashboardPath) {
+    // Check token exists
     if (!token || !role) {
       const url = new URL("/login", request.url);
       url.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(url);
     }
 
+    // Verify JWT signature and expiry — prevents expired/forged tokens from passing
+    const isValid = await verifyToken(token);
+    if (!isValid) {
+      const url = new URL("/login", request.url);
+      url.searchParams.set("callbackUrl", pathname);
+      const response = NextResponse.redirect(url);
+      // Clear invalid cookies
+      response.cookies.delete("token");
+      response.cookies.delete("role");
+      response.cookies.delete("refreshToken");
+      return response;
+    }
+
+    // Check role-based access
     if (!canAccess(role, pathname)) {
-      // Redirect to their default dashboard if they try to access something unauthorized
       let redirectUrl = "/login";
       if (role === "admin" || role === "manager") redirectUrl = "/dashboard";
       else if (role === "content_manager") redirectUrl = "/dashboard/blogs";
       else if (role === "user") redirectUrl = "/account/orders";
-      
+
       return NextResponse.redirect(new URL(redirectUrl, request.url));
     }
   }
@@ -49,13 +81,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };

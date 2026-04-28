@@ -5,10 +5,14 @@ export const createOrder = async (req: any, res: Response) => {
   try {
     const orderData = req.body;
     const userId = req.user?.id || undefined;
-    const email = req.body.email || req.user?.email || "guest@sharcly.com";
+
+    // Require email for guest orders
+    const email = req.user?.email || req.body.email;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required to place an order" });
+    }
 
     const order = await OrderService.createOrder(userId, email, orderData);
-
     res.status(201).json({ success: true, order });
   } catch (error: any) {
     res.status(400).json({ message: error.message || "Order placement failed" });
@@ -33,13 +37,19 @@ export const getAllOrders = async (req: Request, res: Response) => {
   }
 };
 
-export const getOrderById = async (req: Request, res: Response) => {
+export const getOrderById = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
     const order = await OrderService.getOrderById(id as string);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
+    }
+
+    // IDOR fix: only allow owner or admin/manager to view order
+    const isAdmin = ["admin", "manager"].includes(req.user?.userRole?.slug);
+    if (!isAdmin && order.userId !== req.user?.id) {
+      return res.status(403).json({ message: "Access denied" });
     }
 
     res.status(200).json({ success: true, order });

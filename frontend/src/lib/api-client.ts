@@ -4,9 +4,10 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api";
 
 export const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true, // Send httpOnly cookies automatically with every request
 });
 
-// Add a request interceptor to add the JWT token to headers
+// Add a request interceptor to add the JWT token to headers (for backward compat)
 apiClient.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
@@ -37,24 +38,28 @@ apiClient.interceptors.response.use(
         if (!refreshToken) throw new Error("No refresh token");
 
         // Attempt to get new access token
-        const response = await axios.post(`${API_URL}/auth/refresh-token`, { refreshToken });
+        const response = await axios.post(
+          `${API_URL}/auth/refresh-token`,
+          { refreshToken },
+          { withCredentials: true } // Also send httpOnly cookie
+        );
         const { accessToken, refreshToken: newRefreshToken } = response.data;
 
         // Update storage
         localStorage.setItem("token", accessToken);
-        localStorage.setItem("refreshToken", newRefreshToken);
+        if (newRefreshToken) localStorage.setItem("refreshToken", newRefreshToken);
         
         // Retry the original request with new token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, clean up and redirect
+        // Refresh failed — clean up and redirect to login
         if (typeof window !== "undefined") {
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
-          // Consider redirecting to login if absolutely necessary
-          // window.location.href = "/login";
+          // Redirect to login on token refresh failure
+          window.location.href = "/login";
         }
       }
     }

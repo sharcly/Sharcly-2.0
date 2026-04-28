@@ -6,6 +6,7 @@ import {
   deleteCoupon 
 } from "./coupon.controller";
 import { authenticate, authorize } from "../../common/middlewares/auth.middleware";
+import { validate, CreateCouponSchema } from "../../common/middlewares/validate.middleware";
 
 const router = Router();
 
@@ -75,7 +76,7 @@ router.get("/", authenticate, authorize("coupons.manage"), getCoupons);
  *       201:
  *         description: Coupon created successfully
  */
-router.post("/", authenticate, authorize("coupons.manage"), createCoupon);
+router.post("/", authenticate, authorize("coupons.manage"), validate(CreateCouponSchema), createCoupon);
 
 /**
  * @swagger

@@ -266,10 +266,10 @@ export const createProduct = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Create product error details:", error);
+    const isProduction = process.env.NODE_ENV === "production";
     res.status(500).json({
       message: "Failed to create product",
-      error: error.message || "Unknown error",
-      details: error.meta || error.code
+      ...(isProduction ? {} : { error: error.message, details: error.meta || error.code })
     });
   }
 };
@@ -416,7 +416,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         imageUrls: product.images.map((img: any) => `/api/images/${img.id}`)
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Product update error:", error);
     res.status(500).json({ message: "Failed to update product" });
   }
