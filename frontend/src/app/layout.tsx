@@ -1,0 +1,66 @@
+import type { Metadata } from "next";
+import { Inter, Playfair_Display, Instrument_Sans } from "next/font/google";
+import "./globals.css";
+import { AuthProvider } from "@/context/auth-context";
+import { CartProvider } from "@/context/cart-context";
+import { Toaster } from "@/components/ui/sonner";
+
+
+import { ThemeProvider } from "@/components/theme-provider";
+import ChatwootWidget from "@/components/chatwoot-widget";
+import GlobalSeoIntegrator from "@/components/global-seo-integrator";
+import { CartDrawer } from "@/components/cart-drawer";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+});
+
+const instrument = Instrument_Sans({
+  subsets: ["latin"],
+  variable: "--font-instrument",
+});
+
+export const metadata: Metadata = {
+  title: "Sharcly",
+  description: "Discover our curated collection of products. Browse our latest featured items and shop with confidence.",
+  icons: {
+    icon: "https://cdn.mignite.app/ws/works_01KM0WR2ZSKYNHV0ZE2MPNM9EF/final-Logo-1--01KM5Y2NCW8720B30G9G0XW18Y.png",
+  }
+};
+
+import { ReduxProvider } from "@/store/provider";
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+
+      <body className={`${inter.variable} ${playfair.variable} ${instrument.variable} font-sans antialiased bg-background text-foreground`}>
+        <ReduxProvider>
+          <ThemeProvider>
+            <CartProvider>
+              <AuthProvider>
+                <div className="min-h-screen flex flex-col">
+                  {children}
+                </div>
+                <Toaster position="top-right" />
+                <CartDrawer />
+                <ChatwootWidget />
+                <GlobalSeoIntegrator />
+              </AuthProvider>
+            </CartProvider>
+          </ThemeProvider>
+        </ReduxProvider>
+      </body>
+    </html>
+  );
+}
