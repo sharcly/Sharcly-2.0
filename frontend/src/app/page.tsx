@@ -22,6 +22,7 @@ import { motion } from "framer-motion";
 import { useSeo } from "@/hooks/use-seo";
 import { TestimonialsSection } from "@/components/testimonials";
 import { TrustLoyaltySection } from "@/components/trust-loyalty-section";
+import { ShopBySeries } from "@/components/shop-by-series";
 
 const MOCK_PRODUCTS = [
   {
@@ -128,24 +129,8 @@ export default function Home() {
            </div>
         </section>
 
-        {/* Shop By Series - Refined Grid */}
-        <section className="py-24 container mx-auto px-6 md:px-12">
-           <div className="flex justify-between items-end mb-16 border-b border-gray-50 pb-8">
-              <div className="space-y-2">
-                 <h2 className="text-2xl font-semibold tracking-tight">The Series</h2>
-                 <p className="text-xs text-[#062D1B]/40 uppercase tracking-widest">Explore our curated collections</p>
-              </div>
-              <Link href="/products" className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 hover:text-[#062D1B] transition-colors">View All Archive &rarr;</Link>
-           </div>
-
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-              {MOCK_PRODUCTS.map((product) => (
-                <div key={product.id}>
-                   <ProductCard product={product} />
-                </div>
-              ))}
-           </div>
-        </section>
+        {/* Shop By Series - Premium Luxury Grid */}
+        <ShopBySeries />
 
         {/* Modular Info Section */}
         <section className="py-24 bg-[#F9FAFB] border-y border-gray-50">

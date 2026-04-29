@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { apiClient } from "@/lib/api-client";
@@ -44,13 +45,31 @@ const SERIES_TABS = [
 ];
 
 export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <ProductsContent />
+    </Suspense>
+  );
+}
+
+function ProductsContent() {
+  const searchParams = useSearchParams();
+  const seriesParam = searchParams.get("series");
+  
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [selectedSeries, setSelectedSeries] = useState("all");
+  const [selectedSeries, setSelectedSeries] = useState(seriesParam || "all");
   const [sortOrder, setSortOrder] = useState("newest");
 
   useSeo("products");
+
+  // Sync state if URL param changes after mount
+  useEffect(() => {
+    if (seriesParam) {
+      setSelectedSeries(seriesParam);
+    }
+  }, [seriesParam]);
 
   const fetchProducts = async () => {
     setLoading(true);
