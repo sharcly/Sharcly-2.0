@@ -36,6 +36,51 @@ export async function bootstrap() {
       console.log("ℹ️ Admin already exists, skipping creation.");
     }
 
+    // Manager Account
+    const managerEmail = process.env.MANAGER_EMAIL || "manager@sharcly.com";
+    const managerPassword = process.env.MANAGER_PASSWORD || "manager123";
+    const existingManager = await prisma.user.findUnique({ where: { email: managerEmail } });
+    if (!existingManager) {
+      console.log(`👤 Creating default manager: ${managerEmail}`);
+      const hashedPassword = await bcrypt.hash(managerPassword, 12);
+      const managerRole = await prisma.role.findUnique({ where: { slug: "manager" } });
+      if (managerRole) {
+        await prisma.user.create({
+          data: {
+            email: managerEmail,
+            password: hashedPassword,
+            name: "Default Manager",
+            roleId: managerRole.id,
+            isEmailVerified: true
+          },
+        });
+        console.log("✅ Default manager created successfully.");
+      }
+    }
+
+    // User Account
+    const userEmail = process.env.USER_EMAIL || "user@sharcly.com";
+    const userPassword = process.env.USER_PASSWORD || "user123";
+    const existingUser = await prisma.user.findUnique({ where: { email: userEmail } });
+    if (!existingUser) {
+      console.log(`👤 Creating default user: ${userEmail}`);
+      const hashedPassword = await bcrypt.hash(userPassword, 12);
+      const userRole = await prisma.role.findUnique({ where: { slug: "user" } });
+      if (userRole) {
+        await prisma.user.create({
+          data: {
+            email: userEmail,
+            password: hashedPassword,
+            name: "Default User",
+            roleId: userRole.id,
+            isEmailVerified: true
+          },
+        });
+        console.log("✅ Default user created successfully.");
+      }
+    }
+
+
     // Ensure at least one category exists for a premium look
     const categoryCount = await prisma.category.count();
     if (categoryCount === 0) {
@@ -114,3 +159,8 @@ export async function bootstrap() {
     console.error("❌ Bootstrap failed:", error);
   }
 }
+
+if (require.main === module) {
+  bootstrap().then(() => prisma.$disconnect());
+}
+
