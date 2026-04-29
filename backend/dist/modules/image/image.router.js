@@ -5,16 +5,10 @@ const image_controller_1 = require("./image.controller");
 const router = (0, express_1.Router)();
 /**
  * @swagger
- * tags:
- *   name: Images
- *   description: Product image delivery
- */
-/**
- * @swagger
  * /api/images/{id}:
  *   get:
- *     summary: Get product image by ID
- *     tags: [Images]
+ *     summary: Stream a binary image asset
+ *     tags: [Media]
  *     parameters:
  *       - in: path
  *         name: id
@@ -23,14 +17,7 @@ const router = (0, express_1.Router)();
  *           type: string
  *     responses:
  *       200:
- *         description: Image file retrieved successfully
- *         content:
- *           image/*:
- *             schema:
- *               type: string
- *               format: binary
- *       404:
- *         description: Image not found
+ *         description: Binary image data stream
  */
-router.get("/:id", image_controller_1.getProductImage);
+router.get("/:id", image_controller_1.getImage);
 exports.default = router;

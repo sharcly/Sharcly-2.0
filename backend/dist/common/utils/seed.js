@@ -16,7 +16,6 @@ async function main() {
             email: "admin@sharcly.com",
             password: hashedPassword,
             name: "Super Admin",
-            role: client_1.Role.ADMIN,
         },
     });
     // Create Category

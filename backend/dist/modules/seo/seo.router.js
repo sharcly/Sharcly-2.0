@@ -138,4 +138,22 @@ router.put("/bulk", auth_middleware_1.authenticate, (0, auth_middleware_1.author
  *         description: SEO entry deleted
  */
 router.delete("/:id", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("seo.manage"), seo_controller_1.deleteSeo);
+/**
+ * @swagger
+ * /api/seo/global:
+ *   get:
+ *     summary: Fetch site-wide global SEO settings
+ *     tags: [SEO]
+ */
+router.get("/global/settings", seo_controller_1.getGlobalSeo);
+/**
+ * @swagger
+ * /api/seo/global:
+ *   put:
+ *     summary: Update site-wide global SEO settings
+ *     tags: [SEO]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.put("/global/settings", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("seo.manage"), seo_controller_1.updateGlobalSeo);
 exports.default = router;

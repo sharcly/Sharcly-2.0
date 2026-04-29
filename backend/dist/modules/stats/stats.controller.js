@@ -12,7 +12,12 @@ const getDashboardStats = async (req, res) => {
     }
     catch (error) {
         console.error("Dashboard Stats Error:", error);
-        res.status(500).json({ success: false, message: "Failed to fetch dashboard statistics" });
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch dashboard statistics",
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 exports.getDashboardStats = getDashboardStats;

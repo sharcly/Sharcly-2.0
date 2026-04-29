@@ -55,6 +55,7 @@ export async function middleware(request: NextRequest) {
     // Verify JWT signature and expiry — prevents expired/forged tokens from passing
     const isValid = await verifyToken(token);
     if (!isValid) {
+      console.warn(`[Middleware] Invalid token for path: ${pathname}`);
       const url = new URL("/login", request.url);
       url.searchParams.set("callbackUrl", pathname);
       const response = NextResponse.redirect(url);
@@ -67,10 +68,17 @@ export async function middleware(request: NextRequest) {
 
     // Check role-based access
     if (!canAccess(role, pathname)) {
+      console.warn(`[Middleware] Access denied for role: ${role} to path: ${pathname}`);
+      
       let redirectUrl = "/login";
       if (role === "admin" || role === "manager") redirectUrl = "/dashboard";
       else if (role === "content_manager") redirectUrl = "/dashboard/blogs";
       else if (role === "user") redirectUrl = "/account/orders";
+
+      // Prevent infinite redirect loops if already at the target redirect URL
+      if (pathname === redirectUrl) {
+        return NextResponse.next();
+      }
 
       return NextResponse.redirect(new URL(redirectUrl, request.url));
     }

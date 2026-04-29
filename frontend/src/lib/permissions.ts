@@ -1,6 +1,7 @@
 import { Role, navigationConfig } from "@/config/navigation.config";
 
 export function canAccess(role: Role, path: string): boolean {
+  console.log(`[Permissions] Checking access for role: ${role}, path: ${path}`);
   // Public paths or paths that don't match our dashboard structure
   if (!path.startsWith("/dashboard") && !path.startsWith("/account")) {
     return true;

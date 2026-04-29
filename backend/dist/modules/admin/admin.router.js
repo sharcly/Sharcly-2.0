@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const admin_controller_1 = require("./admin.controller");
 const auth_middleware_1 = require("../../common/middlewares/auth.middleware");
+const validate_middleware_1 = require("../../common/middlewares/validate.middleware");
 const router = (0, express_1.Router)();
 // All routes here are restricted to users with management permission
 router.use(auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("users.manage"));
@@ -56,7 +57,7 @@ router.get("/users", admin_controller_1.getAllUsers);
  *       201:
  *         description: User created successfully
  */
-router.post("/users", admin_controller_1.adminCreateUser);
+router.post("/users", (0, validate_middleware_1.validate)(validate_middleware_1.AdminCreateUserSchema), admin_controller_1.adminCreateUser);
 /**
  * @swagger
  * /api/admin/users/{id}:
@@ -85,7 +86,7 @@ router.post("/users", admin_controller_1.adminCreateUser);
  *       200:
  *         description: User updated successfully
  */
-router.patch("/users/:id", admin_controller_1.adminUpdateUser);
+router.patch("/users/:id", (0, validate_middleware_1.validate)(validate_middleware_1.AdminUpdateUserSchema), admin_controller_1.adminUpdateUser);
 /**
  * @swagger
  * /api/admin/users/{id}/block:

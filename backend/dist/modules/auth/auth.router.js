@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const auth_controller_1 = require("./auth.controller");
 const auth_middleware_1 = require("../../common/middlewares/auth.middleware");
+const validate_middleware_1 = require("../../common/middlewares/validate.middleware");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -52,7 +53,7 @@ const router = (0, express_1.Router)();
  *       400:
  *         description: User already exists
  */
-router.post("/register", auth_controller_1.register);
+router.post("/register", (0, validate_middleware_1.validate)(validate_middleware_1.RegisterSchema), auth_controller_1.register);
 /**
  * @swagger
  * /api/auth/login:
@@ -92,7 +93,7 @@ router.post("/register", auth_controller_1.register);
  *       401:
  *         description: Invalid credentials
  */
-router.post("/login", auth_controller_1.login);
+router.post("/login", (0, validate_middleware_1.validate)(validate_middleware_1.LoginSchema), auth_controller_1.login);
 /**
  * @swagger
  * /api/auth/refresh-token:
@@ -175,4 +176,6 @@ router.get("/verify-email", auth_controller_1.verifyEmail);
  *         description: User not found
  */
 router.get("/profile", auth_middleware_1.authenticate, auth_controller_1.getProfile);
+router.get("/me", auth_middleware_1.authenticate, auth_controller_1.getMe);
+router.post("/change-password", auth_middleware_1.authenticate, (0, validate_middleware_1.validate)(validate_middleware_1.ChangePasswordSchema), auth_controller_1.changePassword);
 exports.default = router;

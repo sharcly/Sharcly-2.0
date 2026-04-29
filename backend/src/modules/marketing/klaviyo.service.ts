@@ -1,10 +1,10 @@
-import { KlaviyoApi, Link } from "klaviyo-api";
+import { Klaviyo, Link } from "klaviyo-api";
 
 export class KlaviyoService {
-  private static client: KlaviyoApi;
+  private static client: any;
 
   static init(apiKey: string) {
-    this.client = new KlaviyoApi(apiKey);
+    this.client = (require('klaviyo-api') as any).Klaviyo(apiKey);
   }
 
   /**

@@ -80,5 +80,22 @@ class SeoService {
             }
         })));
     }
+    // Global Settings
+    static async getGlobalSettings() {
+        let settings = await prisma_1.prisma.globalSeoSettings.findFirst();
+        if (!settings) {
+            settings = await prisma_1.prisma.globalSeoSettings.create({
+                data: { siteName: "Scarly 2.0" }
+            });
+        }
+        return settings;
+    }
+    static async updateGlobalSettings(data) {
+        const settings = await this.getGlobalSettings();
+        return await prisma_1.prisma.globalSeoSettings.update({
+            where: { id: settings.id },
+            data
+        });
+    }
 }
 exports.SeoService = SeoService;

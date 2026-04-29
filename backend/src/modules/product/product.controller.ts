@@ -470,7 +470,7 @@ export const updateCategory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { name, slug, description, parentId } = req.body;
     const category = await prisma.category.update({
-      where: { id },
+      where: { id: id as string },
       data: { name, slug, description, parentId }
     });
     res.status(200).json({ success: true, category });

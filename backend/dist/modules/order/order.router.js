@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const order_controller_1 = require("./order.controller");
 const auth_middleware_1 = require("../../common/middlewares/auth.middleware");
+const validate_middleware_1 = require("../../common/middlewares/validate.middleware");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -33,7 +34,7 @@ const router = (0, express_1.Router)();
  *       401:
  *         description: Unauthorized
  */
-router.post("/", auth_middleware_1.authenticate, order_controller_1.createOrder);
+router.post("/", auth_middleware_1.optionalAuth, (0, validate_middleware_1.validate)(validate_middleware_1.CreateOrderSchema), order_controller_1.createOrder);
 /**
  * @swagger
  * /api/orders/my-orders:
@@ -111,5 +112,5 @@ router.get("/:id", auth_middleware_1.authenticate, order_controller_1.getOrderBy
  *       200:
  *         description: Order status updated successfully
  */
-router.patch("/:id/status", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("orders.manage"), order_controller_1.updateOrderStatus);
+router.patch("/:id/status", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("orders.manage"), (0, validate_middleware_1.validate)(validate_middleware_1.UpdateOrderStatusSchema), order_controller_1.updateOrderStatus);
 exports.default = router;

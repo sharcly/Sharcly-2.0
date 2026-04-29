@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const product_controller_1 = require("./product.controller");
 const auth_middleware_1 = require("../../common/middlewares/auth.middleware");
+const cloudinary_1 = require("../../common/utils/cloudinary");
+const validate_middleware_1 = require("../../common/middlewares/validate.middleware");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -77,7 +79,8 @@ router.get("/:slug", product_controller_1.getProductBySlug);
  *       403:
  *         description: Forbidden (Admin/Manager only)
  */
-router.post("/", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("products.create"), product_controller_1.createProduct);
+// Note: validate() runs after upload.any() so that body fields from multipart are parsed
+router.post("/", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("products.create"), cloudinary_1.upload.any(), (0, validate_middleware_1.validate)(validate_middleware_1.CreateProductSchema), product_controller_1.createProduct);
 /**
  * @swagger
  * /api/products/{id}:
@@ -96,7 +99,7 @@ router.post("/", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize
  *       200:
  *         description: Product updated successfully
  */
-router.patch("/:id", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("products.update"), product_controller_1.updateProduct);
+router.patch("/:id", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("products.update"), cloudinary_1.upload.any(), (0, validate_middleware_1.validate)(validate_middleware_1.UpdateProductSchema), product_controller_1.updateProduct);
 /**
  * @swagger
  * /api/products/{id}:

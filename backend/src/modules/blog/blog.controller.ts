@@ -13,7 +13,7 @@ export class BlogController {
 
   static async getBlogBySlug(req: Request, res: Response) {
     try {
-      const blog = await BlogService.getBlogBySlug(req.params.slug);
+      const blog = await BlogService.getBlogBySlug(req.params.slug as string);
       if (!blog) return res.status(404).json({ success: false, message: "Blog not found" });
       res.json({ success: true, blog });
     } catch (error: any) {
@@ -34,7 +34,7 @@ export class BlogController {
 
   static async updateBlog(req: Request, res: Response) {
     try {
-      const blog = await BlogService.updateBlog(req.params.id, req.body);
+      const blog = await BlogService.updateBlog(req.params.id as string, req.body);
       res.json({ success: true, blog });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
@@ -43,7 +43,7 @@ export class BlogController {
 
   static async deleteBlog(req: Request, res: Response) {
     try {
-      await BlogService.deleteBlog(req.params.id);
+      await BlogService.deleteBlog(req.params.id as string);
       res.json({ success: true, message: "Blog deleted successfully" });
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });

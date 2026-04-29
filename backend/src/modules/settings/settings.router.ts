@@ -17,6 +17,7 @@ router.get("/", getStoreSettings);
 // Store Settings
 router.get("/store", authenticate, authorize("settings.manage"), getStoreSettings);
 router.patch("/store", authenticate, authorize("settings.manage"), updateStoreSettings);
+router.put("/", authenticate, authorize("settings.manage"), updateStoreSettings);
 
 // Regions
 router.get("/regions", authenticate, authorize("settings.manage"), getRegions);

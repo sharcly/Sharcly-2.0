@@ -8,6 +8,7 @@ const getStoreSettings = async (req, res) => {
         res.status(200).json({ success: true, settings });
     }
     catch (error) {
+        console.error("Fetch store settings error:", error);
         res.status(500).json({ message: "Failed to fetch store settings" });
     }
 };

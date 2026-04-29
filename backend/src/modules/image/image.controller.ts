@@ -10,12 +10,12 @@ export const getImage = async (req: Request, res: Response) => {
     const { id } = req.params;
     
     // UUID validation
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id as string)) {
       return res.status(400).json({ message: "Invalid image ID format" });
     }
 
     const image = await prisma.productImage.findUnique({
-      where: { id }
+      where: { id: id as string }
     });
 
     if (!image || !image.data) {

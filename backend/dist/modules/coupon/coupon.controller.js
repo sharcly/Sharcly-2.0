@@ -41,7 +41,7 @@ const validateCoupon = async (req, res) => {
             const status = result.message === "Coupon not found" ? 404 : 400;
             return res.status(status).json({ message: result.message });
         }
-        res.status(200).json({ success: true, coupon: result.coupon });
+        res.status(200).json({ success: true, discount: result.discount, code: result.code });
     }
     catch (error) {
         res.status(500).json({ message: "Failed to validate coupon" });

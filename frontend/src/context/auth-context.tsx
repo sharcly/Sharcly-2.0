@@ -62,6 +62,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser(verifiedUser);
           // Keep localStorage in sync for fast hydration on next reload
           localStorage.setItem("user", JSON.stringify(verifiedUser));
+          
+          // Sync role cookie for middleware
+          Cookies.set("role", verifiedUser.role, { expires: 1, path: "/" });
         }
       } catch {
         // Session is invalid — clear everything
@@ -105,9 +108,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Set JS-accessible cookies for Next.js middleware route protection
     // (The real auth token is in the httpOnly cookie set by the backend)
-    Cookies.set("token", newAccessToken, { expires: 1 });
-    Cookies.set("refreshToken", newRefreshToken, { expires: 7 });
-    Cookies.set("role", newUser.role, { expires: 1 });
+    Cookies.set("token", newAccessToken, { expires: 1, path: "/" });
+    Cookies.set("refreshToken", newRefreshToken, { expires: 7, path: "/" });
+    Cookies.set("role", newUser.role, { expires: 1, path: "/" });
 
     // Redirect based on role
     if (["admin", "manager", "content_manager"].includes(newUser.role)) {

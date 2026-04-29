@@ -14,7 +14,7 @@ class AdminService {
                 email: true,
                 name: true,
                 roleId: true,
-                role: {
+                userRole: {
                     select: {
                         id: true,
                         name: true,
@@ -35,7 +35,7 @@ class AdminService {
         return await prisma_1.prisma.user.update({
             where: { id },
             data: { roleId },
-            include: { role: true }
+            include: { userRole: true }
         });
     }
     static async toggleBlockUser(id, isBlocked) {
@@ -71,7 +71,7 @@ class AdminService {
                 email: true,
                 name: true,
                 roleId: true,
-                role: true,
+                userRole: true,
                 isBlocked: true,
                 createdAt: true
             }
@@ -102,7 +102,7 @@ class AdminService {
                 email: true,
                 name: true,
                 roleId: true,
-                role: true,
+                userRole: true,
                 isBlocked: true,
                 createdAt: true
             }
