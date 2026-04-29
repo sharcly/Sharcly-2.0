@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/footer";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { InquiriesView } from "./components/InquiriesView";
 import { PricingManager } from "./components/PricingManager";
@@ -14,7 +12,7 @@ export default function WholesaleDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f0f9f0] selection:bg-[#0d2719]/10 selection:text-[#0d2719]">
-      <div className="container mx-auto px-6 pt-32 pb-24">
+      <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
@@ -30,14 +28,14 @@ export default function WholesaleDashboard() {
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
               <TabsList className="bg-[#0d2719]/5 p-1.5 h-14 rounded-2xl border border-[#0d2719]/10">
-                <TabsTrigger 
-                  value="inquiries" 
+                <TabsTrigger
+                  value="inquiries"
                   className="rounded-xl px-8 h-full font-bold uppercase tracking-widest text-[10px] data-[state=active]:bg-[#0d2719] data-[state=active]:text-white transition-all duration-300"
                 >
                   <ClipboardList className="w-4 h-4 mr-2" /> View Inquiries
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="plans" 
+                <TabsTrigger
+                  value="plans"
                   className="rounded-xl px-8 h-full font-bold uppercase tracking-widest text-[10px] data-[state=active]:bg-[#0d2719] data-[state=active]:text-white transition-all duration-300"
                 >
                   <Settings2 className="w-4 h-4 mr-2" /> Manage Tiers
@@ -74,7 +72,6 @@ export default function WholesaleDashboard() {
           </div>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
