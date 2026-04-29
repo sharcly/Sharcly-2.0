@@ -26,6 +26,7 @@ class ProductService {
                     category: true,
                     type: true,
                     tags: true,
+                    variants: true,
                     images: { select: { id: true } }
                 },
                 orderBy: sort === "price-asc" ? { price: "asc" } : sort === "price-desc" ? { price: "desc" } : { createdAt: "desc" }
@@ -46,6 +47,7 @@ class ProductService {
                 category: true,
                 type: true,
                 tags: true,
+                variants: true,
                 images: { select: { id: true } },
                 reviews: { include: { user: { select: { name: true } } } }
             }

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const coupon_controller_1 = require("./coupon.controller");
 const auth_middleware_1 = require("../../common/middlewares/auth.middleware");
+const validate_middleware_1 = require("../../common/middlewares/validate.middleware");
 const router = (0, express_1.Router)();
 /**
  * @swagger
@@ -67,7 +68,7 @@ router.get("/", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)
  *       201:
  *         description: Coupon created successfully
  */
-router.post("/", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("coupons.manage"), coupon_controller_1.createCoupon);
+router.post("/", auth_middleware_1.authenticate, (0, auth_middleware_1.authorize)("coupons.manage"), (0, validate_middleware_1.validate)(validate_middleware_1.CreateCouponSchema), coupon_controller_1.createCoupon);
 /**
  * @swagger
  * /api/coupons/{id}:

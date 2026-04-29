@@ -13,7 +13,7 @@ class StatsService {
             }),
             prisma_1.prisma.user.count({
                 where: {
-                    role: {
+                    userRole: {
                         slug: "user"
                     }
                 }
@@ -82,8 +82,8 @@ class StatsService {
             chartData,
             recentTransactions: recentTransactions.map(t => ({
                 id: t.id,
-                name: t.user.name || "Customer",
-                email: t.user.email,
+                name: t.user?.name || "Customer",
+                email: t.user?.email || "Unknown",
                 amount: t.totalAmount,
                 date: t.createdAt,
                 status: t.status,

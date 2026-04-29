@@ -10,7 +10,11 @@ async function bootstrap() {
     console.log("🚀 Initializing system bootstrap...");
     try {
         const adminEmail = process.env.ADMIN_EMAIL || "admin@sharcly.com";
-        const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        if (!adminPassword) {
+            console.error("❌ ADMIN_PASSWORD env var is not set. Skipping admin creation for security.");
+            return;
+        }
         const existingAdmin = await prisma_1.prisma.user.findUnique({
             where: { email: adminEmail },
         });
@@ -80,6 +84,30 @@ async function bootstrap() {
                     ]
                 });
             }
+        }
+        // Ensure default SEO entries exist
+        const seoCount = await prisma_1.prisma.seoMeta.count();
+        if (seoCount === 0) {
+            console.log("🔍 Creating default SEO meta...");
+            await prisma_1.prisma.seoMeta.createMany({
+                data: [
+                    {
+                        pageSlug: "home",
+                        title: "Scarly | Premium Lifestyle & Performance",
+                        description: "Experience the next generation of lifestyle performance. Clean, laboratory-verified, and ethically sourced.",
+                        ogTitle: "Scarly | Premium Lifestyle",
+                        ogDescription: "Clean, lab-verified performance essentials for the modern lifestyle.",
+                        keywords: "performance, wellness, lifestyle, premium"
+                    },
+                    {
+                        pageSlug: "products",
+                        title: "Shop Full Collection | Scarly Official",
+                        description: "Browse our complete range of premium botanical extracts and performance supplements.",
+                        ogTitle: "Shop Scarly Premium Collection",
+                        ogDescription: "The complete Scarly range, verified for purity and performance."
+                    }
+                ]
+            });
         }
         console.log("✨ Bootstrap completed successfully.");
     }

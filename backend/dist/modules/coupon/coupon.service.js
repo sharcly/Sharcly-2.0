@@ -32,7 +32,11 @@ class CouponService {
         if (coupon.usedCount >= coupon.usageLimit) {
             return { valid: false, message: "Coupon usage limit reached" };
         }
-        return { valid: true, coupon };
+        return {
+            valid: true,
+            discount: Number(coupon.discount),
+            code: coupon.code
+        };
     }
 }
 exports.CouponService = CouponService;

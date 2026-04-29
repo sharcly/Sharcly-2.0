@@ -25,7 +25,7 @@ export const deleteAddress = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
     const { id } = req.params;
-    await AddressService.delete(id, userId);
+    await AddressService.delete(id as string, userId);
     res.status(200).json({ success: true, message: "Address deleted" });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

@@ -8,7 +8,7 @@ export function validate(schema: z.ZodTypeAny) {
   return (req: Request, res: Response, next: NextFunction) => {
     const result = schema.safeParse(req.body);
     if (!result.success) {
-      const errors = result.error.errors.map((e) => ({
+      const errors = (result.error as any).issues.map((e: any) => ({
         field: e.path.join("."),
         message: e.message,
       }));

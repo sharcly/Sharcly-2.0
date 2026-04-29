@@ -58,8 +58,10 @@ apiClient.interceptors.response.use(
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
-          // Redirect to login on token refresh failure
-          window.location.href = "/login";
+          // Redirect to login on token refresh failure, but only if not already there
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
         }
       }
     }

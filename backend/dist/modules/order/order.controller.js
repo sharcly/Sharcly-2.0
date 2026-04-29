@@ -4,7 +4,14 @@ exports.updateOrderStatus = exports.getOrderById = exports.getAllOrders = export
 const order_service_1 = require("./order.service");
 const createOrder = async (req, res) => {
     try {
-        const order = await order_service_1.OrderService.createOrder(req.user.id, req.user.email, req.body);
+        const orderData = req.body;
+        const userId = req.user?.id || undefined;
+        // Require email for guest orders
+        const email = req.user?.email || req.body.email;
+        if (!email) {
+            return res.status(400).json({ message: "Email is required to place an order" });
+        }
+        const order = await order_service_1.OrderService.createOrder(userId, email, orderData);
         res.status(201).json({ success: true, order });
     }
     catch (error) {
@@ -38,6 +45,11 @@ const getOrderById = async (req, res) => {
         const order = await order_service_1.OrderService.getOrderById(id);
         if (!order) {
             return res.status(404).json({ message: "Order not found" });
+        }
+        // IDOR fix: only allow owner or admin/manager to view order
+        const isAdmin = ["admin", "manager"].includes(req.user?.userRole?.slug);
+        if (!isAdmin && order.userId !== req.user?.id) {
+            return res.status(403).json({ message: "Access denied" });
         }
         res.status(200).json({ success: true, order });
     }
