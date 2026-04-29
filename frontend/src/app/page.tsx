@@ -21,6 +21,7 @@ import { ProductCard } from "@/components/product-card";
 import { motion } from "framer-motion";
 import { useSeo } from "@/hooks/use-seo";
 import { TestimonialsSection } from "@/components/testimonials";
+import { TrustLoyaltySection } from "@/components/trust-loyalty-section";
 
 const MOCK_PRODUCTS = [
   {
@@ -170,6 +171,9 @@ export default function Home() {
               </div>
            </div>
         </section>
+
+        {/* Community Trust & Loyalty */}
+        <TrustLoyaltySection />
 
         {/* Community Feedback */}
         <TestimonialsSection />
