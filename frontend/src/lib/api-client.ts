@@ -55,13 +55,21 @@ apiClient.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed — clean up and redirect to login
+        // Refresh failed — clean up
         if (typeof window !== "undefined") {
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
-          // Redirect to login on token refresh failure, but only if not already there
-          if (window.location.pathname !== "/login") {
+
+          // ONLY redirect to login if the user is on a protected route (dashboard or account)
+          // and if the request wasn't the session restoration check itself
+          const isProtectedRoute = 
+            window.location.pathname.startsWith("/dashboard") || 
+            window.location.pathname.startsWith("/account");
+          
+          const isAuthMeRequest = originalRequest.url?.includes("/auth/me");
+
+          if (isProtectedRoute && !isAuthMeRequest) {
             window.location.href = "/login";
           }
         }
