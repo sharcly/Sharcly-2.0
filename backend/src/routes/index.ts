@@ -11,6 +11,7 @@ import imageRoutes from "../modules/image/image.router";
 import cmsRoutes from "../modules/cms/cms.router";
 import seoRoutes from "../modules/seo/seo.router";
 import shippingRoutes from "../modules/shipping/shipping.router";
+import wholesaleRoutes from "../modules/wholesale/wholesale.router";
 import searchRoutes from "../modules/search/search.router";
 import addressRoutes from "../modules/address/address.router";
 
@@ -28,6 +29,7 @@ router.use("/images", imageRoutes);
 router.use("/cms", cmsRoutes);
 router.use("/seo", seoRoutes);
 router.use("/shipping", shippingRoutes);
+router.use("/wholesale", wholesaleRoutes);
 router.use("/search", searchRoutes);
 router.use("/addresses", addressRoutes);
 

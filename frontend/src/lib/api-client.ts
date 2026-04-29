@@ -28,11 +28,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
+
     // If error is 401 and we haven't retried yet
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
+
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token");
@@ -47,6 +47,8 @@ apiClient.interceptors.response.use(
 
         // Update storage
         localStorage.setItem("token", accessToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
+
         if (newRefreshToken) localStorage.setItem("refreshToken", newRefreshToken);
         
         // Retry the original request with new token
@@ -63,7 +65,7 @@ apiClient.interceptors.response.use(
         }
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

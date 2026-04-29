@@ -176,10 +176,7 @@ model Order {
   userId            String
   status            OrderStatus @default(PENDING)
   totalAmount       Decimal
-  address           String?
-  shippingAddress   String
-  billingAddress    String?
-  paymentMethod     String?
+  address           String
   couponId          String?
   trackingNumber    String?
   carrier           String?

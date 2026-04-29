@@ -20,6 +20,7 @@ import { Marquee } from "@/components/marquee";
 import { ProductCard } from "@/components/product-card";
 import { motion } from "framer-motion";
 import { useSeo } from "@/hooks/use-seo";
+import { TestimonialsSection } from "@/components/testimonials";
 
 const MOCK_PRODUCTS = [
   {
@@ -169,6 +170,9 @@ export default function Home() {
               </div>
            </div>
         </section>
+
+        {/* Community Feedback */}
+        <TestimonialsSection />
 
         {/* Minimal Final CTA */}
         <section className="py-24 px-6 md:px-12">
