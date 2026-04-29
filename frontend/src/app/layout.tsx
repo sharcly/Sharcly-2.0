@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Instrument_Sans } from "next/font/google";
+import { Inter, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 import { CartProvider } from "@/context/cart-context";
@@ -16,14 +16,17 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-cormorant",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
-const instrument = Instrument_Sans({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-instrument",
+  variable: "--font-dm-sans",
+  weight: ["300", "400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -44,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
 
-      <body className={`${inter.variable} ${playfair.variable} ${instrument.variable} font-sans antialiased bg-background text-foreground`}>
+      <body className={`${inter.variable} ${cormorant.variable} ${dmSans.variable} font-sans antialiased bg-background text-foreground`}>
         <ReduxProvider>
           <ThemeProvider>
             <CartProvider>
