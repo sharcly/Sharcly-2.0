@@ -163,10 +163,20 @@ export default function ProductDetailsPage() {
                       <span className="text-xs text-black/40 font-medium">128 Verified Experiences</span>
                    </div>
 
-                   <div className="text-3xl font-semibold tabular-nums pt-2">
-                     ${displayPrice.toFixed(2)}
-                   </div>
-                </div>
+                    <div className="flex items-center gap-6">
+                       <div className="text-3xl font-semibold tabular-nums pt-2">
+                         ${displayPrice.toFixed(2)}
+                       </div>
+                       
+                       {((selectedVariant ? selectedVariant.inventoryQuantity : product.stock) === 0) && (
+                         <div className="pt-2">
+                           <Badge className="bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 border-none shadow-sm">
+                             Out of Stock
+                           </Badge>
+                         </div>
+                       )}
+                    </div>
+                 </div>
 
                 <p className="text-base text-black/60 leading-relaxed font-normal">
                    {product.description || "Thoughtfully designed and clinically synthesized. Our signature tincture represents the pinnacle of hemp science, focused on restoring your natural rhythm."}

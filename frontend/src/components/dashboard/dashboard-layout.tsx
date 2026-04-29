@@ -169,7 +169,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-black/5" />
                   <DropdownMenuItem 
-                    onClick={logout} 
+                    onSelect={logout} 
                     className="rounded-xl py-3 cursor-pointer focus:bg-rose-50 focus:text-rose-500 font-bold gap-3 text-rose-500"
                   >
                     <LogOut className="size-4" /> Logout

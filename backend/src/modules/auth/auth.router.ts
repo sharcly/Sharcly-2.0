@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { login, register, getProfile, verifyEmail, refreshTokens, logout, changePassword } from "./auth.controller";
+import { login, register, getProfile, getMe, verifyEmail, refreshTokens, logout, changePassword } from "./auth.controller";
 import { authenticate } from "../../common/middlewares/auth.middleware";
+import { validate, LoginSchema, RegisterSchema, ChangePasswordSchema } from "../../common/middlewares/validate.middleware";
 
 const router = Router();
 
@@ -53,7 +54,7 @@ const router = Router();
  *       400:
  *         description: User already exists
  */
-router.post("/register", register);
+router.post("/register", validate(RegisterSchema), register);
 
 /**
  * @swagger
@@ -94,7 +95,7 @@ router.post("/register", register);
  *       401:
  *         description: Invalid credentials
  */
-router.post("/login", login);
+router.post("/login", validate(LoginSchema), login);
 
 /**
  * @swagger
@@ -181,6 +182,7 @@ router.get("/verify-email", verifyEmail);
  *         description: User not found
  */
 router.get("/profile", authenticate, getProfile);
-router.post("/change-password", authenticate, changePassword);
+router.get("/me", authenticate, getMe);
+router.post("/change-password", authenticate, validate(ChangePasswordSchema), changePassword);
 
 export default router;

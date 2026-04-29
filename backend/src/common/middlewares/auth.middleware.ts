@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 
+const ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || "fallback_access_secret";
+
 export interface AuthRequest extends Request {
   user?: {
     id: string;
@@ -19,22 +21,31 @@ export interface AuthRequest extends Request {
   };
 }
 
+// Helper to extract token from Bearer header OR httpOnly cookie
+function extractToken(req: Request): string | null {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.split(" ")[1];
+  }
+  // Fallback to httpOnly cookie
+  if ((req as any).cookies?.access_token) {
+    return (req as any).cookies.access_token;
+  }
+  return null;
+}
+
 export const authenticate = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = extractToken(req);
+    if (!token) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "fallback_secret"
-    ) as { id: string };
+    const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET) as { id: string };
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
@@ -63,6 +74,7 @@ export const authenticate = async (
     }
 
     req.user = user as any;
+    next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
@@ -74,16 +86,12 @@ export const optionalAuth = async (
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = extractToken(req);
+    if (!token) {
       return next(); // No token, proceed as guest
     }
 
-    const token = authHeader.split(" ")[1];
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "fallback_secret"
-    ) as { id: string };
+    const decoded = jwt.verify(token, ACCESS_TOKEN_SECRET) as { id: string };
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
@@ -117,8 +125,8 @@ export const authorize = (...requiredPermissions: string[]) => {
 
     const userPermissions = req.user.userRole?.permissions.map(p => p.permission.slug) || [];
     
-    // Check if user has any of the required permissions
-    const hasPermission = requiredPermissions.length === 0 || 
+    // Must have at least one required permission — empty authorize() now requires admin only
+    const hasPermission = requiredPermissions.length > 0 &&
                          requiredPermissions.some(perm => userPermissions.includes(perm));
 
     if (!hasPermission) {

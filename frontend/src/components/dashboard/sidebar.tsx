@@ -184,7 +184,7 @@ export function DashboardNav({ isCollapsed = false, onItemClick }: DashboardNavP
           )} */}
         </Link>
 
-        {/* {!isCollapsed && (
+        {!isCollapsed && (
           <Button
             variant="ghost"
             className="w-full mt-4 h-9 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-500/10 text-[10px] font-bold uppercase tracking-widest justify-start px-3 gap-3 transition-all duration-300 group/logout"
@@ -193,7 +193,7 @@ export function DashboardNav({ isCollapsed = false, onItemClick }: DashboardNavP
             <LogOut className="h-4 w-4 transition-transform group-hover/logout:-translate-x-0.5" />
             <span>Sign Out</span>
           </Button>
-        )} */}
+        )}
       </div>
     </div>
   );

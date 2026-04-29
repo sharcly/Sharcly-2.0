@@ -36,6 +36,10 @@ export class CouponService {
       return { valid: false, message: "Coupon usage limit reached" };
     }
 
-    return { valid: true, coupon };
+    return { 
+      valid: true, 
+      discount: Number(coupon.discount),
+      code: coupon.code
+    };
   }
 }

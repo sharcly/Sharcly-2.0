@@ -6,6 +6,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import compression from "compression";
+import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
 import { prisma } from "./common/lib/prisma";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
@@ -21,65 +23,116 @@ const port = process.env.PORT || 5000;
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Middleware
-app.use(compression()); // Gzip compression
+// ─── Rate Limiting ────────────────────────────────────────────────────────────
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // general API limit
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // strict limit on login/register
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many authentication attempts, please try again in 15 minutes." },
+});
+
+// ─── Core Middleware ──────────────────────────────────────────────────────────
+app.use(compression());
+
 app.use(helmet({
-  crossOriginResourcePolicy: false, // Allow cross-origin images
-  contentSecurityPolicy: false,     // Disable CSP for local dev if needed, or refine it
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", "https:"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    },
+  },
 }));
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:3000",
-  credentials: true
+  credentials: true, // Required for httpOnly cookies
 }));
-app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Use 'combined' in production for structured logs, 'dev' for local
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+
+// Parse cookies (needed for httpOnly token cookies)
+app.use(cookieParser());
+
+// Body parsing with size limits to prevent DoS
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Apply global rate limit
+app.use("/api", globalLimiter);
+
+// Apply strict rate limit on auth endpoints
+app.use("/api/auth/login", authLimiter);
+app.use("/api/auth/register", authLimiter);
+app.use("/api/auth/refresh-token", authLimiter);
+app.use("/api/auth/verify-email", authLimiter);
+
+// Search rate limit — prevent DoS via repeated expensive queries
+const searchLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many search requests, please slow down." },
+});
+app.use("/api/search", searchLimiter);
+
+// ─── Routes ──────────────────────────────────────────────────────────────────
 app.use("/api", apiRoutes);
-app.use("/images", (req, res, next) => {
-  // Alias for top-level image access
-  next();
-}, apiRoutes); // This is a bit hacky, better to just mount the image router specifically
 
 import imageRouter from "./modules/image/image.router";
 app.use("/images", imageRouter);
 
-// Error handling middleware
+// ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err: any, req: Request, res: Response, next: any) => {
-  console.error(err.stack);
+  // Log full error internally
+  console.error("[ERROR]", err.stack);
+
+  // Never expose internal error details in production
+  const isProduction = process.env.NODE_ENV === "production";
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || "Internal Server Error",
+    message: isProduction ? "An internal error occurred" : (err.message || "Internal Server Error"),
   });
 });
 
 import { BlogWorker } from "./modules/blog/blog.worker";
 
-// Start the server
+// ─── Server Start ─────────────────────────────────────────────────────────────
 async function startServer() {
   try {
-    // Startup initialization
     await bootstrap();
-    
-    // Initialize Workers
     BlogWorker.init();
 
     const server = app.listen(port, () => {
       console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
     });
 
-    // Error handling for server
-    server.on('error', (err: any) => {
-      if (err.code === 'EADDRINUSE') {
+    server.on("error", (err: any) => {
+      if (err.code === "EADDRINUSE") {
         console.error(`❌ Port ${port} is already in use.`);
         process.exit(1);
       } else {
-        console.error('❌ Server error:', err);
+        console.error("❌ Server error:", err);
       }
     });
 
-    // Graceful shutdown
     const gracefullyShutdown = async (signal: string) => {
       console.log(`\nStopping server due to ${signal}...`);
       server.close(async () => {
@@ -94,7 +147,6 @@ async function startServer() {
         }
       });
 
-      // Force close after 10s
       setTimeout(() => {
         console.error("Could not close connections in time, forcefully shutting down");
         process.exit(1);
@@ -105,7 +157,7 @@ async function startServer() {
     process.on("SIGTERM", () => gracefullyShutdown("SIGTERM"));
 
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 }

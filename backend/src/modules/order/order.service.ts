@@ -4,20 +4,25 @@ import { sendOrderConfirmation } from "../auth/email.service";
 import { KlaviyoService } from "../marketing/klaviyo.service";
 import { SeoService } from "../seo/seo.service";
 
+import crypto from "crypto";
+
 export class OrderService {
   static async createOrder(userId: string | undefined, email: string, orderData: any) {
-    const { items, address, couponCode } = orderData;
+    const { items, shippingAddress, billingAddress, couponCode, paymentMethod } = orderData;
 
     // Secure user identification
     let finalUserId = userId;
     if (!finalUserId) {
       let guestUser = await prisma.user.findUnique({ where: { email } });
       if (!guestUser) {
+        // Explicitly assign 'user' role to guest accounts
+        const userRole = await prisma.role.findUnique({ where: { slug: "user" } });
         guestUser = await prisma.user.create({
           data: {
              email,
-             password: `guest_${Math.random().toString(36).slice(-8)}`,
-             name: "Guest Shopper"
+             password: `guest_${crypto.randomBytes(16).toString("hex")}`,
+             name: "Guest Shopper",
+             ...(userRole ? { roleId: userRole.id } : {})
           }
         });
       }
@@ -40,7 +45,8 @@ export class OrderService {
         if (variant) {
            product = variant.product;
         } else {
-           throw new Error(`Product mapping failed. ID ${item.productId} not found within products or variants.`);
+           // Don't expose internal product IDs in error messages
+           throw new Error("One or more items in your cart are unavailable. Please refresh and try again.");
         }
       }
 
@@ -59,30 +65,41 @@ export class OrderService {
       });
     }
 
-    // Handle coupon
-    let couponId = undefined;
+    // Validate coupon code BEFORE transaction (read-only check)
+    let couponId: string | undefined = undefined;
+    let couponDiscountAmount = 0;
     if (couponCode) {
       const coupon = await prisma.coupon.findUnique({ where: { code: couponCode as string } });
       if (coupon && coupon.expiryDate > new Date() && coupon.usedCount < coupon.usageLimit) {
-        const discountAmount = Number(coupon.discount);
-        totalAmount = Math.max(0, totalAmount - discountAmount);
+        couponDiscountAmount = Number(coupon.discount);
         couponId = coupon.id;
-        
-        // Update coupon usage
-        await prisma.coupon.update({
-          where: { id: coupon.id },
+      }
+    }
+    // Apply coupon discount to total
+    totalAmount = Math.max(0, totalAmount - couponDiscountAmount);
+
+    // Create order, update stock, and increment coupon usage all in ONE atomic transaction
+    const order = await prisma.$transaction(async (tx) => {
+      // If coupon is used, re-validate inside transaction to prevent race conditions
+      if (couponId) {
+        const coupon = await tx.coupon.findUnique({ where: { id: couponId } });
+        if (!coupon || coupon.usedCount >= coupon.usageLimit || coupon.expiryDate <= new Date()) {
+          throw new Error("Coupon is no longer valid or has reached its usage limit");
+        }
+        await tx.coupon.update({
+          where: { id: couponId },
           data: { usedCount: { increment: 1 } }
         });
       }
-    }
 
-    // Create order and update stock in a transaction
-    const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
           userId: finalUserId as string,
           totalAmount,
-          address,
+          address: shippingAddress,
+          shippingAddress,
+          billingAddress: billingAddress || shippingAddress,
+          paymentMethod,
           status: OrderStatus.PENDING,
           couponId,
           items: {
@@ -96,7 +113,7 @@ export class OrderService {
         include: { items: true }
       });
 
-      // Update stock securely
+      // Update stock atomically
       for (const item of orderItems) {
         if (item.variantId) {
           await tx.productVariant.update({
@@ -123,7 +140,8 @@ export class OrderService {
           "$value": Number(order.totalAmount),
           "OrderID": order.id,
           "ItemNames": order.items.map((i: any) => i.productId), // ideally fetch names
-          "Address": order.address
+          "ShippingAddress": order.shippingAddress,
+          "BillingAddress": order.billingAddress,
         });
       }
     } catch (kErr) {

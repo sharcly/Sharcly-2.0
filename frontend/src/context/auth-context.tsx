@@ -30,22 +30,63 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // On mount: restore session from the httpOnly cookie via /auth/me
+  // This is secure because the cookie is httpOnly and cannot be read by JS
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
+    const restoreSession = async () => {
+      try {
+        // First try localStorage for fast hydration (kept for backward compat)
+        const storedToken = localStorage.getItem("token");
+        const storedUser = localStorage.getItem("user");
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+        }
+
+        // Then verify with backend via httpOnly cookie (source of truth)
+        const response = await apiClient.get("/auth/me");
+        if (response.data.success) {
+          const backendUser = response.data.user;
+          const roleSlug =
+            typeof backendUser.userRole === "object"
+              ? backendUser.userRole?.slug
+              : backendUser.role || "user";
+
+          const verifiedUser: User = {
+            id: backendUser.id,
+            email: backendUser.email,
+            name: backendUser.name,
+            role: roleSlug as Role,
+          };
+          setUser(verifiedUser);
+          // Keep localStorage in sync for fast hydration on next reload
+          localStorage.setItem("user", JSON.stringify(verifiedUser));
+        }
+      } catch {
+        // Session is invalid — clear everything
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
   }, []);
 
-  const login = (newAccessToken: string, newRefreshToken: string, backendUser: { id: string; email: string; name: string; role: any }) => {
-    // backendUser.role might be a string (old) or an object with slug (new)
-    const roleSlug = typeof backendUser.role === 'string' 
-      ? backendUser.role.toLowerCase() 
-      : backendUser.role?.slug || "user";
+  const login = (
+    newAccessToken: string,
+    newRefreshToken: string,
+    backendUser: { id: string; email: string; name: string; role: any }
+  ) => {
+    const roleSlug =
+      typeof backendUser.role === "string"
+        ? backendUser.role.toLowerCase()
+        : backendUser.role?.slug || "user";
 
     const newUser: User = {
       id: backendUser.id,
@@ -56,15 +97,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     setToken(newAccessToken);
     setUser(newUser);
+
+    // Keep localStorage for fast hydration only (not as auth source of truth)
     localStorage.setItem("token", newAccessToken);
     localStorage.setItem("refreshToken", newRefreshToken);
     localStorage.setItem("user", JSON.stringify(newUser));
-    
-    // Set cookies for middleware
-    Cookies.set("token", newAccessToken, { expires: 7 });
-    Cookies.set("refreshToken", newRefreshToken, { expires: 30 });
-    Cookies.set("role", newUser.role, { expires: 7 });
-    
+
+    // Set JS-accessible cookies for Next.js middleware route protection
+    // (The real auth token is in the httpOnly cookie set by the backend)
+    Cookies.set("token", newAccessToken, { expires: 1 });
+    Cookies.set("refreshToken", newRefreshToken, { expires: 7 });
+    Cookies.set("role", newUser.role, { expires: 1 });
+
     // Redirect based on role
     if (["admin", "manager", "content_manager"].includes(newUser.role)) {
       router.push("/dashboard");
@@ -75,19 +119,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      await apiClient.post("/auth/logout");
-    } catch (error) {
-      console.error("Backend logout failed:", error);
-    } finally {
+      // Clear local state immediately for instant feedback
       setToken(null);
       setUser(null);
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
-      Cookies.remove("token");
-      Cookies.remove("refreshToken");
-      Cookies.remove("role");
-      router.push("/login");
+
+      // Remove cookies with explicit path
+      Cookies.remove("token", { path: "/" });
+      Cookies.remove("refreshToken", { path: "/" });
+      Cookies.remove("role", { path: "/" });
+
+      // Call backend logout — clears httpOnly cookie and invalidates refresh token in DB
+      apiClient
+        .post("/auth/logout")
+        .catch((err) => console.error("Backend logout failed:", err));
+
+      // Hard redirect to clear all in-memory state
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      window.location.href = "/login";
     }
   };
 
