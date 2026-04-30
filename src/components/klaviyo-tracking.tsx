@@ -8,7 +8,7 @@ interface KlaviyoTrackingProps {
 }
 
 export default function KlaviyoTracking({ publicApiKey }: KlaviyoTrackingProps) {
-  const { cart } = useCart();
+  const { cartItems } = useCart();
 
   useEffect(() => {
     // 1. Inject Klaviyo Object
@@ -26,8 +26,8 @@ export default function KlaviyoTracking({ publicApiKey }: KlaviyoTrackingProps) 
 
   // Track "Added to Cart"
   useEffect(() => {
-    if ((window as any)._learnq && cart.length > 0) {
-      const lastItem = cart[cart.length - 1];
+    if ((window as any)._learnq && cartItems.length > 0) {
+      const lastItem = cartItems[cartItems.length - 1];
       
       (window as any)._learnq.push(["track", "Added to Cart", {
         "$value": lastItem.price,
@@ -35,10 +35,10 @@ export default function KlaviyoTracking({ publicApiKey }: KlaviyoTrackingProps) 
         "ProductID": lastItem.id,
         "ImageURL": lastItem.image,
         "Quantity": lastItem.quantity,
-        "ItemNames": cart.map(item => item.name)
+        "ItemNames": cartItems.map(item => item.name)
       }]);
     }
-  }, [cart.length]);
+  }, [cartItems.length]);
 
   return null;
 }

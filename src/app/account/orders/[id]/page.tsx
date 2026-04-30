@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface OrderItem {
   id: string;
@@ -119,6 +120,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const isCancelled = order?.status === "CANCELLED";
 
   const handleDownloadInvoice = async () => {
+    if (!order) return;
     try {
       const response = await apiClient.get(`/orders/${order.id}/invoice`, {
         responseType: 'blob'

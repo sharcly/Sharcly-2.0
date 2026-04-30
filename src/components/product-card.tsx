@@ -19,6 +19,7 @@ interface ProductCardProps {
     stock?: number;
     description?: string;
     images?: any[];
+    imageUrls?: string[];
     category?: { name: string };
   };
 }
