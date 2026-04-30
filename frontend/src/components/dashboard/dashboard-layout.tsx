@@ -17,7 +17,8 @@ import {
   X,
   User,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  ShoppingBag
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
