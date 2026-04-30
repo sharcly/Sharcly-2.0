@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 export default function WelcomeOffersPage() {
   const [offers, setOffers] = useState<any[]>([]);
