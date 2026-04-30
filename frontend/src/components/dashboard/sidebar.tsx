@@ -70,7 +70,7 @@ export function DashboardNav({ isCollapsed = false, onItemClick }: DashboardNavP
             >
               <img
                 src="https://cdn.mignite.app/ws/works_01KM0WR2ZSKYNHV0ZE2MPNM9EF/final-Logo-1--01KM5Y2NCW8720B30G9G0XW18Y.png"
-                alt="Scarly"
+                alt="Sharcly"
                 className="h-25 w-auto brightness-0 invert opacity-90 group-hover/brand:opacity-100 transition-opacity"
               />
             </motion.div>

@@ -124,3 +124,35 @@ export const deleteRole = async (req: Request, res: Response) => {
     res.status(400).json({ message: error.message || "Failed to delete role" });
   }
 };
+
+export const getAllIntegrations = async (req: Request, res: Response) => {
+  try {
+    const integrations = await AdminService.getAllIntegrations();
+    res.status(200).json({ success: true, integrations });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message || "Failed to fetch integrations" });
+  }
+};
+
+export const upsertIntegration = async (req: Request, res: Response) => {
+  try {
+    const { platform, apiKey, config } = req.body;
+    if (!platform || !apiKey) {
+      return res.status(400).json({ message: "Platform and API Key are required" });
+    }
+    const integration = await AdminService.upsertIntegration({ platform, apiKey, config });
+    res.status(200).json({ success: true, integration });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message || "Failed to save integration" });
+  }
+};
+
+export const deleteIntegration = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params as { id: string };
+    await AdminService.deleteIntegration(id);
+    res.status(200).json({ success: true, message: "Integration deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message || "Failed to delete integration" });
+  }
+};

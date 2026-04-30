@@ -69,7 +69,7 @@ export function BlogEditor({ blog, isOpen, onClose, onSuccess }: BlogEditorProps
     metaDescription: "",
     category: "WELLNESS",
     tags: "",
-    authorName: "Scarly Team"
+    authorName: "Sharcly Team"
   });
 
   const seoStrength = useMemo(() => {
@@ -110,7 +110,7 @@ export function BlogEditor({ blog, isOpen, onClose, onSuccess }: BlogEditorProps
         metaDescription: "",
         category: "GUIDES",
         tags: "",
-        authorName: "Scarly Team"
+        authorName: "Sharcly Team"
       });
       setIsSlugLocked(false);
     }
@@ -168,7 +168,7 @@ export function BlogEditor({ blog, isOpen, onClose, onSuccess }: BlogEditorProps
              <div className="space-y-3 flex-1">
                 <div className="flex items-center gap-3">
                    <div className="size-8 rounded-lg bg-[#062D1B] flex items-center justify-center text-white"><PenTool className="size-4" /></div>
-                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40">Scarly Blog Editor</span>
+                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40">Sharcly Blog Editor</span>
                 </div>
                 <DialogTitle className="text-4xl font-black tracking-tighter italic font-serif">
                    {formData.title || (blog ? "Edit Post" : "Write a New Story")}

@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Loader2, ArrowLeft, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
 
@@ -24,7 +25,7 @@ export default function LoginPage() {
     try {
       const response = await apiClient.post("/auth/login", { email, password });
       login(response.data.accessToken, response.data.refreshToken, response.data.user);
-      toast.success("Welcome back to Scarly!");
+      toast.success("Welcome back to Sharcly!");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
@@ -122,14 +123,27 @@ export default function LoginPage() {
                     Locked Out?
                   </Link>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-14 rounded-2xl border-primary/5 bg-primary/5 px-6 font-medium focus:ring-accent/20 focus:border-accent/40 transition-all"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-14 rounded-2xl border-primary/5 bg-primary/5 px-6 pr-12 font-medium focus:ring-accent/20 focus:border-accent/40 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 

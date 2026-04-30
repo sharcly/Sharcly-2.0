@@ -37,7 +37,7 @@ const router = Router();
  *       400:
  *         description: Invalid or expired coupon
  */
-router.get("/validate/:code", authenticate, validateCoupon);
+router.post("/validate", validateCoupon);
 
 /**
  * @swagger

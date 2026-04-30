@@ -23,7 +23,9 @@ import {
   Code2,
   Settings2,
   Terminal,
-  Activity
+  Activity,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -66,7 +68,7 @@ export default function ContentManagementPage() {
   });
 
   const [globalSeo, setGlobalSeo] = useState<any>({
-    siteName: "Scarly 2.0",
+    siteName: "Sharcly",
     siteDescription: "",
     googleAnalyticsId: "",
     facebookPixelId: "",
@@ -74,6 +76,7 @@ export default function ContentManagementPage() {
     robotsTxt: "User-agent: *\nAllow: /",
     sitemapUrl: "/sitemap.xml"
   });
+  const [showKlaviyoKey, setShowKlaviyoKey] = useState(false);
 
   const fetchData = async (page: string) => {
     setIsLoading(true);
@@ -466,9 +469,9 @@ export default function ContentManagementPage() {
                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent/60 italic">Google Mobile Simulator</p>
                                    <div className="bg-white p-8 rounded-[2rem] shadow-organic">
                                       <p className="text-[10px] text-primary/40 mb-2 truncate">scarly.com {activePage !== 'home' ? `› ${activePage}` : ''}</p>
-                                      <h3 className="text-[#1a0dab] text-xl font-medium mb-2 leading-tight line-clamp-2 hover:underline cursor-pointer">{seoData.title || "Scarly 2.0 | Premium Essentials"}</h3>
+                                      <h3 className="text-[#1a0dab] text-xl font-medium mb-2 leading-tight line-clamp-2 hover:underline cursor-pointer">{seoData.title || "Sharcly | Premium Wellness Essentials"}</h3>
                                       <p className="text-[#4d5156] text-xs leading-relaxed line-clamp-3 italic opacity-70">
-                                         {seoData.description || "The definitive digital origin for high-performance botanical reset and laboratory-validated essentials..."}
+                                         {seoData.description || "Sharcly is your premium destination for high-quality wellness products and essentials. Built for those who value performance and quality."}
                                       </p>
                                    </div>
                                 </div>
@@ -575,13 +578,22 @@ export default function ContentManagementPage() {
                                 </div>
                                 <div className="space-y-4">
                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Private API Key</Label>
-                                   <Input 
-                                     type="password"
-                                     value={globalSeo.klaviyoPrivateKey} 
-                                     onChange={(e) => setGlobalSeo({...globalSeo, klaviyoPrivateKey: e.target.value})}
-                                     className="h-14 rounded-xl bg-primary/5 border-none px-6 font-bold"
-                                     placeholder="pk_..."
-                                   />
+                                   <div className="relative">
+                                     <Input 
+                                       type={showKlaviyoKey ? "text" : "password"}
+                                       value={globalSeo.klaviyoPrivateKey} 
+                                       onChange={(e) => setGlobalSeo({...globalSeo, klaviyoPrivateKey: e.target.value})}
+                                       className="h-14 rounded-xl bg-primary/5 border-none px-6 pr-12 font-bold"
+                                       placeholder="pk_..."
+                                     />
+                                     <button
+                                       type="button"
+                                       onClick={() => setShowKlaviyoKey(!showKlaviyoKey)}
+                                       className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary transition-colors"
+                                     >
+                                       {showKlaviyoKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                     </button>
+                                   </div>
                                 </div>
                              </div>
                           </div>

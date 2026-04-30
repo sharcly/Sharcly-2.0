@@ -16,7 +16,8 @@ import {
   LogOut,
   Settings,
   ShieldCheck,
-  Globe
+  Globe,
+  Gift
 } from "lucide-react";
 
 export type Role = "admin" | "manager" | "content_manager" | "user";
@@ -126,6 +127,22 @@ export const navigationConfig: NavItem[] = [
     icon: MessageSquare,
     allowedRoles: ["admin", "manager"],
     category: "Communication"
+  },
+
+  // MARKETING
+  {
+    label: "Welcome Offers",
+    href: "/dashboard/marketing/offers",
+    icon: Gift,
+    allowedRoles: ["admin", "manager"],
+    category: "Marketing"
+  },
+  {
+    label: "Offer Claims",
+    href: "/dashboard/marketing/claims",
+    icon: Users,
+    allowedRoles: ["admin", "manager"],
+    category: "Marketing"
   },
 
   // CUSTOMER ACCOUNT

@@ -10,23 +10,20 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -37,19 +34,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  MoreHorizontal, 
   UserPlus, 
-  Shield, 
+  Shield,
   Trash2, 
   Ban, 
   Search, 
   Edit2, 
-  Key, 
-  User as UserIcon,
   Mail,
+  User as UserIcon,
+  Key,
   CheckCircle2,
   XCircle,
-  History
+  History,
+  X,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -69,7 +68,7 @@ interface User {
   email: string;
   name: string | null;
   roleId: string;
-  role: Role;
+  userRole: Role;
   isBlocked: boolean;
   createdAt: string;
 }
@@ -84,6 +83,8 @@ export default function UserManagementPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -105,9 +106,10 @@ export default function UserManagementPage() {
       
       // Set default roleId for new users if roles are loaded
       if (rolesRes.data.roles.length > 0) {
+        const userRole = rolesRes.data.roles.find((r: any) => r.slug === 'user');
         setFormData(prev => ({ 
           ...prev, 
-          roleId: rolesRes.data.roles.find((r: any) => r.slug === 'user')?.id || rolesRes.data.roles[0].id 
+          roleId: userRole?.id || rolesRes.data.roles[0]?.id || "" 
         }));
       }
     } catch (error: any) {
@@ -123,6 +125,10 @@ export default function UserManagementPage() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.roleId) {
+      toast.error("Please select a role");
+      return;
+    }
     try {
       await apiClient.post("/admin/users", formData);
       toast.success("Account created successfully");
@@ -175,7 +181,7 @@ export default function UserManagementPage() {
       email: user.email,
       password: "", 
       name: user.name || "",
-      roleId: user.roleId
+      roleId: user.roleId || ""
     });
     setIsEditModalOpen(true);
   };
@@ -186,6 +192,7 @@ export default function UserManagementPage() {
   );
 
   return (
+    <TooltipProvider>
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -198,7 +205,7 @@ export default function UserManagementPage() {
             setFormData(prev => ({ ...prev, email: "", password: "", name: "" }));
             setIsAddModalOpen(true);
           }}
-          className="gap-2 rounded-xl h-12 px-6 shadow-sm font-bold text-xs uppercase tracking-widest bg-primary hover:opacity-90 transition-opacity"
+          className="gap-2 rounded-xl h-12 px-6 shadow-sm font-bold text-xs uppercase tracking-widest bg-primary hover:opacity-90 transition-opacity text-white"
         >
           <UserPlus className="h-4 w-4" /> Add User
         </Button>
@@ -258,9 +265,9 @@ export default function UserManagementPage() {
                        <div className="flex items-center gap-4">
                           <div className={cn(
                             "h-11 w-11 rounded-full flex items-center justify-center font-bold text-lg border",
-                            user.role?.slug === 'admin' ? "bg-primary/10 text-primary border-primary/20" : "bg-muted text-muted-foreground border-border"
+                            user.userRole?.slug === 'admin' ? "bg-primary/10 text-primary border-primary/20" : "bg-muted text-muted-foreground border-border"
                           )}>
-                             {user.name?.[0].toUpperCase() || user.email[0].toUpperCase()}
+                             {(user.name?.[0] || user.email[0]).toUpperCase()}
                           </div>
                           <div className="flex flex-col min-w-0">
                             <span className="font-bold text-sm text-foreground truncate">{user.name || "Customer"}</span>
@@ -273,12 +280,12 @@ export default function UserManagementPage() {
                     <TableCell>
                       <Badge variant="outline" className={cn(
                         "rounded-lg px-2.5 py-1 font-black text-[9px] uppercase tracking-wider",
-                        user.role?.slug === 'admin' ? "bg-primary/5 text-primary border-primary/20" :
-                        user.role?.slug === 'manager' ? "bg-blue-500/5 text-blue-500 border-blue-500/20" :
-                        user.role?.slug === 'content_manager' ? "bg-amber-500/5 text-amber-500 border-amber-500/20" :
+                        user.userRole?.slug === 'admin' ? "bg-primary/5 text-primary border-primary/20" :
+                        user.userRole?.slug === 'manager' ? "bg-blue-500/5 text-blue-500 border-blue-500/20" :
+                        user.userRole?.slug === 'content_manager' ? "bg-amber-500/5 text-amber-500 border-amber-500/20" :
                         "bg-muted text-muted-foreground"
                       )}>
-                        {user.role?.name || "Customer"}
+                        {user.userRole?.name || "Customer"}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -299,30 +306,60 @@ export default function UserManagementPage() {
                        </div>
                     </TableCell>
                     <TableCell className="text-right pr-6">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-muted opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-[1.5rem] border-border/50 shadow-xl overflow-hidden">
-                          <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-muted-foreground/60 px-4 py-3">Account Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator className="opacity-40" />
-                          <DropdownMenuItem onClick={() => openEditModal(user)} className="gap-3 rounded-xl py-4 px-4 cursor-pointer">
-                            <Edit2 className="h-4 w-4 text-primary" /> <span className="font-bold text-sm">Edit Account</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleBlock(user)} className={cn(
-                            "gap-3 rounded-xl py-4 px-4 cursor-pointer",
-                            user.isBlocked ? "text-emerald-600 focus:text-emerald-600 focus:bg-emerald-50" : "text-rose-600 focus:text-rose-600 focus:bg-rose-50"
-                          )}>
-                            <Ban className="h-4 w-4" /> <span className="font-bold text-sm">{user.isBlocked ? "Restore Access" : "Restrict Access"}</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="opacity-40" />
-                          <DropdownMenuItem onClick={() => handleDeleteUser(user.id)} className="gap-3 rounded-xl py-4 px-4 cursor-pointer text-rose-600 focus:text-rose-600 focus:bg-rose-50">
-                            <Trash2 className="h-4 w-4" /> <span className="font-bold text-sm">Delete User</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-end gap-2">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                              onClick={() => openEditModal(user)}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-slate-900 text-white border-none font-bold text-[10px] uppercase tracking-wider">
+                            Edit User
+                          </TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className={cn(
+                                "h-8 w-8 rounded-lg transition-colors",
+                                user.isBlocked 
+                                  ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" 
+                                  : "hover:bg-amber-50 hover:text-amber-600"
+                              )}
+                              onClick={() => handleToggleBlock(user)}
+                            >
+                              <Ban className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-slate-900 text-white border-none font-bold text-[10px] uppercase tracking-wider">
+                            {user.isBlocked ? "Restore Access" : "Block User"}
+                          </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 rounded-lg hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-rose-600 text-white border-none font-bold text-[10px] uppercase tracking-wider">
+                            Delete User
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -332,156 +369,227 @@ export default function UserManagementPage() {
         </CardContent>
       </Card>
 
-      {/* Add User Modal */}
-      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-[2rem] p-0 overflow-hidden border-none shadow-sharcly">
-          <form onSubmit={handleCreateUser} className="bg-white">
-            <DialogHeader className="p-10 pb-0 space-y-4">
-              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                <UserPlus className="h-6 w-6" />
-              </div>
-              <div>
-                <DialogTitle className="text-3xl font-heading font-black tracking-tight leading-none">Add New User</DialogTitle>
-                <DialogDescription className="font-medium text-primary/40 mt-3 italic">
-                  Create a new staff or customer account with specific permissions.
-                </DialogDescription>
-              </div>
-              <Separator />
-            </DialogHeader>
-            <div className="grid gap-8 p-10 py-10">
-              <div className="grid gap-2">
-                <Label htmlFor="create-name" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">Full Name</Label>
-                <Input 
-                  id="create-name" 
-                  placeholder="e.g. Samuel Green" 
-                  className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="create-email" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">Email Address</Label>
-                <Input 
-                  id="create-email" 
-                  type="email" 
-                  placeholder="name@example.com" 
-                  className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="create-password" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">Password</Label>
-                <Input 
-                  id="create-password" 
-                  type="password" 
-                  className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="create-role" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">Assign Role</Label>
-                <Select value={formData.roleId} onValueChange={(v: string) => setFormData({...formData, roleId: v})}>
-                  <SelectTrigger id="create-role" className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold">
-                    <SelectValue placeholder="Select a role" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-black/5 shadow-sharcly">
-                    {roles.map((role) => (
-                      <SelectItem key={role.id} value={role.id} className="font-bold py-4 px-6 rounded-xl m-1">
-                        {role.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter className="p-10 pt-0">
-              <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)} className="rounded-2xl font-black text-xs uppercase tracking-widest text-primary/30">Cancel</Button>
-              <Button type="submit" className="rounded-2xl h-14 flex-1 bg-primary text-white shadow-xl font-black text-xs uppercase tracking-[0.2em]">Create User</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Modal */}
-      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-[2rem] p-0 overflow-hidden border-none shadow-sharcly">
-          <form onSubmit={handleUpdateUser} className="bg-white">
-            <DialogHeader className="p-10 pb-0 space-y-4">
-              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                <Edit2 className="h-6 w-6" />
-              </div>
-              <div>
-                <DialogTitle className="text-3xl font-heading font-black tracking-tight">Edit Details</DialogTitle>
-                <DialogDescription className="font-medium text-primary/40 mt-3 italic">
-                  Update personal data or change the role for {selectedUser?.name || selectedUser?.email}.
-                </DialogDescription>
-              </div>
-              <Separator />
-            </DialogHeader>
-            <div className="grid gap-8 p-10 py-10">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-name" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">Name</Label>
-                <Input 
-                  id="edit-name" 
-                  className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-email" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">Email Address</Label>
-                <Input 
-                  id="edit-email" 
-                  type="email" 
-                  className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="edit-password" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">New Password</Label>
-                  <span className="text-[9px] text-primary/20 font-black uppercase italic">Optional</span>
+      {/* Add User Sheet */}
+      <Sheet open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <SheetContent side="right" className="sm:max-w-[450px] p-0 overflow-hidden border-l border-border/40 bg-white/95 backdrop-blur-xl shadow-2xl">
+          <form onSubmit={handleCreateUser} className="h-full flex flex-col">
+            <div className="bg-slate-950 px-8 py-8 text-white flex items-center justify-between border-b border-white/5">
+              <div className="flex items-center gap-5">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <UserPlus className="h-5 w-5" />
                 </div>
-                <Input 
-                  id="edit-password" 
-                  type="password" 
-                  placeholder="Enter new password to change"
-                  className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                />
+                <div>
+                  <SheetTitle className="text-2xl font-black tracking-tight text-white">Add New User</SheetTitle>
+                  <p className="text-white/40 text-[11px] font-bold uppercase tracking-wider">Create a new account</p>
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-role" className="text-[10px] font-black uppercase tracking-widest text-primary/30 pl-1">Access Level</Label>
-                <Select value={formData.roleId} onValueChange={(v: string) => setFormData({...formData, roleId: v})}>
-                  <SelectTrigger id="edit-role" className="rounded-2xl h-14 bg-sage/5 border-black/5 px-6 font-bold">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-black/5 shadow-sharcly">
-                    {roles.map((role) => (
-                      <SelectItem key={role.id} value={role.id} className="font-bold py-4 px-6 rounded-xl m-1">
-                        {role.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)} className="text-white/30 hover:text-white hover:bg-white/5 rounded-lg h-9 w-9 p-0 transition-all">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-8 space-y-12 bg-white/50">
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2.5">
+                  <Label htmlFor="create-name" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Full Name</Label>
+                  <div className="relative group">
+                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      id="create-name" 
+                      placeholder="John Doe" 
+                      className="rounded-xl h-11 bg-white border-neutral-200/60 pl-11 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2.5">
+                  <Label htmlFor="create-email" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Email</Label>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      id="create-email" 
+                      type="email" 
+                      placeholder="john@example.com" 
+                      className="rounded-xl h-11 bg-white border-neutral-200/60 pl-11 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2.5">
+                  <Label htmlFor="create-password" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Password</Label>
+                  <div className="relative group">
+                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      id="create-password" 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="••••••••"
+                      className="rounded-xl h-11 bg-white border-neutral-200/60 pl-11 pr-11 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-primary transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2.5">
+                  <Label htmlFor="create-role" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Role</Label>
+                  {roles.length > 0 ? (
+                    <Select key={formData.roleId} value={formData.roleId} onValueChange={(v: string) => setFormData({...formData, roleId: v})}>
+                      <SelectTrigger id="create-role" className="rounded-xl h-11 bg-white border-neutral-200/60 px-5 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all">
+                        <SelectValue placeholder="Select role">
+                          {roles.find(r => r.id === formData.roleId)?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-neutral-200/60 shadow-2xl p-2 bg-white">
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id} className="font-bold py-3 px-4 rounded-lg cursor-pointer">
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="h-11 rounded-xl bg-muted animate-pulse" />
+                  )}
+                </div>
               </div>
             </div>
-            <DialogFooter className="p-10 pt-0">
-              <Button type="button" variant="ghost" onClick={() => setIsEditModalOpen(false)} className="rounded-2xl font-black text-xs uppercase tracking-widest text-primary/30">Close</Button>
-              <Button type="submit" className="rounded-2xl h-14 flex-1 bg-primary text-white shadow-xl font-black text-xs uppercase tracking-[0.2em]">Save Changes</Button>
-            </DialogFooter>
+            
+            <div className="p-6 border-t border-neutral-100 bg-white flex gap-4 items-center justify-end">
+              <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)} className="h-11 px-6 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-neutral-50">
+                Cancel
+              </Button>
+              <Button type="submit" className="h-11 px-10 rounded-xl bg-slate-950 text-white shadow-xl shadow-slate-950/10 font-black text-[10px] uppercase tracking-[0.2em] hover:bg-slate-900 active:scale-[0.98] transition-all">
+                Create User
+              </Button>
+            </div>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
+
+      {/* Edit User Sheet */}
+      <Sheet open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <SheetContent side="right" className="sm:max-w-[450px] p-0 overflow-hidden border-l border-border/40 bg-white/95 backdrop-blur-xl shadow-2xl">
+          <form onSubmit={handleUpdateUser} className="h-full flex flex-col">
+            <div className="bg-primary px-8 py-8 text-white flex items-center justify-between">
+              <div className="flex items-center gap-5">
+                <div className="h-10 w-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-white">
+                  <Edit2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <SheetTitle className="text-2xl font-black tracking-tight text-white">Edit User</SheetTitle>
+                  <p className="text-white/60 text-[11px] font-bold uppercase tracking-wider">Update user details</p>
+                </div>
+              </div>
+              <Button type="button" variant="ghost" onClick={() => setIsEditModalOpen(false)} className="text-white/30 hover:text-white hover:bg-white/5 rounded-lg h-9 w-9 p-0 transition-all">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-8 space-y-12 bg-white/50">
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2.5">
+                  <Label htmlFor="edit-name" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Full Name</Label>
+                  <div className="relative group">
+                    <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      id="edit-name" 
+                      className="rounded-xl h-11 bg-white border-neutral-200/60 pl-11 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2.5">
+                  <Label htmlFor="edit-email" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Email</Label>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      id="edit-email" 
+                      type="email" 
+                      className="rounded-xl h-11 bg-white border-neutral-200/60 pl-11 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2.5">
+                  <Label htmlFor="edit-password" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">New Password</Label>
+                  <div className="relative group">
+                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
+                    <Input 
+                      id="edit-password" 
+                      type={showEditPassword ? "text" : "password"} 
+                      placeholder="•••••••• (Optional)"
+                      className="rounded-xl h-11 bg-white border-neutral-200/60 pl-11 pr-11 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowEditPassword(!showEditPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-primary transition-colors"
+                    >
+                      {showEditPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-2.5">
+                  <Label htmlFor="edit-role" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Role</Label>
+                  {roles.length > 0 ? (
+                    <Select key={`edit-${formData.roleId}`} value={formData.roleId} onValueChange={(v: string) => setFormData({...formData, roleId: v})}>
+                      <SelectTrigger id="edit-role" className="rounded-xl h-11 bg-white border-neutral-200/60 px-5 font-bold text-sm shadow-sm focus:ring-4 focus:ring-primary/5 transition-all">
+                        <SelectValue placeholder="Select role">
+                          {roles.find(r => r.id === formData.roleId)?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl border-neutral-200/60 shadow-2xl p-2 bg-white">
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id} className="font-bold py-3 px-4 rounded-lg cursor-pointer">
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="h-11 rounded-xl bg-muted animate-pulse" />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-neutral-100 bg-white flex gap-4 items-center justify-end">
+              <Button type="button" variant="ghost" onClick={() => setIsEditModalOpen(false)} className="h-11 px-6 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:bg-neutral-50">
+                Cancel
+              </Button>
+              <Button type="submit" className="h-11 px-10 rounded-xl bg-primary text-white shadow-xl shadow-primary/10 font-black text-[10px] uppercase tracking-[0.2em] hover:opacity-90 active:scale-[0.98] transition-all">
+                Save Changes
+              </Button>
+            </div>
+          </form>
+        </SheetContent>
+      </Sheet>
     </div>
+    </TooltipProvider>
   );
 }

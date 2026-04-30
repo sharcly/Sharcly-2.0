@@ -52,18 +52,26 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Verify JWT signature and expiry — prevents expired/forged tokens from passing
+    // Verify JWT signature and expiry
     const isValid = await verifyToken(token);
     if (!isValid) {
-      console.warn(`[Middleware] Invalid token for path: ${pathname}`);
-      const url = new URL("/login", request.url);
-      url.searchParams.set("callbackUrl", pathname);
-      const response = NextResponse.redirect(url);
-      // Clear invalid cookies
-      response.cookies.delete("token");
-      response.cookies.delete("role");
-      response.cookies.delete("refreshToken");
-      return response;
+      // Check if we have a refresh token. If we do, don't redirect yet.
+      // Let the frontend interceptor attempt a refresh on the first API call.
+      const hasRefreshToken = 
+        request.cookies.get("refreshToken")?.value || 
+        request.cookies.get("refresh_token")?.value;
+
+      if (!hasRefreshToken) {
+        console.warn(`[Middleware] No valid token or refresh token for path: ${pathname}`);
+        const url = new URL("/login", request.url);
+        url.searchParams.set("callbackUrl", pathname);
+        const response = NextResponse.redirect(url);
+        // Clear invalid cookies
+        response.cookies.delete("token");
+        response.cookies.delete("role");
+        return response;
+      }
+      // If we HAVE a refresh token, we allow the page to load so the interceptor can work.
     }
 
     // Check role-based access

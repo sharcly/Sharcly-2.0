@@ -62,19 +62,19 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
 
   if (isLoading || !user) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background text-primary">
+      <div className="flex h-screen items-center justify-center bg-white text-[#062D1B]">
         <div className="flex flex-col items-center gap-10">
-          <div className="size-20 p-5 rounded-[2rem] bg-sage/30 border border-black/[0.03] shadow-organic flex items-center justify-center">
-             <FlaskConical className="size-10 text-primary animate-pulse" />
+          <div className="size-20 p-5 rounded-[2.5rem] bg-emerald-50 border border-emerald-100 shadow-sharcly flex items-center justify-center">
+             <ShoppingBag className="size-10 text-emerald-800" />
           </div>
           <div className="flex flex-col items-center gap-4">
-             <p className="nav-tracking text-primary/40 italic">Calibrating Node</p>
-             <div className="h-1 w-48 bg-black/[0.03] overflow-hidden rounded-full">
+             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-900/40">Initializing Sharcly</p>
+             <div className="h-1.5 w-48 bg-emerald-50 overflow-hidden rounded-full border border-emerald-100/50 relative">
                 <motion.div 
                   initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                  className="h-full w-1/2 bg-primary/20"
+                  animate={{ x: "200%" }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  className="absolute inset-y-0 w-1/2 bg-emerald-500"
                 />
              </div>
           </div>

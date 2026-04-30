@@ -97,7 +97,7 @@ export function CommandPalette() {
               <span className="flex items-center gap-1.5"><kbd className="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 text-[9px] font-black text-muted-foreground/60">↑↓</kbd> Navigate</span>
               <span className="flex items-center gap-1.5"><kbd className="bg-white/5 px-1.5 py-0.5 rounded border border-white/10 text-[9px] font-black text-muted-foreground/60">↵</kbd> Select</span>
            </div>
-           <div className="uppercase tracking-[0.1em]">Powered by Scarly Engine</div>
+           <div className="uppercase tracking-[0.1em]">Sharcly Smart Search</div>
         </div>
       </div>
     </Command.Dialog>

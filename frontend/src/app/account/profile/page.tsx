@@ -11,7 +11,9 @@ import {
   Lock,
   KeyRound,
   CheckCircle2,
-  Loader2
+  Loader2,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,6 +29,9 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -130,40 +135,67 @@ export default function ProfilePage() {
                  <form onSubmit={handlePasswordChange} className="space-y-6 max-w-md">
                     <div className="space-y-2">
                        <Label className="text-[10px] uppercase font-black tracking-widest text-primary/60">Current Password</Label>
-                       <Input 
-                         type="password" 
-                         required
-                         value={currentPassword}
-                         onChange={(e) => setCurrentPassword(e.target.value)}
-                         className="h-12 rounded-xl bg-neutral-50 font-medium border-black/5 focus:border-primary/20 transition-all focus:bg-white"
-                         placeholder="Enter your current password"
-                       />
+                        <div className="relative">
+                          <Input 
+                            type={showCurrent ? "text" : "password"} 
+                            required
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            className="h-12 rounded-xl bg-neutral-50 font-medium border-black/5 focus:border-primary/20 transition-all focus:bg-white pr-10"
+                            placeholder="Enter your current password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowCurrent(!showCurrent)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-primary transition-colors"
+                          >
+                            {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                     </div>
                     
                     <div className="h-px w-full bg-black/5 my-4" />
                     
                     <div className="space-y-2">
                        <Label className="text-[10px] uppercase font-black tracking-widest text-primary/60">New Password</Label>
-                       <Input 
-                         type="password" 
-                         required
-                         value={newPassword}
-                         onChange={(e) => setNewPassword(e.target.value)}
-                         className="h-12 rounded-xl bg-neutral-50 font-medium border-black/5 focus:border-primary/20 transition-all focus:bg-white"
-                         placeholder="Create a new password"
-                       />
+                        <div className="relative">
+                          <Input 
+                            type={showNew ? "text" : "password"} 
+                            required
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="h-12 rounded-xl bg-neutral-50 font-medium border-black/5 focus:border-primary/20 transition-all focus:bg-white pr-10"
+                            placeholder="Create a new password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNew(!showNew)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-primary transition-colors"
+                          >
+                            {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                     </div>
                     
                     <div className="space-y-2">
                        <Label className="text-[10px] uppercase font-black tracking-widest text-primary/60">Confirm New Password</Label>
-                       <Input 
-                         type="password" 
-                         required
-                         value={confirmPassword}
-                         onChange={(e) => setConfirmPassword(e.target.value)}
-                         className="h-12 rounded-xl bg-neutral-50 font-medium border-black/5 focus:border-primary/20 transition-all focus:bg-white"
-                         placeholder="Confirm your new password"
-                       />
+                        <div className="relative">
+                          <Input 
+                            type={showConfirm ? "text" : "password"} 
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="h-12 rounded-xl bg-neutral-50 font-medium border-black/5 focus:border-primary/20 transition-all focus:bg-white pr-10"
+                            placeholder="Confirm your new password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirm(!showConfirm)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-primary transition-colors"
+                          >
+                            {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                     </div>
 
                     <Button type="submit" disabled={loading} className="mt-4 rounded-xl h-12 px-8 font-bold uppercase tracking-widest gap-2">

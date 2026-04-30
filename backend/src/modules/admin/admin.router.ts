@@ -10,7 +10,10 @@ import {
   getPermissions,
   createRole,
   updateRole,
-  deleteRole
+  deleteRole,
+  getAllIntegrations,
+  upsertIntegration,
+  deleteIntegration
 } from "./admin.controller";
 import { authenticate, authorize } from "../../common/middlewares/auth.middleware";
 import { validate, AdminCreateUserSchema, AdminUpdateUserSchema } from "../../common/middlewares/validate.middleware";
@@ -158,5 +161,10 @@ router.get("/permissions", getPermissions);
 router.post("/roles", createRole);
 router.patch("/roles/:id", updateRole);
 router.delete("/roles/:id", deleteRole);
+
+// API Integrations
+router.get("/integrations", getAllIntegrations);
+router.post("/integrations", upsertIntegration);
+router.delete("/integrations/:id", deleteIntegration);
 
 export default router;

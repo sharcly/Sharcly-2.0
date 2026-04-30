@@ -31,20 +31,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   // On mount: restore session from the httpOnly cookie via /auth/me
-  // This is secure because the cookie is httpOnly and cannot be read by JS
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        // First try localStorage for fast hydration (kept for backward compat)
         const storedToken = localStorage.getItem("token");
         const storedUser = localStorage.getItem("user");
 
-        if (storedToken && storedUser) {
+        // If no token in storage, don't bother the backend (prevents 401 loop on login page)
+        if (!storedToken) {
+          setIsLoading(false);
+          return;
+        }
+
+        if (storedUser) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
         }
 
-        // Then verify with backend via httpOnly cookie (source of truth)
+        // Verify with backend via httpOnly cookie (source of truth)
         const response = await apiClient.get("/auth/me");
         if (response.data.success) {
           const backendUser = response.data.user;
@@ -60,19 +64,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             role: roleSlug as Role,
           };
           setUser(verifiedUser);
-          // Keep localStorage in sync for fast hydration on next reload
           localStorage.setItem("user", JSON.stringify(verifiedUser));
-          
-          // Sync role cookie for middleware
           Cookies.set("role", verifiedUser.role, { expires: 1, path: "/" });
         }
-      } catch {
-        // Session is invalid — clear everything
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
+      } catch (error) {
+        // Only clear if we actually had a session that is now invalid
+        if (localStorage.getItem("token")) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
+          Cookies.remove("token", { path: "/" });
+          Cookies.remove("refreshToken", { path: "/" });
+          Cookies.remove("role", { path: "/" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -122,27 +128,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      // Clear local state immediately for instant feedback
+      // 1. Call backend logout first while we still have the token/session
+      // This clears httpOnly cookies and invalidates the session in the DB
+      await apiClient.post("/auth/logout").catch((err) => {
+        console.error("Backend logout failed:", err);
+      });
+
+      // 2. Clear local state and storage
       setToken(null);
       setUser(null);
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
 
-      // Remove cookies with explicit path
+      // 3. Remove client-side cookies
       Cookies.remove("token", { path: "/" });
       Cookies.remove("refreshToken", { path: "/" });
       Cookies.remove("role", { path: "/" });
 
-      // Call backend logout — clears httpOnly cookie and invalidates refresh token in DB
-      apiClient
-        .post("/auth/logout")
-        .catch((err) => console.error("Backend logout failed:", err));
-
-      // Hard redirect to clear all in-memory state
+      // 4. Hard redirect to clear all in-memory state and reset the app
       window.location.href = "/login";
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error("Logout process failed:", error);
+      // Fallback: clear what we can and redirect
+      localStorage.clear();
       window.location.href = "/login";
     }
   };
