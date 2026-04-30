@@ -107,7 +107,7 @@ export default function DashboardOrdersPage() {
   const updateStatus = async (id: string, status: string, additionalData = {}) => {
     // Optimistic Update
     const previousOrders = [...orders];
-    const previousSelectedOrder = selectedOrder ? { ...selectedOrder } : null;
+    const previousSelectedOrder = selectedOrderForShip ? { ...selectedOrderForShip } : null;
 
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status, ...additionalData } : o));
     setIsShipFormOpen(false);
