@@ -2,7 +2,7 @@ import { prisma } from "../../common/lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { sendVerificationEmail } from "./email.service";
+import { sendVerificationEmail, sendOtpEmail } from "./email.service";
 
 const ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || "fallback_access_secret";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "fallback_refresh_secret";
@@ -38,11 +38,17 @@ export class AuthService {
   }
 
   static async register(registerData: any) {
-    const { email, password, name } = registerData;
+    const { email, password, name, otp } = registerData;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new Error("User already exists");
+    }
+
+    // Verify OTP
+    const otpRecord = await prisma.otp.findUnique({ where: { email } });
+    if (!otpRecord || otpRecord.code !== otp || otpRecord.expiresAt < new Date()) {
+      throw new Error("Invalid or expired verification code.");
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -100,6 +106,32 @@ export class AuthService {
       where: { id: user.id },
       data: { isEmailVerified: true, verificationToken: null }
     });
+  }
+
+  static async sendOtp(email: string) {
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      throw new Error("An account with this email already exists.");
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    await prisma.otp.upsert({
+      where: { email },
+      update: { code, expiresAt },
+      create: { email, code, expiresAt }
+    });
+
+    try {
+      await sendOtpEmail(email, code);
+    } catch (error) {
+      console.error("Failed to send OTP:", error);
+      throw new Error("Failed to send verification code. Please try again.");
+    }
+
+    return true;
   }
 
   static async login(loginData: any) {

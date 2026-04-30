@@ -34,6 +34,18 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+export const sendOtp = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    await AuthService.sendOtp(email);
+    res.status(200).json({ success: true, message: "Verification code sent to your email" });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message || "Failed to send OTP" });
+  }
+};
+
 export const verifyEmail = async (req: Request, res: Response) => {
   try {
     const { token } = req.query;

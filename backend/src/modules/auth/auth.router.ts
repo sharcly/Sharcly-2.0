@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, register, getProfile, getMe, verifyEmail, refreshTokens, logout, changePassword } from "./auth.controller";
+import { login, register, getProfile, getMe, verifyEmail, refreshTokens, logout, changePassword, sendOtp } from "./auth.controller";
 import { authenticate } from "../../common/middlewares/auth.middleware";
 import { validate, LoginSchema, RegisterSchema, ChangePasswordSchema } from "../../common/middlewares/validate.middleware";
 
@@ -55,6 +55,7 @@ const router = Router();
  *         description: User already exists
  */
 router.post("/register", validate(RegisterSchema), register);
+router.post("/send-otp", sendOtp);
 
 /**
  * @swagger

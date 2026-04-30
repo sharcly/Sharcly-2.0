@@ -135,3 +135,26 @@ export const sendWelcomeCoupon = async (email: string, couponCode: string, disco
   });
 };
 
+export const sendOtpEmail = async (email: string, otp: string) => {
+  if (!resend) return;
+  
+  await resend.emails.send({
+    from: fromEmail,
+    to: email,
+    subject: `Verification Code: ${otp} - Sharcly`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 40px; border: 1px solid #eee; border-radius: 20px;">
+        <h1 style="color: #062D1B; font-size: 24px; text-align: center;">Verify Your Email</h1>
+        <p style="font-size: 16px; color: #444; line-height: 1.6;">Use the following code to complete your registration on Sharcly:</p>
+        
+        <div style="background: #f4fdf4; padding: 30px; border-radius: 15px; text-align: center; margin: 30px 0;">
+          <h2 style="font-size: 42px; letter-spacing: 10px; color: #062D1B; margin: 0;">${otp}</h2>
+          <p style="font-size: 14px; color: #062D1B; opacity: 0.6; margin-top: 10px;">This code will expire in 10 minutes.</p>
+        </div>
+
+        <p style="font-size: 12px; color: #888; text-align: center; margin-top: 40px;">If you didn't request this code, you can safely ignore this email.</p>
+      </div>
+    `,
+  });
+};
+

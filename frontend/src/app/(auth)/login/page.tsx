@@ -98,7 +98,7 @@ export default function LoginPage() {
 
           <div className="space-y-4">
              <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground leading-[0.9]">WELCOME BACK.</h1>
-             <p className="text-foreground/50 font-medium">Access your personalized wellness panel.</p>
+             <p className="text-foreground/50 font-medium">Please sign in to your account.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
@@ -108,7 +108,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="name@example.com"
+                  placeholder="name@email.com"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -118,9 +118,9 @@ export default function LoginPage() {
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Account Password</Label>
+                  <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Password</Label>
                   <Link href="/forgot-password" className="text-[10px] font-black uppercase tracking-widest text-accent hover:underline">
-                    Locked Out?
+                    Forgot Password?
                   </Link>
                 </div>
                 <div className="relative">
@@ -147,8 +147,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button className="w-full h-16 rounded-2xl gold-gradient font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-accent/20 group border-none hover:opacity-90" type="submit" disabled={isLoading}>
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign Into Panel"}
+            <Button className="w-full h-16 rounded-2xl premium-gradient font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-primary/20 group border-none hover:opacity-90" type="submit" disabled={isLoading}>
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
             </Button>
 
             <div className="relative">
@@ -161,7 +161,7 @@ export default function LoginPage() {
             </div>
 
             <Button variant="outline" className="w-full h-16 rounded-2xl border-primary/5 bg-transparent font-black uppercase tracking-[0.2em] text-xs hover:bg-primary/5" asChild>
-               <Link href="/register">Create New Account</Link>
+               <Link href="/register">Create an Account</Link>
             </Button>
           </form>
           
