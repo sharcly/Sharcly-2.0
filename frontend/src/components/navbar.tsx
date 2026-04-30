@@ -40,7 +40,7 @@ const NAV_LINKS = [
   { name: "New Arrivals", href: "/products?status=new" },
   { name: "The Series", href: "/products" },
   { name: "Our Process", href: "/about" },
-  { name: "Journal", href: "/journal" },
+  { name: "Journal", href: "/blogs" },
 ];
 
 export function Navbar() {

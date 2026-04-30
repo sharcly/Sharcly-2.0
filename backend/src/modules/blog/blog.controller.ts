@@ -17,6 +17,7 @@ export class BlogController {
       if (!blog) return res.status(404).json({ success: false, message: "Blog not found" });
       res.json({ success: true, blog });
     } catch (error: any) {
+      console.error("Error in getBlogBySlug:", error);
       res.status(500).json({ success: false, message: error.message });
     }
   }

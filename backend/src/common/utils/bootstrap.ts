@@ -37,7 +37,13 @@ export async function bootstrap() {
       });
       console.log("✅ Default admin created successfully.");
     } else {
-      console.log("ℹ️ Admin already exists, skipping creation.");
+      console.log("ℹ️ Admin already exists, updating password to match environment.");
+      const hashedPassword = await bcrypt.hash(adminPassword, 12);
+      await prisma.user.update({
+        where: { email: adminEmail },
+        data: { password: hashedPassword }
+      });
+      console.log("✅ Admin password synchronized.");
     }
 
     // Manager Account

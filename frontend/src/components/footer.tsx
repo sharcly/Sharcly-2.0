@@ -20,6 +20,7 @@ const footerLinks = [
     title: "About",
     links: [
       { name: "Our Story", href: "/about" },
+      { name: "The Journal", href: "/blogs" },
       { name: "Manufacturing", href: "/manufacturing" },
       { name: "Sustainability", href: "/sustainability" },
       { name: "Careers", href: "/careers" },
