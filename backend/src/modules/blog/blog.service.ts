@@ -3,13 +3,18 @@ import { BlogStatus } from "@prisma/client";
 
 export class BlogService {
   static async getBlogs(query: any) {
-    const { status, search, page = "1", limit = "10" } = query;
+    const { status, search, category, tags, page = "1", limit = "10" } = query;
     const pageNum = parseInt(page as string);
     const limitNum = parseInt(limit as string);
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
     if (status) where.status = status;
+    if (category) where.category = category;
+    if (tags) {
+      const tagList = Array.isArray(tags) ? tags : tags.split(",");
+      where.tags = { hasSome: tagList };
+    }
     if (search) {
       where.OR = [
         { title: { contains: search, mode: "insensitive" } },
