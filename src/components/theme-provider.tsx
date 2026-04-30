@@ -11,7 +11,9 @@ interface ThemeSettings {
   navbarStyle: string;
 }
 
-const ThemeContext = createContext<{ settings: ThemeSettings | null }>({ settings: null });
+interface ThemeProviderProps {
+  children: React.ReactNode;
+}
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   const [settings, setSettings] = useState<ThemeSettings | null>(null);

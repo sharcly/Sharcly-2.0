@@ -272,7 +272,7 @@ export default function BlogDetailPage() {
 
       <Footer />
 
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .prose-sharcly h2 {
           font-size: 3rem;
           line-height: 1;
@@ -298,7 +298,7 @@ export default function BlogDetailPage() {
           font-weight: 500;
           color: rgba(13, 39, 25, 0.7);
         }
-      `}</style>
+      `}} />
     </div>
   );
 }

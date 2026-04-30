@@ -291,7 +291,7 @@ export default function ProductDetailsPage() {
                 <h2 className="text-3xl font-semibold tracking-tight text-center">Full Specifications</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                    {[
-                     { k: "Archive ID", v: `SC-${slug.substring(0,6).toUpperCase()}` },
+                     { k: "Archive ID", v: `SC-${(slug as string || "").substring(0,6).toUpperCase()}` },
                      { k: "Sourcing", v: "Oregon Heritage Organic" },
                      { k: "Potency", v: "1500mg Matrix" },
                      { k: "Carrier", v: "MCT / Coconut Pure" },

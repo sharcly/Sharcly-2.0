@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Plus, Globe, RefreshCw, Trash2, MapPin, Loader2, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -244,12 +245,12 @@ export default function RegionsPage() {
                 
                 <div className="flex flex-wrap gap-2 pt-2">
                    {formData.countries.map(country => (
-                     <Badge key={country} className="bg-neutral-100 text-neutral-900 border-none px-3 py-1.5 rounded-xl font-bold flex items-center gap-2">
+                      <Badge key={country} className="bg-neutral-100 text-neutral-900 border-none px-3 py-1.5 rounded-xl font-bold flex items-center gap-2">
                         {country}
                         <button type="button" onClick={() => removeCountry(country)} className="text-neutral-400 hover:text-rose-500">
                            <X className="size-3" />
                         </button>
-                     </Badge>
+                      </Badge>
                    ))}
                 </div>
               </div>
