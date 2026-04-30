@@ -176,6 +176,8 @@ model Order {
   userId            String
   status            OrderStatus @default(PENDING)
   totalAmount       Decimal
+  taxAmount         Decimal     @default(0)
+  shippingAmount    Decimal     @default(0)
   address           String?
   shippingAddress   String
   billingAddress    String?
@@ -226,19 +228,51 @@ model Blog {
   author          User       @relation(fields: [authorId], references: [id])
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
 model Coupon {
-  id         String   @id @default(uuid())
-  code       String   @unique
-  discount   Decimal
-  expiryDate DateTime
-  usageLimit Int      @default(1)
-  usedCount  Int      @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  orders     Order[]
+  id           String       @id @default(uuid())
+  code         String       @unique
+  discount     Decimal
+  discountType DiscountType @default(PERCENTAGE)
+  expiryDate   DateTime
+  usageLimit   Int          @default(1)
+  usedCount    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  orders       Order[]
 
   @@map("coupons")
 }
+
+model WelcomeOffer {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  discount    Decimal
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  claims      OfferClaim[]
+
+  @@map("welcome_offers")
+}
+
+model OfferClaim {
+  id             String       @id @default(uuid())
+  welcomeOfferId String
+  email          String       @unique
+  phone          String
+  couponCode     String
+  createdAt      DateTime     @default(now())
+  welcomeOffer   WelcomeOffer @relation(fields: [welcomeOfferId], references: [id])
+
+  @@map("offer_claims")
+}
+
 
 model Review {
   id        String   @id @default(uuid())
@@ -282,7 +316,7 @@ model Collection {
 
 model StoreSettings {
   id                    String   @id @default(uuid())
-  storeName             String   @default("Scarly 2.0")
+  storeName             String   @default("Sharcly")
   supportEmail          String?
   currency              String   @default("USD")
   logoUrl               String?
@@ -301,7 +335,7 @@ model StoreSettings {
 
 model GlobalSeoSettings {
   id                     String   @id @default(uuid())
-  siteName               String   @default("Scarly 2.0")
+  siteName               String   @default("Sharcly")
   siteDescription        String?
   googleAnalyticsId      String?
   facebookPixelId        String?
@@ -430,7 +464,8 @@ model ShippingRate {
 
 enum OrderStatus {
   PENDING
-  ACCEPTED
+  CONFIRMED
+  PREPARING
   SHIPPED
   DELIVERED
   CANCELLED
@@ -485,4 +520,26 @@ model Testimonial {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("testimonials")
+}
+
+model ApiIntegration {
+  id        String   @id @default(uuid())
+  platform  String   @unique
+  apiKey    String
+  config    Json?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("api_integrations")
+}
+
+model Otp {
+  id        String   @id @default(uuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("otps")
 }

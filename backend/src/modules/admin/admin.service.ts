@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 export class AdminService {
   static async getAllUsers() {
     return await prisma.user.findMany({
+      where: {
+        OR: [
+          { userRole: null },
+          { userRole: { slug: { not: "admin" } } }
+        ]
+      },
       select: {
         id: true,
         email: true,
@@ -116,6 +122,9 @@ export class AdminService {
 
   static async getRoles() {
     return await prisma.role.findMany({
+      where: {
+        slug: { not: "admin" }
+      },
       include: {
         _count: {
           select: { users: true }
@@ -193,5 +202,24 @@ export class AdminService {
     }
 
     return await prisma.role.delete({ where: { id } });
+  }
+
+  static async getAllIntegrations() {
+    return await (prisma as any).apiIntegration.findMany({
+      orderBy: { createdAt: "desc" }
+    });
+  }
+
+  static async upsertIntegration(data: any) {
+    const { platform, apiKey, config } = data;
+    return await (prisma as any).apiIntegration.upsert({
+      where: { platform },
+      update: { apiKey, config, updatedAt: new Date() },
+      create: { platform, apiKey, config }
+    });
+  }
+
+  static async deleteIntegration(id: string) {
+    return await (prisma as any).apiIntegration.delete({ where: { id } });
   }
 }

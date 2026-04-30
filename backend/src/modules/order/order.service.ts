@@ -71,12 +71,32 @@ export class OrderService {
     if (couponCode) {
       const coupon = await prisma.coupon.findUnique({ where: { code: couponCode as string } });
       if (coupon && coupon.expiryDate > new Date() && coupon.usedCount < coupon.usageLimit) {
-        couponDiscountAmount = Number(coupon.discount);
+        if (coupon.discountType === "PERCENTAGE") {
+          couponDiscountAmount = (totalAmount * Number(coupon.discount)) / 100;
+        } else {
+          couponDiscountAmount = Number(coupon.discount);
+        }
         couponId = coupon.id;
       }
     }
     // Apply coupon discount to total
     totalAmount = Math.max(0, totalAmount - couponDiscountAmount);
+
+    // Add Tax and Shipping from settings
+    const settings = await prisma.storeSettings.findFirst();
+    let taxAmount = 0;
+    let shippingCost = 0;
+
+    if (settings) {
+      const taxRate = Number(settings.taxRate) || 0;
+      taxAmount = (totalAmount * taxRate) / 100;
+      
+      const shippingCharge = Number(settings.shippingCharge) || 0;
+      const freeShippingThreshold = Number(settings.freeShippingThreshold) || 0;
+      shippingCost = (freeShippingThreshold > 0 && totalAmount >= freeShippingThreshold) ? 0 : shippingCharge;
+    }
+
+    totalAmount += taxAmount + shippingCost;
 
     // Create order, update stock, and increment coupon usage all in ONE atomic transaction
     const order = await prisma.$transaction(async (tx) => {
@@ -96,6 +116,8 @@ export class OrderService {
         data: {
           userId: finalUserId as string,
           totalAmount,
+          taxAmount,
+          shippingAmount: shippingCost,
           address: shippingAddress,
           shippingAddress,
           billingAddress: billingAddress || shippingAddress,
@@ -148,29 +170,42 @@ export class OrderService {
       console.warn("Klaviyo Order Tracking Failed:", kErr);
     }
 
+    // Send Email Confirmation
+    try {
+      await sendOrderConfirmation(email, order);
+    } catch (eErr) {
+      console.warn("Email Confirmation Failed:", eErr);
+    }
+
     return order;
   }
 
   static async getMyOrders(userId: string) {
-    return await prisma.order.findMany({
+    const orders = await prisma.order.findMany({
       where: { userId },
       include: { items: { include: { product: true } } },
       orderBy: { createdAt: "desc" }
     });
+
+    const settings = await prisma.storeSettings.findFirst();
+    return orders.map(order => this.applyLegacyFallback(order, settings));
   }
 
   static async getAllOrders() {
-    return await prisma.order.findMany({
+    const orders = await prisma.order.findMany({
       include: { 
         user: { select: { name: true, email: true } }, 
         items: { include: { product: true } } 
       },
       orderBy: { createdAt: "desc" }
     });
+
+    const settings = await prisma.storeSettings.findFirst();
+    return orders.map(order => this.applyLegacyFallback(order, settings));
   }
 
   static async getOrderById(id: string) {
-    return await prisma.order.findUnique({
+    const order = await prisma.order.findUnique({
       where: { id },
       include: { 
         user: { select: { name: true, email: true } }, 
@@ -178,12 +213,39 @@ export class OrderService {
         coupon: true
       }
     });
+
+    if (!order) return null;
+    const settings = await prisma.storeSettings.findFirst();
+    return this.applyLegacyFallback(order, settings);
+  }
+
+  private static applyLegacyFallback(order: any, settings: any) {
+    if (!order) return order;
+
+    const itemsSubtotal = order.items.reduce((acc: number, item: any) => acc + (Number(item.price) * item.quantity), 0);
+    const total = Number(order.totalAmount);
+    const recordedTax = Number(order.taxAmount || 0);
+    const recordedShipping = Number(order.shippingAmount || 0);
+
+    if (recordedTax === 0 && recordedShipping === 0 && total > itemsSubtotal && settings) {
+      const taxRate = Number(settings.taxRate) || 0;
+      const inferredTax = (itemsSubtotal * taxRate) / 100;
+      const inferredShipping = Math.max(0, total - itemsSubtotal - inferredTax);
+      
+      return {
+        ...order,
+        taxAmount: inferredTax,
+        shippingAmount: inferredShipping
+      };
+    }
+
+    return order;
   }
 
   static async updateOrderStatus(id: string, updateData: any) {
     const { status, trackingNumber, carrier, estimatedDelivery, notes } = updateData;
 
-    return await prisma.order.update({
+    const updatedOrder = await prisma.order.update({
       where: { id },
       data: { 
         status: status as OrderStatus,
@@ -191,7 +253,21 @@ export class OrderService {
         carrier: carrier || undefined,
         estimatedDelivery: estimatedDelivery ? new Date(estimatedDelivery) : undefined,
         notes: notes || undefined
+      },
+      include: { 
+        user: { select: { email: true, name: true } },
+        items: { include: { product: true } }
       }
     });
+
+    // Send Status Update Email
+    try {
+      const { sendOrderStatusUpdate } = require("../auth/email.service");
+      await sendOrderStatusUpdate(updatedOrder.user.email, updatedOrder);
+    } catch (eErr) {
+      console.warn("Status Update Email Failed:", eErr);
+    }
+
+    return updatedOrder;
   }
 }

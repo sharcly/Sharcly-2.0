@@ -85,7 +85,7 @@ export default function StoreSettingsPage() {
                   value={settings.storeName} 
                   onChange={e => setSettings({...settings, storeName: e.target.value})}
                   className="h-12 rounded-xl bg-neutral-50 border-black/5 font-bold"
-                  placeholder="e.g. Scarly Boutique"
+                  placeholder="e.g. Sharcly Boutique"
                 />
               </div>
               <div className="space-y-3">

@@ -6,7 +6,7 @@ import { sendVerificationEmail } from "./email.service";
 
 const ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || "fallback_access_secret";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "fallback_refresh_secret";
-const ACCESS_TOKEN_EXPIRY = "24h";
+const ACCESS_TOKEN_EXPIRY = "1h";
 const REFRESH_TOKEN_EXPIRY = "7d";
 
 if (process.env.NODE_ENV === "production") {
@@ -117,7 +117,7 @@ export class AuthService {
     }
 
     if (user.isBlocked) {
-      throw new Error("Your account is blocked");
+      throw new Error("Your account is blocked. Please contact admin for support.");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

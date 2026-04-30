@@ -8,11 +8,12 @@ export class CouponService {
   }
 
   static async createCoupon(couponData: any) {
-    const { code, discount, expiryDate, usageLimit } = couponData;
+    const { code, discount, discountType, expiryDate, usageLimit } = couponData;
     return await prisma.coupon.create({
       data: {
         code,
         discount,
+        discountType: discountType || "PERCENTAGE",
         expiryDate: new Date(expiryDate),
         usageLimit
       }
@@ -39,6 +40,7 @@ export class CouponService {
     return { 
       valid: true, 
       discount: Number(coupon.discount),
+      discountType: coupon.discountType,
       code: coupon.code
     };
   }

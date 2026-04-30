@@ -83,7 +83,7 @@ export function Footer() {
             <div className="relative grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-4">
                 <h3 className="text-3xl md:text-4xl font-semibold tracking-tight">
-                  Join the <span className="text-green-400">Elite</span>
+                  Join the <span className="text-green-400">Community</span>
                 </h3>
                 <p className="text-zinc-400 text-lg max-w-md leading-relaxed">
                   Subscribe to receive exclusive early access, limited edition drops, and performance insights.
@@ -134,7 +134,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-lg text-zinc-400 leading-relaxed font-medium max-w-sm">
-              Engineering the future of performance and lifestyle through precision-crafted essentials.
+              Providing premium wellness essentials and lifestyle products for your daily routine.
             </p>
             
             {/* Social Icons */}

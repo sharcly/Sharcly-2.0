@@ -17,7 +17,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Mail,
-  Store
+  Store,
+  Download
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -44,6 +45,8 @@ interface Order {
   status: string;
   address: string;
   items: OrderItem[];
+  taxAmount: number;
+  shippingAmount: number;
   trackingNumber?: string;
   carrier?: string;
   estimatedDelivery?: string;
@@ -79,9 +82,13 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           return <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20 rounded-full px-4 py-1.5 font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5 w-fit">
             <Clock className="h-3.5 w-3.5" /> Processing
           </Badge>;
-        case "ACCEPTED":
+        case "CONFIRMED":
           return <Badge className="bg-indigo-500/10 text-indigo-500 border-indigo-500/20 rounded-full px-4 py-1.5 font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5 w-fit">
             <CheckCircle2 className="h-3.5 w-3.5" /> Confirmed
+          </Badge>;
+        case "PREPARING":
+          return <Badge className="bg-violet-500/10 text-violet-500 border-violet-500/20 rounded-full px-4 py-1.5 font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5 w-fit">
+            <Clock className="h-3.5 w-3.5" /> Preparing
           </Badge>;
         case "SHIPPED":
           return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20 rounded-full px-4 py-1.5 font-black text-[10px] uppercase tracking-widest flex items-center gap-1.5 w-fit">
@@ -102,13 +109,31 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
   const statusSteps = [
     { key: "PENDING", label: "Processing", icon: Clock },
-    { key: "ACCEPTED", label: "Confirmed", icon: CheckCircle2 },
+    { key: "CONFIRMED", label: "Confirmed", icon: CheckCircle2 },
+    { key: "PREPARING", label: "Preparing", icon: Clock },
     { key: "SHIPPED", label: "In Transit", icon: Truck },
     { key: "DELIVERED", label: "Delivered", icon: Package },
   ];
 
   const currentStatusIndex = order ? statusSteps.findIndex(s => s.key === order.status) : -1;
   const isCancelled = order?.status === "CANCELLED";
+
+  const handleDownloadInvoice = async () => {
+    try {
+      const response = await apiClient.get(`/orders/${order.id}/invoice`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice-${order.id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      toast.error("Failed to download invoice");
+    }
+  };
 
   if (loading) {
     return (
@@ -149,7 +174,16 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </p>
           </div>
         </div>
-        {getStatusBadge(order.status)}
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            className="gap-2 rounded-xl h-12 px-6 border-black/5 hover:bg-black/5 font-bold text-xs uppercase tracking-widest"
+            onClick={handleDownloadInvoice}
+          >
+            <Download className="h-4 w-4" /> Download Invoice
+          </Button>
+          {getStatusBadge(order.status)}
+        </div>
       </div>
 
       {!isCancelled && (
@@ -262,20 +296,24 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                           </div>
                        </div>
                        <div className="space-y-3 min-w-[200px]">
-                          <div className="flex justify-between items-center text-sm font-medium text-muted-foreground/60">
-                             <span>Subtotal</span>
-                             <span>${Number(order.totalAmount).toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-sm font-medium text-muted-foreground/60">
-                             <span>Shipping</span>
-                             <span className="text-emerald-500 font-bold uppercase text-[10px] tracking-widest">Free Cargo</span>
-                          </div>
-                          <div className="h-[1px] bg-black/5 my-2" />
-                          <div className="flex justify-between items-end">
-                             <span className="text-[10px] uppercase font-black tracking-widest text-primary/40 mb-1">Grand Total</span>
-                             <span className="text-3xl font-black tracking-tighter text-primary">${Number(order.totalAmount).toFixed(2)}</span>
-                          </div>
-                       </div>
+                           <div className="flex justify-between items-center text-sm font-medium text-muted-foreground/60">
+                              <span>Subtotal</span>
+                              <span>${(Number(order.totalAmount) - Number(order.taxAmount || 0) - Number(order.shippingAmount || 0)).toFixed(2)}</span>
+                           </div>
+                           <div className="flex justify-between items-center text-sm font-medium text-muted-foreground/60">
+                              <span>Tax</span>
+                              <span>${Number(order.taxAmount || 0).toFixed(2)}</span>
+                           </div>
+                           <div className="flex justify-between items-center text-sm font-medium text-muted-foreground/60">
+                              <span>Shipping</span>
+                              <span>{Number(order.shippingAmount || 0) > 0 ? `$${Number(order.shippingAmount).toFixed(2)}` : 'FREE'}</span>
+                           </div>
+                           <div className="h-[1px] bg-black/5 my-2" />
+                           <div className="flex justify-between items-end">
+                              <span className="text-[10px] uppercase font-black tracking-widest text-primary/40 mb-1">Grand Total</span>
+                              <span className="text-3xl font-black tracking-tighter text-primary">${Number(order.totalAmount).toFixed(2)}</span>
+                           </div>
+                        </div>
                     </div>
                  </div>
               </CardContent>

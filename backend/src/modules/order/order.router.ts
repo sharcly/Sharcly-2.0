@@ -4,7 +4,8 @@ import {
   getMyOrders, 
   getAllOrders, 
   getOrderById,
-  updateOrderStatus 
+  updateOrderStatus,
+  downloadInvoice
 } from "./order.controller";
 import { authenticate, authorize, optionalAuth } from "../../common/middlewares/auth.middleware";
 import { validate, CreateOrderSchema, UpdateOrderStatusSchema } from "../../common/middlewares/validate.middleware";
@@ -124,5 +125,16 @@ router.get("/:id", authenticate, getOrderById);
  *         description: Order status updated successfully
  */
 router.patch("/:id/status", authenticate, authorize("orders.manage"), validate(UpdateOrderStatusSchema), updateOrderStatus);
+
+/**
+ * @swagger
+ * /api/orders/{id}/invoice:
+ *   get:
+ *     summary: Download order invoice PDF
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/:id/invoice", authenticate, downloadInvoice);
 
 export default router;

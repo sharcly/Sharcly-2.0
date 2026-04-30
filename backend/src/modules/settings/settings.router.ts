@@ -4,6 +4,7 @@ import {
   updateStoreSettings, 
   getRegions, 
   createRegion,
+  deleteRegion,
   getReturnReasons,
   getRefundReasons
 } from "./settings.controller";
@@ -22,6 +23,7 @@ router.put("/", authenticate, authorize("settings.manage"), updateStoreSettings)
 // Regions
 router.get("/regions", authenticate, authorize("settings.manage"), getRegions);
 router.post("/regions", authenticate, authorize("settings.manage"), createRegion);
+router.delete("/regions/:id", authenticate, authorize("settings.manage"), deleteRegion);
 
 // Reasons
 router.get("/return-reasons", authenticate, authorize("settings.manage"), getReturnReasons);

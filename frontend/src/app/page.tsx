@@ -77,23 +77,23 @@ export default function Home() {
                transition={{ duration: 0.8 }}
                className="space-y-8"
              >
-                <div className="flex items-center gap-2">
-                   <div className="h-px w-8 bg-[#062D1B]/20" />
-                   <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#062D1B]/50">Restore Your Rhythm</span>
-                </div>
-                
-                <h1 className="text-4xl md:text-6xl font-medium tracking-tight leading-tight">
-                   Modern cannabinoid <br /> essentials for the <br /> <span className="text-[#062D1B]/40 italic serif">mindful rhythm.</span>
-                </h1>
-                
-                <p className="text-base text-[#062D1B]/60 max-w-md leading-relaxed font-normal">
-                   Precision-crafted, laboratory-tested formulations designed to help you navigate modern life with clarity and balance.
-                </p>
+                 <div className="flex items-center gap-2">
+                    <div className="h-px w-8 bg-[#062D1B]/20" />
+                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#062D1B]/50">Quality You Can Trust</span>
+                 </div>
+                 
+                 <h1 className="text-4xl md:text-6xl font-medium tracking-tight leading-tight">
+                    Premium wellness <br /> essentials for your <br /> <span className="text-[#062D1B]/40 italic serif">daily routine.</span>
+                 </h1>
+                 
+                 <p className="text-base text-[#062D1B]/60 max-w-md leading-relaxed font-normal">
+                    Thoughtfully crafted, lab-tested products designed to help you find balance and feel your best every single day.
+                 </p>
 
-                <div className="flex flex-wrap gap-4 pt-4">
-                   <Button className="btn-slim bg-[#062D1B] text-white hover:opacity-90">Shop The Series</Button>
-                   <Button variant="ghost" className="btn-slim text-[#062D1B] hover:bg-neutral-50 border border-gray-100">Our Story</Button>
-                </div>
+                 <div className="flex flex-wrap gap-4 pt-4">
+                    <Button className="btn-slim bg-[#062D1B] text-white hover:opacity-90">Shop All Products</Button>
+                    <Button variant="ghost" className="btn-slim text-[#062D1B] hover:bg-neutral-50 border border-gray-100">About Us</Button>
+                 </div>
              </motion.div>
 
              <motion.div 

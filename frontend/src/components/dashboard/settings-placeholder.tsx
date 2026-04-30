@@ -13,7 +13,7 @@ export default function SettingsPlaceholder({ title, description, icon: Icon = S
           <h2 className="text-2xl font-bold tracking-tight text-neutral-900">{title}</h2>
           <p className="text-sm text-neutral-500 font-medium">{description}</p>
         </div>
-        <Button className="h-11 px-6 rounded-xl premium-gradient font-bold shadow-lg gap-2">
+        <Button className="h-11 px-6 rounded-xl premium-gradient font-bold shadow-lg gap-2 border-none">
           <Plus className="h-4 w-4" /> New Entry
         </Button>
       </div>
@@ -24,13 +24,13 @@ export default function SettingsPlaceholder({ title, description, icon: Icon = S
               <Icon size={40} />
            </div>
            <div className="space-y-2 max-w-sm mx-auto">
-              <h3 className="text-lg font-bold text-neutral-900">Module Initializing</h3>
+              <h3 className="text-lg font-bold text-neutral-900">Setting up {title}</h3>
               <p className="text-sm text-neutral-400 font-medium leading-relaxed">
-                 We are preparing the advanced configuration engine for {title.toLowerCase()}. This module will be synchronized with your global commerce rules shortly.
+                 We are preparing the configuration for {title.toLowerCase()}. Your settings will be available to manage here in just a few moments.
               </p>
            </div>
            <Button variant="outline" className="h-10 rounded-xl border-black/5 text-[10px] font-black uppercase tracking-widest gap-2">
-              <RefreshCw className="size-3" /> Check System Sync
+              <RefreshCw className="size-3" /> Refresh Page
            </Button>
         </CardContent>
       </Card>

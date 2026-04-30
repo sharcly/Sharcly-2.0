@@ -19,7 +19,7 @@ export async function bootstrap() {
     if (!existingAdmin) {
       console.log(`👤 Creating default admin: ${adminEmail}`);
       const hashedPassword = await bcrypt.hash(adminPassword, 12);
-      
+
       const adminRole = await prisma.role.findUnique({ where: { slug: "admin" } });
       if (!adminRole) {
         console.error("❌ Cannot bootstrap: 'admin' role not found. Please run seed script first.");

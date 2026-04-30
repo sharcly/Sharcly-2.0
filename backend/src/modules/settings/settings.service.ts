@@ -9,7 +9,7 @@ export class SettingsService {
         console.log("No store settings found, creating default...");
         settings = await prisma.storeSettings.create({
           data: { 
-            storeName: "Scarly 2.0", 
+            storeName: "Sharcly", 
             currency: "USD",
             primaryColor: "#062D1B",
             secondaryColor: "#F0FDF4",
@@ -63,6 +63,10 @@ export class SettingsService {
     return await prisma.region.create({
       data: { name, currencyCode, taxRate, countries }
     });
+  }
+
+  static async deleteRegion(id: string) {
+    return await prisma.region.delete({ where: { id } });
   }
 
   static async getReturnReasons() {

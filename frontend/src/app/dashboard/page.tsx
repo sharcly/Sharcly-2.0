@@ -158,8 +158,14 @@ export default function DashboardPage() {
                     ))
                   ) : (stats?.recentTransactions || []).slice(0, 5).map((order) => (
                     <TableRow key={order.id} className="border-black/5 hover:bg-neutral-50/50 transition-colors">
-                      <TableCell className="pl-6 py-5 font-bold text-sm text-blue-600">
-                        #{order.id.slice(0, 4).toUpperCase()}
+                      <TableCell className="pl-6 py-5 font-bold text-sm">
+                        <Link 
+                          href={`/dashboard/orders/${order.id}`}
+                          className="text-blue-600 hover:underline flex items-center gap-1"
+                        >
+                          #{order.id.slice(0, 4).toUpperCase()}
+                          <ArrowRight className="size-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </Link>
                       </TableCell>
                       <TableCell className="py-5">
                         <div className="flex flex-col">
@@ -171,13 +177,27 @@ export default function DashboardPage() {
                         {order.email}
                       </TableCell>
                       <TableCell className="py-5 text-center">
-                        <Badge variant="outline" className="rounded-full bg-orange-500/5 text-orange-500 border-orange-500/20 px-3 py-0.5 text-[10px] font-bold">
-                          • pending
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "rounded-full px-3 py-0.5 text-[10px] font-bold border-0 capitalize",
+                            order.status === "PENDING" ? "bg-orange-100 text-orange-600" :
+                            order.status === "CANCELLED" ? "bg-red-100 text-red-600" :
+                            "bg-green-100 text-green-600"
+                          )}
+                        >
+                          • {order.status.toLowerCase()}
                         </Badge>
                       </TableCell>
                       <TableCell className="py-5 text-center">
-                        <Badge variant="outline" className="rounded-full bg-neutral-100 text-neutral-500 border-black/5 px-3 py-0.5 text-[10px] font-bold">
-                          • not fulfilled
+                        <Badge 
+                          variant="outline" 
+                          className={cn(
+                            "rounded-full px-3 py-0.5 text-[10px] font-bold border-0 capitalize",
+                            ["DELIVERED", "SHIPPED"].includes(order.status) ? "bg-emerald-100 text-emerald-600" : "bg-neutral-100 text-neutral-500"
+                          )}
+                        >
+                          • {["DELIVERED", "SHIPPED"].includes(order.status) ? "fulfilled" : "unfulfilled"}
                         </Badge>
                       </TableCell>
                       {isAdmin && (

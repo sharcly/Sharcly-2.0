@@ -38,6 +38,7 @@ const settingsGroups = [
     items: [
       { label: "User Management", href: "/dashboard/settings/users", icon: Users },
       { label: "Store Regions", href: "/dashboard/settings/regions", icon: Globe },
+      { label: "API Integrations", href: "/dashboard/settings/integrations", icon: Share2 },
     ]
   }
 ];

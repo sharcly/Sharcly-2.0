@@ -32,7 +32,8 @@ import {
   PackageCheck,
   Calendar,
   Sparkles,
-  CreditCard as CardIcon
+  CreditCard as CardIcon,
+  Ticket
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -97,6 +98,35 @@ function CheckoutContent() {
 
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   const [selectedSavedAddress, setSelectedSavedAddress] = useState<string | null>(null);
+  const [settings, setSettings] = useState<any>(null);
+
+  // Coupon State
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [discountAmount, setDiscountAmount] = useState(0);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await apiClient.get("/settings");
+        if (response.data.success) {
+          setSettings(response.data.settings);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings:", err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const taxRate = settings ? Number(settings.taxRate) : 0;
+  const shippingCharge = settings ? Number(settings.shippingCharge) : 0;
+  const freeThreshold = settings ? Number(settings.freeShippingThreshold) : 0;
+
+  const taxAmount = (subtotal * taxRate) / 100;
+  const shippingCost = (freeThreshold > 0 && subtotal >= freeThreshold) ? 0 : shippingCharge;
+  const total = Math.max(0, subtotal - discountAmount) + taxAmount + shippingCost;
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -135,6 +165,42 @@ function CheckoutContent() {
         }
      }));
   };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode) return;
+    setIsApplyingCoupon(true);
+    try {
+      const response = await apiClient.post("/coupons/validate", { code: couponCode });
+      if (response.data.valid) {
+        setAppliedCoupon(response.data);
+        toast.success(`Coupon Applied! ${response.data.discount}${response.data.discountType === 'PERCENTAGE' ? '%' : '$'} OFF`);
+      } else {
+        toast.error(response.data.message || "Invalid coupon code");
+      }
+    } catch (error) {
+      toast.error("Failed to validate coupon");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setDiscountAmount(0);
+  };
+
+  useEffect(() => {
+    if (appliedCoupon) {
+      if (appliedCoupon.discountType === 'PERCENTAGE') {
+        setDiscountAmount((subtotal * Number(appliedCoupon.discount)) / 100);
+      } else {
+        setDiscountAmount(Number(appliedCoupon.discount));
+      }
+    } else {
+      setDiscountAmount(0);
+    }
+  }, [appliedCoupon, subtotal]);
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,7 +247,8 @@ function CheckoutContent() {
         items: cartItems.map(i => ({ productId: i.id, quantity: i.quantity })),
         shippingAddress: shippingStr,
         billingAddress: billingStr,
-        paymentMethod: formData.paymentMethod
+        paymentMethod: formData.paymentMethod,
+        couponCode: appliedCoupon?.code
       });
 
       if (response.data.success) {
@@ -189,7 +256,10 @@ function CheckoutContent() {
           id: response.data.order?.id || "SC-" + Math.random().toString(36).substring(7).toUpperCase(),
           date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
           items: [...cartItems],
-          total: subtotal,
+          subtotal: subtotal,
+          tax: taxAmount,
+          shipping: shippingCost,
+          total: total,
           address: shippingStr,
           paymentMethod: formData.paymentMethod
         });
@@ -304,12 +374,24 @@ function CheckoutContent() {
                            <div key={item.id} className="flex justify-between">{item.name} × {item.quantity} <span>${item.price}</span></div>
                         ))}
                      </div>
+                     <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest opacity-40">
+                        <span>Subtotal</span>
+                        <span>${lastOrder?.subtotal?.toFixed(2)}</span>
+                     </div>
+                     <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest opacity-40">
+                        <span>Tax</span>
+                        <span>${lastOrder?.tax?.toFixed(2)}</span>
+                     </div>
+                     <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest opacity-40">
+                        <span>Shipping</span>
+                        <span>{lastOrder?.shipping === 0 ? "FREE" : `$${lastOrder?.shipping?.toFixed(2)}`}</span>
+                     </div>
                      <div className="h-px bg-white/10" />
                      <div className="flex justify-between items-center">
                         <span className="text-[9px] font-bold uppercase tracking-widest opacity-40">
                            {lastOrder?.paymentMethod === 'cod' ? 'Total to Pay' : 'Paid Total'}
                         </span>
-                        <span className="text-2xl font-medium tabular-nums">${lastOrder?.total.toFixed(2)}</span>
+                        <span className="text-2xl font-medium tabular-nums">${lastOrder?.total?.toFixed(2)}</span>
                      </div>
                   </div>
                </div>
@@ -723,22 +805,66 @@ function CheckoutContent() {
                       ))}
                    </div>
 
-                   <div className="space-y-4 pt-6 border-t border-gray-50">
-                      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-black/30">
-                         <span>Subtotal</span>
-                         <span className="text-[#062D1B]">${subtotal.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-black/30">
-                         <span>Shipping</span>
-                         <span className="text-emerald-600">Calculated Next</span>
-                      </div>
-                      <div className="pt-2">
-                         <div className="flex justify-between items-end">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/20 mb-1.5">Total Amount</span>
-                            <span className="text-4xl font-medium tracking-tight tabular-nums">${subtotal.toFixed(2)}</span>
-                         </div>
-                      </div>
-                   </div>
+                    <div className="space-y-4 pt-6 border-t border-gray-50">
+                       {/* Coupon Section */}
+                       <div className="space-y-3 pb-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-[#062D1B]/40 ml-1">Promo Code</Label>
+                          <div className="flex gap-2">
+                             <Input 
+                               placeholder="ENTER CODE" 
+                               value={couponCode} 
+                               onChange={(e) => setCouponCode(e.target.value)}
+                               className="h-10 rounded-xl bg-neutral-50/50 border-neutral-100 text-xs font-black uppercase tracking-widest placeholder:text-neutral-300"
+                             />
+                             <Button 
+                               type="button" 
+                               onClick={handleApplyCoupon}
+                               disabled={!couponCode || isApplyingCoupon}
+                               className="h-10 px-6 rounded-xl bg-[#062D1B] text-white text-[9px] font-black uppercase tracking-widest border-none"
+                             >
+                                Apply
+                             </Button>
+                          </div>
+                          {appliedCoupon && (
+                            <div className="flex items-center justify-between px-4 py-2.5 bg-emerald-50 rounded-xl border border-emerald-100 animate-in fade-in zoom-in-95 duration-300">
+                               <div className="flex items-center gap-2">
+                                  <Ticket className="size-3 text-emerald-600" />
+                                  <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">{appliedCoupon.code}</span>
+                               </div>
+                               <button onClick={handleRemoveCoupon} className="text-emerald-400 hover:text-emerald-600 transition-colors">
+                                  <X size={12} />
+                                </button>
+                            </div>
+                          )}
+                       </div>
+
+                       <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-black/30">
+                          <span>Subtotal</span>
+                          <span className="text-[#062D1B]">${subtotal.toFixed(2)}</span>
+                       </div>
+                       {discountAmount > 0 && (
+                          <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                             <span>Discount</span>
+                             <span>-${discountAmount.toFixed(2)}</span>
+                          </div>
+                       )}
+                       <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-black/30">
+                          <span>Tax ({taxRate}%)</span>
+                          <span className="text-[#062D1B]">${taxAmount.toFixed(2)}</span>
+                       </div>
+                       <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest text-black/30">
+                          <span>Shipping</span>
+                          <span className={shippingCost === 0 ? "text-emerald-600" : "text-[#062D1B]"}>
+                             {shippingCost === 0 ? "FREE" : `$${shippingCost.toFixed(2)}`}
+                          </span>
+                       </div>
+                       <div className="pt-2">
+                          <div className="flex justify-between items-end">
+                             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/20 mb-1.5">Total Amount</span>
+                             <span className="text-4xl font-medium tracking-tight tabular-nums">${total.toFixed(2)}</span>
+                          </div>
+                       </div>
+                    </div>
                 </div>
                 
                 {/* Security Trust Badges */}
