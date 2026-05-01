@@ -16,7 +16,8 @@ import {
   LogOut,
   Settings,
   ShieldCheck,
-  Globe
+  Globe,
+  Zap,
 } from "lucide-react";
 
 export type Role = "admin" | "manager" | "content_manager" | "user";
@@ -116,6 +117,13 @@ export const navigationConfig: NavItem[] = [
     href: "/dashboard/wholesale",
     icon: FileText,
     allowedRoles: ["admin"],
+    category: "Business"
+  },
+  {
+    label: "Marketing",
+    href: "/admin/marketing",
+    icon: Tags,
+    allowedRoles: ["admin", "manager"],
     category: "Business"
   },
 

@@ -10,6 +10,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import ChatwootWidget from "@/components/chatwoot-widget";
 import GlobalSeoIntegrator from "@/components/global-seo-integrator";
 import { CartDrawer } from "@/components/cart-drawer";
+import AgeGateModal from "@/components/marketing/AgeGateModal";
+import MarketingPopup from "@/components/marketing/MarketingPopup";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -59,6 +61,8 @@ export default function RootLayout({
                 <CartDrawer />
                 <ChatwootWidget />
                 <GlobalSeoIntegrator />
+                <AgeGateModal />
+                <MarketingPopup />
               </AuthProvider>
             </CartProvider>
           </ThemeProvider>

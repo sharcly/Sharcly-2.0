@@ -486,3 +486,45 @@ model Testimonial {
 
   @@map("testimonials")
 }
+
+model MarketingOffer {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?
+  codePrefix    String   @map("code_prefix")
+  imageUrl      String?  @map("image_url")
+  isActive      Boolean  @default(true) @map("is_active")
+  discountType  String   @default("percentage") @map("discount_type")
+  discountValue Float    @default(0) @map("discount_value")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  subscribers   MarketingSubscriber[]
+
+  @@map("marketing_offers")
+}
+
+model MarketingSubscriber {
+  id        String   @id @default(uuid())
+  email     String
+  phone     String?
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  offerId   String   @map("offer_id")
+  promoCode String   @map("promo_code")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  offer     MarketingOffer @relation(fields: [offerId], references: [id])
+
+  @@map("marketing_subscribers")
+}
+
+model MarketingConfig {
+  id            String   @id @default(uuid())
+  isEnabled     Boolean  @default(true) @map("is_enabled")
+  displayMode   String   @default("single") @map("display_mode") // "single" or "multiple"
+  showFrequency String   @default("every_visit") @map("show_frequency")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("marketing_configs")
+}

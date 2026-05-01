@@ -14,6 +14,7 @@ import shippingRoutes from "../modules/shipping/shipping.router";
 import wholesaleRoutes from "../modules/wholesale/wholesale.router";
 import searchRoutes from "../modules/search/search.router";
 import addressRoutes from "../modules/address/address.router";
+import marketingRoutes from "../modules/marketing/marketing.router";
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use("/shipping", shippingRoutes);
 router.use("/wholesale", wholesaleRoutes);
 router.use("/search", searchRoutes);
 router.use("/addresses", addressRoutes);
+router.use("/marketing", marketingRoutes);
 
 export default router;
