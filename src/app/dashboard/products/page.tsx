@@ -614,7 +614,7 @@ export default function DashboardProductsPage() {
               });
             }
 
-            const fileCount = Array.from((formData as any).entries()).filter(([k]) => k.includes('image')).length;
+            const fileCount = Array.from((formData as any).entries()).filter((entry: any) => entry[0].includes('image')).length;
             console.log(`🚀 Sending Product Data with ${fileCount} images...`);
 
             if (selectedProduct) {

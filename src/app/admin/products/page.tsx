@@ -88,11 +88,11 @@ export default function ProductDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f4f4f0] text-[#0f2318] p-4 sm:p-10 font-sans">
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         h1, h2, h3, .heading-serif {
           font-family: Georgia, serif;
         }
-      `}</style>
+      `}} />
 
       {/* --- Page Header --- */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">

@@ -15,6 +15,8 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
+const ThemeContext = createContext<{ settings: ThemeSettings | null }>({ settings: null });
+
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   const [settings, setSettings] = useState<ThemeSettings | null>(null);
 

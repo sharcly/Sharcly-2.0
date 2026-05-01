@@ -203,7 +203,7 @@ export default function BlogPostDetail() {
 
       <Footer />
 
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .prose-sharcly h1, .prose-sharcly h2, .prose-sharcly h3 {
           margin-top: 4rem;
           margin-bottom: 2rem;
@@ -216,7 +216,7 @@ export default function BlogPostDetail() {
           color: #062D1B;
           font-weight: 800;
         }
-      `}</style>
+      `}} />
     </div>
   );
 }

@@ -84,7 +84,7 @@ function ProductsContent() {
       let final = fetched.length > 0 ? fetched : FALLBACK_PRODUCTS;
       
       if (selectedSeries !== "all") {
-        final = final.filter(p => 
+        final = final.filter((p: any) => 
           p.category?.name?.toLowerCase().includes(selectedSeries) ||
           p.name?.toLowerCase().includes(selectedSeries)
         );
@@ -92,7 +92,7 @@ function ProductsContent() {
 
       setProducts(final);
     } catch (error: any) {
-      setProducts(FALLBACK_PRODUCTS.filter(p => 
+      setProducts(FALLBACK_PRODUCTS.filter((p: any) => 
         selectedSeries === "all" || p.category.name.toLowerCase().includes(selectedSeries)
       ));
     } finally {

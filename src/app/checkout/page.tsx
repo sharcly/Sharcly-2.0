@@ -887,7 +887,7 @@ function CheckoutContent() {
         </div>
       </main>
 
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .checkout-input {
           height: 3.5rem !important;
           border-radius: 0.75rem !important;
@@ -910,7 +910,7 @@ function CheckoutContent() {
           background-color: white !important;
           box-shadow: 0 4px 12px -2px rgba(6,45,27,0.05) !important;
           outline: none !important;
-        }
+          }
         .no-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -918,7 +918,7 @@ function CheckoutContent() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-      `}</style>
+      `}} />
     </div>
   );
 }
