@@ -551,8 +551,13 @@ export default function DashboardProductsPage() {
             formData.append("discountable", String(data.discountable ?? true));
             
             // Normalized metrics
-            formData.append("price", String(parseFloat(data.variants?.[0]?.prices?.[0]?.amount) || 0));
-            formData.append("stock", String(data.variants?.reduce((acc: number, v: any) => acc + (parseInt(v.stock) || 0), 0) || 0));
+            const basePrice = data.price || data.variants?.[0]?.price || 0;
+            formData.append("price", String(parseFloat(basePrice as string) || 0));
+            
+            const totalStock = (data.stock && data.stock !== "0") 
+              ? data.stock 
+              : data.variants?.reduce((acc: number, v: any) => acc + (parseInt(v.stock) || 0), 0);
+            formData.append("stock", String(totalStock || 0));
             
             // Shipping
             formData.append("weight", String(parseFloat(data.shipping?.weight) || 0));
