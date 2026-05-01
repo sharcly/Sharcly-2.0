@@ -545,6 +545,7 @@ export default function DashboardProductsPage() {
             formData.append("name", data.name.trim());
             formData.append("subtitle", data.subtitle?.trim() || "");
             formData.append("slug", (data.handle || data.name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""));
+            formData.append("sku", data.sku || "");
             formData.append("description", data.description?.trim() || "No description provided.");
             formData.append("status", data.status?.toUpperCase() || "DRAFT");
             formData.append("discountable", String(data.discountable ?? true));
