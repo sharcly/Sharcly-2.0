@@ -95,7 +95,10 @@ export default function ProductDrawer({
   onClose,
   onSave,
   initialData,
-  categories = []
+  categories = [],
+  collections = [],
+  tags = [],
+  types = []
 }: any) {
   // Navigation State
   const [activeTab, setActiveTab] = useState("basic");
@@ -110,6 +113,9 @@ export default function ProductDrawer({
     stock: "0",
     description: "",
     categoryId: "",
+    typeId: "",
+    tags: [],
+    collections: [],
     status: "Published",
     thumbnail: null,
     galleryFiles: [],
@@ -146,6 +152,9 @@ export default function ProductDrawer({
           price: initialData.price || "",
           stock: initialData.stock || "0",
           categoryId: initialData.categoryId || "",
+          typeId: initialData.typeId || "",
+          tags: Array.isArray(initialData.tags) ? initialData.tags.map((t:any) => typeof t === 'string' ? t : t.id) : [],
+          collections: Array.isArray(initialData.collections) ? initialData.collections.map((c:any) => typeof c === 'string' ? c : c.id) : [],
           subtitle: initialData.subtitle || "",
           isAuthenticated: initialData.isAuthenticated !== undefined ? initialData.isAuthenticated : true,
           variants: initialData.variants?.length > 0 ? initialData.variants : [],
@@ -167,6 +176,9 @@ export default function ProductDrawer({
           stock: "0",
           description: "",
           categoryId: "",
+          typeId: "",
+          tags: [],
+          collections: [],
           status: "Published",
           thumbnail: null,
           galleryFiles: [],
@@ -239,6 +251,7 @@ export default function ProductDrawer({
           <div className="flex-1 space-y-2">
             {[
               { id: "basic", label: "Product Info", icon: Info },
+              { id: "organization", label: "Organization", icon: LayoutGrid },
               { id: "media", label: "Media Assets", icon: ImageIcon },
               { id: "variants", label: "Pack Options", icon: Archive },
               { id: "narrative", label: "Storefront Story", icon: FileText },
@@ -275,7 +288,7 @@ export default function ProductDrawer({
             <div className="max-w-3xl mx-auto space-y-24 pb-20">
 
               <FormSection title="Core Information" id="basic">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
                     <Field label="Product Name" required>
                        <input 
                         value={form.name} 
@@ -283,19 +296,6 @@ export default function ProductDrawer({
                         placeholder="Product name..."
                         className="w-full h-14 px-6 bg-white border border-neutral-200 rounded-2xl focus:border-emerald-500 outline-none font-bold" 
                        />
-                    </Field>
-                    <Field label="Category" required>
-                       <div className="flex gap-2">
-                          <select 
-                            value={form.categoryId}
-                            onChange={e => updateForm({ categoryId: e.target.value })}
-                            className="flex-1 h-14 px-6 bg-white border border-neutral-200 rounded-2xl outline-none font-bold appearance-none"
-                          >
-                             <option value="">Select Category...</option>
-                             {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                          </select>
-                          <button onClick={() => setIsCreatingCategory(true)} className="size-14 bg-neutral-100 rounded-2xl flex items-center justify-center text-neutral-400 hover:text-emerald-500 transition-colors"><Plus /></button>
-                       </div>
                     </Field>
                  </div>
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -318,6 +318,80 @@ export default function ProductDrawer({
                     >
                        {form.isAuthenticated ? <Check /> : <X />}
                     </button>
+                 </div>
+              </FormSection>
+
+              <FormSection title="Organization" id="organization">
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <Field label="Category" required hint="Select at least one category for your product.">
+                       <div className="flex gap-2">
+                          <select 
+                            value={form.categoryId}
+                            onChange={e => updateForm({ categoryId: e.target.value })}
+                            className="flex-1 h-14 px-6 bg-white border border-neutral-200 rounded-2xl outline-none font-bold appearance-none"
+                          >
+                             <option value="">Select Category...</option>
+                             {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                          </select>
+                          <button onClick={() => setIsCreatingCategory(true)} className="size-14 bg-neutral-100 rounded-2xl flex items-center justify-center text-neutral-400 hover:text-emerald-500 transition-colors"><Plus /></button>
+                       </div>
+                    </Field>
+                    <Field label="Product Type">
+                       <select 
+                        value={form.typeId}
+                        onChange={e => updateForm({ typeId: e.target.value })}
+                        className="w-full h-14 px-6 bg-white border border-neutral-200 rounded-2xl outline-none font-bold appearance-none"
+                       >
+                          <option value="">Select Type...</option>
+                          {types.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                       </select>
+                    </Field>
+                 </div>
+                 <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
+                    <Field label="Collections">
+                       <div className="flex flex-wrap gap-2 p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                          {collections.map((col: any) => (
+                            <button
+                              key={col.id}
+                              onClick={() => {
+                                const newCols = form.collections.includes(col.id) 
+                                  ? form.collections.filter((id: string) => id !== col.id)
+                                  : [...form.collections, col.id];
+                                updateForm({ collections: newCols });
+                              }}
+                              className={cn(
+                                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                form.collections.includes(col.id) ? "bg-emerald-600 text-white shadow-md" : "bg-white text-neutral-400 border border-neutral-100 hover:text-neutral-900"
+                              )}
+                            >
+                              {col.name}
+                            </button>
+                          ))}
+                          {collections.length === 0 && <span className="text-[10px] font-bold text-neutral-300 italic">No collections available</span>}
+                       </div>
+                    </Field>
+                    <Field label="Tags">
+                       <div className="flex flex-wrap gap-2 p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                          {tags.map((tag: any) => (
+                            <button
+                              key={tag.id}
+                              onClick={() => {
+                                const newTags = form.tags.includes(tag.id) 
+                                  ? form.tags.filter((id: string) => id !== tag.id)
+                                  : [...form.tags, tag.id];
+                                updateForm({ tags: newTags });
+                              }}
+                              className={cn(
+                                "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                form.tags.includes(tag.id) ? "bg-indigo-600 text-white shadow-md" : "bg-white text-neutral-400 border border-neutral-100 hover:text-neutral-900"
+                              )}
+                            >
+                              {tag.name}
+                            </button>
+                          ))}
+                          {tags.length === 0 && <span className="text-[10px] font-bold text-neutral-300 italic">No tags available</span>}
+                       </div>
+                    </Field>
                  </div>
               </FormSection>
 

@@ -533,11 +533,9 @@ export default function DashboardProductsPage() {
             // Data Cleansing & Validation
             if (!data.name?.trim()) throw new Error("Product name is required");
             
-            const firstCategory = data.organization?.categories?.[0];
-            if (!firstCategory && !selectedProduct) {
-               // If no category selected, we might want to find a default one
-               // but for now we'll throw to prevent Prisma 500 error
-               throw new Error("Please select at least one category in Organization tab");
+            const categoryId = data.categoryId || data.organization?.categories?.[0];
+            if (!categoryId && !selectedProduct) {
+               throw new Error("Please select at least one category in the Organization tab");
             }
 
             // Convert to FormData for multipart/form-data support (for images)
@@ -571,10 +569,10 @@ export default function DashboardProductsPage() {
             formData.append("keywords", JSON.stringify(data.seo?.keywords || []));
 
             // Organization
-            formData.append("categoryId", firstCategory || "");
-            formData.append("typeId", data.organization?.type || "");
-            formData.append("tags", JSON.stringify(data.organization?.tags || []));
-            formData.append("collections", JSON.stringify(data.organization?.collections || []));
+            formData.append("categoryId", categoryId || "");
+            formData.append("typeId", data.typeId || data.organization?.type || "");
+            formData.append("tags", JSON.stringify(data.tags || data.organization?.tags || []));
+            formData.append("collections", JSON.stringify(data.collections || data.organization?.collections || []));
 
             // Complex Structures (MUST be stringified for multer)
             // Clean variants to remove File objects before stringifying
