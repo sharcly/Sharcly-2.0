@@ -103,6 +103,13 @@ export const navigationConfig: NavItem[] = [
     allowedRoles: ["admin"],
     category: "Content"
   },
+  {
+    label: "Testimonials",
+    href: "/dashboard/testimonials",
+    icon: MessageSquare,
+    allowedRoles: ["admin", "manager"],
+    category: "Content"
+  },
 
   // BUSINESS
   {
