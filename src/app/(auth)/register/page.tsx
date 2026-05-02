@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import { apiClient } from "@/lib/api-client";
@@ -26,9 +26,9 @@ export default function RegisterPage() {
   const { login } = useAuth();
   
   // Initialize CSRF token on mount
-  useState(() => {
+  useEffect(() => {
     apiClient.get("/health").catch(() => {});
-  });
+  }, []);
 
   const handleSendOtp = async () => {
     if (!formData.email || !formData.name || !formData.password) {
