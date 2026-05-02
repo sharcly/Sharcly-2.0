@@ -34,13 +34,13 @@ export default function AccountPage() {
         <h2 className="text-4xl font-bold tracking-tight text-[#062D1B]">
           Hello, {user.name?.split(' ')[0] || 'Member'}
         </h2>
-        <p className="text-gray-500 max-w-2xl text-lg leading-relaxed">
-          From your account overview, you can easily check your recent orders, manage your shipping addresses, and edit your password and account details.
-        </p>
+
       </section>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Recent Orders Card */}
+        {/* Recent Orders Card */}
+
         <div className="border border-gray-100 rounded-2xl p-8 bg-white shadow-sm flex flex-col justify-between min-h-[300px]">
           <div className="space-y-6">
             <h3 className="text-xl font-bold">Recent Orders</h3>
