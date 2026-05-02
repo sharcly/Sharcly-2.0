@@ -39,16 +39,31 @@ import {
 import { cn } from "@/lib/utils";
 import { TestimonialForm } from "@/components/dashboard/testimonials/testimonial-form";
 import { motion, AnimatePresence } from "framer-motion";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company?: string | null;
+  message: string;
+  rating?: number | null;
+  image?: string | null;
+  featured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function DashboardTestimonialsPage() {
   const [loading, setLoading] = useState(true);
-  const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [search, setSearch] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [testimonialToDelete, setTestimonialToDelete] = useState<any>(null);
+  const [testimonialToDelete, setTestimonialToDelete] = useState<Testimonial | null>(null);
   
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingTestimonial, setEditingTestimonial] = useState<any>(null);
+  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchTestimonials = useCallback(async () => {
@@ -123,7 +138,7 @@ export default function DashboardTestimonialsPage() {
           }}
           className="gap-4 rounded-[1.5rem] h-14 px-8 bg-[#062D1B] hover:bg-[#083a23] text-white shadow-2xl shadow-[#062D1B]/20 font-black uppercase tracking-[0.2em] text-[10px] transition-all hover:scale-105 active:scale-95"
         >
-          <Plus className="h-4 w-4" /> Establish New Voice
+          <Plus className="h-4 w-4" /> Add Testimonial
         </Button>
       </div>
 
@@ -278,58 +293,72 @@ export default function DashboardTestimonialsPage() {
         </CardContent>
       </Card>
 
-      {/* Testimonial Modal */}
+      {/* Testimonial Management Modal */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="max-w-2xl rounded-[3rem] border-white/5 bg-white/90 backdrop-blur-3xl shadow-2xl p-0 overflow-hidden">
-          <div className="p-10 border-b border-black/5 bg-gray-50/50">
-            <DialogHeader>
-              <DialogTitle className="text-3xl font-heading font-black tracking-tighter text-[#062D1B]">
-                {editingTestimonial ? "Refine Voice Authority" : "Establish Community Voice"}
-              </DialogTitle>
-              <DialogDescription className="italic font-medium text-muted-foreground pt-1">
-                {editingTestimonial ? `Updating parameters for ${editingTestimonial.name}` : "Integrating a new customer experience into the archive."}
-              </DialogDescription>
+        <DialogContent className="sm:max-w-[80vw] md:max-w-[700px] rounded-[2rem] max-h-[88vh] flex flex-col p-0 overflow-hidden border-none shadow-sharcly bg-white">
+          <div className="flex flex-col h-full">
+            <DialogHeader className="p-8 pb-4 space-y-4">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                   <div className="flex items-center gap-2.5">
+                      <div className="size-8 rounded-xl bg-[#062D1B]/10 text-[#062D1B] flex items-center justify-center">
+                         <Quote className="h-4 w-4" />
+                      </div>
+                      <DialogTitle className="text-xl font-heading font-black tracking-tight text-[#062D1B]">
+                        {editingTestimonial ? "Edit Testimonial" : "Add New Testimonial"}
+                      </DialogTitle>
+                   </div>
+                   <DialogDescription className="text-muted-foreground/60 text-[10px] font-bold uppercase tracking-widest pl-11">
+                    {editingTestimonial ? `Updating testimonial from ${editingTestimonial.name}` : "Create a new customer testimonial"}
+                   </DialogDescription>
+                </div>
+              </div>
+              <Separator className="bg-black/[0.03]" />
             </DialogHeader>
-          </div>
-          <div className="p-10">
-            <TestimonialForm 
-              initialData={editingTestimonial} 
-              onSubmit={handleFormSubmit}
-              isLoading={isSubmitting}
-            />
+
+            <ScrollArea className="flex-1 px-8">
+              <div className="pb-10 pt-2">
+                <TestimonialForm 
+                  initialData={editingTestimonial} 
+                  onSubmit={handleFormSubmit}
+                  isLoading={isSubmitting}
+                  onCancel={() => setIsFormOpen(false)}
+                />
+              </div>
+            </ScrollArea>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="rounded-[2.5rem] border-white/5 bg-black/95 backdrop-blur-3xl shadow-2xl p-10">
-          <DialogHeader>
-            <div className="flex items-center gap-5 text-rose-500 mb-4">
-               <div className="size-14 rounded-2xl bg-rose-500/10 flex items-center justify-center">
-                  <AlertCircle className="size-7" />
-               </div>
-               <DialogTitle className="text-2xl font-black tracking-tight">Revoke Voice Permission</DialogTitle>
-            </div>
-            <DialogDescription className="text-white/40 text-lg leading-relaxed">
-              This action will permanently erase <span className="font-black text-white italic">"{testimonialToDelete?.name}"</span> from the global archive. This operation is irreversible.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-10 flex flex-row gap-4">
-            <Button 
-                variant="ghost" 
-                onClick={() => setIsDeleteDialogOpen(false)}
-                className="flex-1 rounded-2xl h-14 border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-white/5"
-            >
-                Retain Archive
-            </Button>
-            <Button 
-              onClick={handleDelete}
-              className="flex-1 rounded-2xl h-14 bg-rose-500 text-white hover:bg-rose-600 font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-rose-500/20 transition-all active:scale-95"
-            >
-              Confirm Elimination
-            </Button>
-          </DialogFooter>
+        <DialogContent className="sm:max-w-[400px] rounded-[2rem] p-0 overflow-hidden border-none shadow-sharcly bg-white">
+           <div className="p-8 space-y-6 text-center">
+              <div className="size-16 rounded-3xl bg-red-100 text-red-600 flex items-center justify-center mx-auto shadow-lg shadow-red-500/10">
+                 <AlertCircle className="size-8" />
+              </div>
+              <div className="space-y-2">
+                 <h2 className="text-xl font-black tracking-tight text-[#062D1B]">Delete Testimonial?</h2>
+                 <p className="text-[11px] font-medium text-muted-foreground/60 px-4 leading-relaxed">
+                    Are you sure you want to delete the testimonial from <span className="text-[#062D1B] font-black uppercase italic">"{testimonialToDelete?.name}"</span>?
+                 </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                 <Button 
+                    onClick={handleDelete}
+                    className="h-12 rounded-2xl bg-red-600 text-white hover:bg-red-700 shadow-xl shadow-red-500/20 font-black text-[10px] uppercase tracking-widest gap-2"
+                 >
+                    Confirm Elimination <Trash2 className="size-4" />
+                 </Button>
+                 <Button 
+                    variant="ghost" 
+                    onClick={() => setIsDeleteDialogOpen(false)}
+                    className="h-12 rounded-2xl font-black text-[9px] uppercase tracking-widest text-muted-foreground/20 hover:text-[#062D1B]"
+                 >
+                    Cancel
+                 </Button>
+              </div>
+           </div>
         </DialogContent>
       </Dialog>
     </div>
