@@ -5,26 +5,31 @@ import { useAuth } from "@/context/auth-context";
 import { apiClient } from "@/lib/api-client";
 import { 
   User, 
-  Mail, 
   Lock, 
   KeyRound, 
   Loader2,
   Eye,
   EyeOff,
-  ShieldCheck,
-  CheckCircle2,
-  Sparkles
+  AlertTriangle
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -66,154 +71,163 @@ export default function ProfilePage() {
     }
   };
 
+  const handleDeactivate = async () => {
+    try {
+      setLoading(true);
+      const response = await apiClient.patch("/auth/deactivate");
+      if (response.data.success) {
+        toast.success("Account deactivated. You will be logged out.");
+        setTimeout(() => {
+          logout();
+        }, 2000);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to deactivate account.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="space-y-12 max-w-4xl">
       <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-8 bg-[#062D1B]/20" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#062D1B]/50">Identity Sequence</span>
-        </div>
-        <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#062D1B]">
-          Profile <span className="text-[#EBB56B] italic font-serif">Settings</span>.
-        </h2>
+        <h2 className="text-3xl font-bold text-[#062D1B]">Account Settings</h2>
+        <p className="text-gray-500">Manage your personal information and security preferences.</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-12">
         {/* Personal Details */}
-        <div className="lg:col-span-1 space-y-8">
-           <Card className="border-black/5 shadow-sharcly rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="p-8 pb-4">
-                 <div className="size-12 rounded-2xl bg-[#062D1B] text-white flex items-center justify-center mb-6">
-                    <User className="size-6" />
+        <div className="lg:col-span-1 space-y-6">
+           <div className="space-y-6">
+              <h3 className="text-lg font-bold">Personal Details</h3>
+              <div className="space-y-4">
+                 <div className="space-y-1">
+                    <Label className="text-[10px] uppercase font-black tracking-widest text-gray-400">Full Name</Label>
+                    <p className="font-medium">{user.name}</p>
                  </div>
-                 <CardTitle className="text-xl font-bold tracking-tight">Personal Data</CardTitle>
-                 <CardDescription className="text-xs font-medium text-gray-400">Your core account identity</CardDescription>
-              </CardHeader>
-              <CardContent className="p-8 pt-0 space-y-8">
-                 <div className="h-px w-full bg-black/5 my-4" />
-                 
-                 <div className="space-y-2">
-                    <Label className="text-[10px] uppercase font-black tracking-[0.2em] text-[#062D1B]/30 block">Full Name</Label>
-                    <p className="text-lg font-bold tracking-tight">{user.name}</p>
+                 <div className="space-y-1">
+                    <Label className="text-[10px] uppercase font-black tracking-widest text-gray-400">Email Address</Label>
+                    <p className="font-medium text-gray-500">{user.email}</p>
                  </div>
-                 
-                 <div className="space-y-2">
-                    <Label className="text-[10px] uppercase font-black tracking-[0.2em] text-[#062D1B]/30 block">Email Address</Label>
-                    <div className="flex items-center gap-3">
-                       <p className="text-lg font-bold tracking-tight opacity-70">{user.email}</p>
-                       <Badge className="bg-emerald-500/10 text-emerald-600 border-none px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-full">
-                         Verified
-                       </Badge>
-                    </div>
-                 </div>
-
-                 <div className="pt-8 border-t border-black/5">
-                    <div className="flex items-center gap-3 text-emerald-600 font-black text-[10px] uppercase tracking-[0.2em] p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                       <ShieldCheck className="size-4" /> Secure Profile Sequence
-                    </div>
-                 </div>
-              </CardContent>
-           </Card>
-           
-           <div className="p-8 rounded-[2.5rem] bg-[#062D1B] text-white space-y-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 size-48 bg-white/5 rounded-full -mr-24 -mt-24 blur-3xl" />
-              <div className="flex items-center gap-4">
-                 <div className="size-10 rounded-xl bg-white/10 flex items-center justify-center text-[#EBB56B]">
-                    <Sparkles className="size-5" />
-                 </div>
-                 <p className="text-xs font-black uppercase tracking-widest">Premium Member</p>
               </div>
-              <p className="text-white/40 text-xs font-medium leading-relaxed italic">"Your wellness data is encrypted with post-quantum security protocols."</p>
+           </div>
+
+           <div className="pt-8 border-t border-gray-100">
+              <h3 className="text-lg font-bold text-red-500 mb-4">Danger Zone</h3>
+              <p className="text-xs text-gray-400 mb-6 leading-relaxed">
+                Once you deactivate your account, there is no going back. Please be certain.
+              </p>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="w-full h-11 border-red-200 text-red-500 hover:bg-red-50 hover:border-red-500 rounded-lg text-xs font-bold transition-all">
+                    Deactivate Account
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="rounded-2xl border-none">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-xl font-bold flex items-center gap-2">
+                      <AlertTriangle className="size-5 text-red-500" /> Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-sm font-medium text-gray-500 pt-2">
+                      This action will disable your account and remove your access to Sharcly. Your order history and saved data will be archived.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="pt-4">
+                    <AlertDialogCancel className="rounded-xl h-12 border-gray-100">Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeactivate} className="rounded-xl h-12 bg-red-500 hover:bg-red-600">
+                      Deactivate Account
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
            </div>
         </div>
 
         {/* Security Settings */}
         <div className="lg:col-span-2">
-           <Card className="border-black/5 shadow-sharcly rounded-[2.5rem] overflow-hidden bg-white">
-              <CardHeader className="p-10 pb-6 border-b border-black/5">
-                 <CardTitle className="text-2xl font-bold tracking-tight flex items-center gap-4">
-                    <Lock className="size-6 text-[#062D1B]/20" /> Security Update
-                 </CardTitle>
-                 <CardDescription className="text-sm font-medium text-gray-500">Rotate your access credentials regularly to ensure sequence integrity.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-10">
-                 <form onSubmit={handlePasswordChange} className="space-y-8 max-w-lg">
-                    <div className="space-y-3">
-                       <Label className="text-[10px] uppercase font-black tracking-[0.2em] text-[#062D1B]/40">Current Access Key</Label>
+           <div className="border border-gray-100 rounded-2xl p-8 bg-white shadow-sm space-y-8">
+              <div className="space-y-2">
+                 <h3 className="text-xl font-bold flex items-center gap-3">
+                    <Lock className="size-5 text-gray-200" /> Update Password
+                 </h3>
+                 <p className="text-sm text-gray-500 font-medium">Rotate your password regularly to keep your account secure.</p>
+              </div>
+
+              <form onSubmit={handlePasswordChange} className="space-y-6 max-w-md">
+                 <div className="space-y-2">
+                    <Label className="text-xs font-bold text-[#062D1B]">Current Password</Label>
+                    <div className="relative">
+                      <Input 
+                        type={showCurrent ? "text" : "password"} 
+                        required
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="h-11 rounded-lg bg-gray-50 border-gray-100 focus:bg-white transition-all pr-10"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowCurrent(!showCurrent)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#062D1B]"
+                      >
+                        {showCurrent ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      </button>
+                    </div>
+                 </div>
+                 
+                 <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                       <Label className="text-xs font-bold text-[#062D1B]">New Password</Label>
                         <div className="relative">
                           <Input 
-                            type={showCurrent ? "text" : "password"} 
+                            type={showNew ? "text" : "password"} 
                             required
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
-                            className="h-14 rounded-2xl bg-neutral-50 font-bold border-black/5 focus:border-[#062D1B] transition-all focus:bg-white pr-12 text-lg tracking-widest"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="h-11 rounded-lg bg-gray-50 border-gray-100 focus:bg-white transition-all pr-10"
                             placeholder="••••••••"
                           />
                           <button
                             type="button"
-                            onClick={() => setShowCurrent(!showCurrent)}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#062D1B] transition-colors"
+                            onClick={() => setShowNew(!showNew)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#062D1B]"
                           >
-                            {showCurrent ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            {showNew ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                           </button>
                         </div>
                     </div>
                     
-                    <div className="grid md:grid-cols-2 gap-8">
-                       <div className="space-y-3">
-                          <Label className="text-[10px] uppercase font-black tracking-[0.2em] text-[#062D1B]/40">New Access Key</Label>
-                           <div className="relative">
-                             <Input 
-                               type={showNew ? "text" : "password"} 
-                               required
-                               value={newPassword}
-                               onChange={(e) => setNewPassword(e.target.value)}
-                               className="h-14 rounded-2xl bg-neutral-50 font-bold border-black/5 focus:border-[#062D1B] transition-all focus:bg-white pr-12 text-lg tracking-widest"
-                               placeholder="••••••••"
-                             />
-                             <button
-                               type="button"
-                               onClick={() => setShowNew(!showNew)}
-                               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#062D1B] transition-colors"
-                             >
-                               {showNew ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                             </button>
-                           </div>
-                       </div>
-                       
-                       <div className="space-y-3">
-                          <Label className="text-[10px] uppercase font-black tracking-[0.2em] text-[#062D1B]/40">Confirm New Key</Label>
-                           <div className="relative">
-                             <Input 
-                               type={showConfirm ? "text" : "password"} 
-                               required
-                               value={confirmPassword}
-                               onChange={(e) => setConfirmPassword(e.target.value)}
-                               className="h-14 rounded-2xl bg-neutral-50 font-bold border-black/5 focus:border-[#062D1B] transition-all focus:bg-white pr-12 text-lg tracking-widest"
-                               placeholder="••••••••"
-                             />
-                             <button
-                               type="button"
-                               onClick={() => setShowConfirm(!showConfirm)}
-                               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#062D1B] transition-colors"
-                             >
-                               {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                             </button>
-                           </div>
-                       </div>
+                    <div className="space-y-2">
+                       <Label className="text-xs font-bold text-[#062D1B]">Confirm New Password</Label>
+                        <div className="relative">
+                          <Input 
+                            type={showConfirm ? "text" : "password"} 
+                            required
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className="h-11 rounded-lg bg-gray-50 border-gray-100 focus:bg-white transition-all pr-10"
+                            placeholder="••••••••"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirm(!showConfirm)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#062D1B]"
+                          >
+                            {showConfirm ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                          </button>
+                        </div>
                     </div>
+                 </div>
 
-                    <div className="pt-6">
-                       <Button type="submit" disabled={loading} className="rounded-2xl h-16 px-12 bg-[#062D1B] text-white hover:bg-black font-black uppercase tracking-widest gap-4 shadow-xl shadow-[#062D1B]/10 transition-all w-full md:w-auto">
-                          {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <KeyRound className="h-5 w-5 text-[#EBB56B]" />}
-                          {loading ? "Synthesizing Security..." : "Rotate Access Key"}
-                       </Button>
-                    </div>
-                 </form>
-              </CardContent>
-           </Card>
+                 <Button type="submit" disabled={loading} className="rounded-lg h-11 px-8 bg-[#062D1B] text-white hover:opacity-90 font-bold text-xs transition-all gap-2">
+                    {loading ? <Loader2 className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
+                    Update Password
+                 </Button>
+              </form>
+           </div>
         </div>
       </div>
     </div>
