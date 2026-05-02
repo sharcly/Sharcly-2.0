@@ -56,9 +56,9 @@ export default function AccountPage() {
                   <div key={order.id} className="flex justify-between items-center text-sm border-b border-gray-50 pb-3">
                     <div>
                       <p className="font-bold">#{order.display_id || order.id.slice(-8).toUpperCase()}</p>
-                      <p className="text-gray-400 text-xs">{new Date(order.created_at).toLocaleDateString()}</p>
+                      <p className="text-gray-400 text-xs">{new Date(order.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <span className="font-bold text-[#062D1B]">${(order.total / 100).toFixed(2)}</span>
+                    <span className="font-bold text-[#062D1B]">${(Number(order.totalAmount) / 100).toFixed(2)}</span>
                   </div>
                 ))}
               </div>

@@ -49,7 +49,7 @@ export default function OrderDetailsPage() {
           </Link>
           <div className="space-y-1">
              <h2 className="text-4xl font-bold tracking-tight">Order <span className="text-[#EBB56B]">#{order.display_id || order.id.slice(-8).toUpperCase()}</span></h2>
-             <p className="text-sm text-gray-500 font-medium">Placed on {new Date(order.created_at).toLocaleDateString()} at {new Date(order.created_at).toLocaleTimeString()}</p>
+             <p className="text-sm text-gray-500 font-medium">Placed on {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</p>
           </div>
         </div>
         <Badge className={cn(
