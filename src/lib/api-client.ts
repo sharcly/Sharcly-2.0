@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api";
+const API_URL = "/api";
 
 export const apiClient = axios.create({
   baseURL: API_URL,
@@ -27,7 +27,8 @@ import Cookies from "js-cookie";
 // Add a request interceptor to attach the CSRF token from cookies
 apiClient.interceptors.request.use(
   (config) => {
-    const csrfToken = Cookies.get("XSRF-TOKEN");
+    // Try to get token from XSRF-TOKEN (new) or csrf-token (old)
+    const csrfToken = Cookies.get("XSRF-TOKEN") || Cookies.get("csrf-token");
     if (csrfToken) {
       config.headers["X-CSRF-Token"] = csrfToken;
     }
@@ -44,8 +45,8 @@ apiClient.interceptors.response.use(
     if (response.data?.csrfToken) {
       Cookies.set("XSRF-TOKEN", response.data.csrfToken, { 
         expires: 1, 
-        sameSite: "none", 
-        secure: true 
+        sameSite: "lax", 
+        secure: typeof window !== "undefined" && window.location.protocol === "https:" 
       });
     }
     return response;
