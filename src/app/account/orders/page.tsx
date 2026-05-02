@@ -63,7 +63,7 @@ export default function OrdersPage() {
                 {orders.map((order) => (
                   <tr key={order.id} className="group hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-6 font-bold text-sm">#{order.display_id || order.id.slice(-8).toUpperCase()}</td>
-                    <td className="px-6 py-6 text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</td>
+                    <td className="px-6 py-6 text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="px-6 py-6">
                       <Badge className={cn(
                         "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest border-none shadow-none",
@@ -72,7 +72,7 @@ export default function OrdersPage() {
                         {order.status}
                       </Badge>
                     </td>
-                    <td className="px-6 py-6 font-bold text-sm">${(order.total / 100).toFixed(2)}</td>
+                    <td className="px-6 py-6 font-bold text-sm">${(Number(order.totalAmount) / 100).toFixed(2)}</td>
                     <td className="px-6 py-6 text-right">
                       <Link href={`/account/orders/${order.id}`} className="text-xs font-bold text-[#062D1B] hover:underline">
                         View Details
