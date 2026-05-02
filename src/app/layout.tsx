@@ -39,6 +39,7 @@ export const metadata: Metadata = {
 };
 
 import { ReduxProvider } from "@/store/provider";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({
   children,
@@ -61,6 +62,7 @@ export default function RootLayout({
                 <CartDrawer />
                 <ChatwootWidget />
                 <GlobalSeoIntegrator />
+                <Analytics />
               </AuthProvider>
             </CartProvider>
           </ThemeProvider>
