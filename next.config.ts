@@ -33,18 +33,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://207.2.123.86:8181/api/:path*',
-      },
-      {
-        source: '/images/:path*',
-        destination: 'http://207.2.123.86:8181/images/:path*',
-      },
-    ];
-  },
   async headers() {
     return [
       {
