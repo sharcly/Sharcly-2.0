@@ -127,9 +127,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
+    const toastId = (await import("sonner")).toast.loading("Signing out...");
     try {
       // 1. Call backend logout first while we still have the token/session
-      // This clears httpOnly cookies and invalidates the session in the DB
       await apiClient.post("/auth/logout").catch((err) => {
         console.error("Backend logout failed:", err);
       });
@@ -146,13 +146,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       Cookies.remove("refreshToken", { path: "/" });
       Cookies.remove("role", { path: "/" });
 
+      (await import("sonner")).toast.success("Logged out successfully", { id: toastId });
+
       // 4. Hard redirect to clear all in-memory state and reset the app
-      window.location.href = "/login";
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 500);
     } catch (error) {
       console.error("Logout process failed:", error);
+      (await import("sonner")).toast.error("Logout failed, clearing local session...", { id: toastId });
       // Fallback: clear what we can and redirect
       localStorage.clear();
-      window.location.href = "/login";
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
     }
   };
 
