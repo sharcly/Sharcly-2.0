@@ -11,6 +11,7 @@ import ChatwootWidget from "@/components/chatwoot-widget";
 import GlobalSeoIntegrator from "@/components/global-seo-integrator";
 import { CartDrawer } from "@/components/cart-drawer";
 import { WelcomePopup } from "@/components/welcome-popup";
+import AgeGateModal from "@/components/age-gate-modal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -57,6 +58,7 @@ export default function RootLayout({
                   {children}
                 </div>
                 <WelcomePopup />
+                <AgeGateModal />
                 <Toaster position="top-right" />
                 <CartDrawer />
                 <ChatwootWidget />

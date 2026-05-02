@@ -132,9 +132,12 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
   }, [testimonials, featuredOnly, limit]);
 
   return (
-    <section className="bg-[#f0f9f0] py-24 px-6 md:px-12 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+    <section 
+      className="bg-[#f0f9f0] px-6 md:px-12 overflow-hidden flex flex-col justify-center items-center"
+      style={{ minHeight: 'calc(100vh - 72px)', padding: '32px 24px' }}
+    >
+      <div className="max-w-7xl mx-auto w-full">
+        <header className="flex flex-col md:flex-row justify-between items-end mb-8 gap-8">
           <div className="text-left">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -152,7 +155,7 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="text-4xl md:text-6xl font-bold text-[#0d2719] mb-0 tracking-tight leading-[1.1]"
+              className="text-3xl md:text-5xl font-bold text-[#0d2719] mb-0 tracking-tight leading-[1.1]"
             >
               Shared Success <br className="hidden md:block" /> with Sharcly.
             </motion.h2>
@@ -205,9 +208,9 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="mt-16 text-center"
+          className="mt-8 text-center"
         >
-          <button className="bg-[#0d2719] text-white px-10 py-5 rounded-full font-bold text-lg hover:bg-black transition-all duration-300 shadow-xl shadow-[#0d2719]/10 active:scale-95">
+          <button className="bg-[#0d2719] text-white px-8 py-3.5 rounded-full font-bold text-base hover:bg-black transition-all duration-300 shadow-xl shadow-[#0d2719]/10 active:scale-95">
             Read All Reviews
           </button>
         </motion.div>
