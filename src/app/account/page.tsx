@@ -58,7 +58,7 @@ export default function AccountPage() {
                       <p className="font-bold">#{order.display_id || order.id.slice(-8).toUpperCase()}</p>
                       <p className="text-gray-400 text-xs">{new Date(order.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <span className="font-bold text-[#062D1B]">${(Number(order.totalAmount) / 100).toFixed(2)}</span>
+                    <span className="font-bold text-[#062D1B]">${Number(order.totalAmount).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
