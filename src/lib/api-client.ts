@@ -37,7 +37,7 @@ import Cookies from "js-cookie";
 // Add a request interceptor to attach the CSRF token from cookies
 apiClient.interceptors.request.use(
   (config) => {
-    const csrfToken = Cookies.get("csrf-token");
+    const csrfToken = Cookies.get("XSRF-TOKEN");
     if (csrfToken) {
       config.headers["X-CSRF-Token"] = csrfToken;
     }
@@ -46,12 +46,20 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Note: withCredentials: true ensures HttpOnly cookies are automatically sent.
-// No manual Authorization header injection is needed from localStorage.
-
-// Add a response interceptor to handle errors and silent refresh
+// Add a response interceptor to capture CSRF token from body if present
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // If the response contains a csrfToken in the body, set it in the cookie manually
+    // This is a fallback for when the browser blocks the Set-Cookie header
+    if (response.data?.csrfToken) {
+      Cookies.set("XSRF-TOKEN", response.data.csrfToken, { 
+        expires: 1, 
+        sameSite: "none", 
+        secure: true 
+      });
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 
