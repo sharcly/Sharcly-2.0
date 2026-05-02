@@ -162,7 +162,7 @@ export default function BlogPostDetail() {
               <div 
                 className="prose prose-lg prose-sharcly max-w-none prose-headings:font-serif prose-headings:italic prose-headings:tracking-tighter prose-p:text-lg prose-p:leading-relaxed prose-p:font-medium prose-p:text-[#062D1B]/80"
                 dangerouslySetInnerHTML={{ 
-                  __html: blog.content.replace(/\n/g, '<br/>') 
+                  __html: sanitizeHtml(blog.content.replace(/\n/g, '<br/>')) 
                 }}
               />
 

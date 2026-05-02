@@ -195,7 +195,7 @@ export default function BlogDetailPage() {
                 prose-blockquote:border-l-4 prose-blockquote:border-[#0d2719] prose-blockquote:pl-10 prose-blockquote:italic
                 prose-img:rounded-[3rem] prose-img:shadow-2xl"
                 dangerouslySetInnerHTML={{ 
-                  __html: blog.content 
+                  __html: sanitizeHtml(blog.content)
                 }}
               />
 

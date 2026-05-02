@@ -887,7 +887,7 @@ function CheckoutContent() {
         </div>
       </main>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
         .checkout-input {
           height: 3.5rem !important;
           border-radius: 0.75rem !important;

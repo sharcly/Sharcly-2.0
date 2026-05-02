@@ -22,23 +22,22 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Add a request interceptor to add the JWT token to headers
+import Cookies from "js-cookie";
+
+// Add a request interceptor to attach the CSRF token from cookies
 apiClient.interceptors.request.use(
   (config) => {
-    // Never send Authorization header for login or register
-    const authUrls = ["/auth/login", "/auth/register", "/auth/refresh-token"];
-    const isAuthRequest = authUrls.some(url => config.url?.includes(url));
-
-    if (typeof window !== "undefined" && !isAuthRequest) {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const csrfToken = Cookies.get("csrf-token");
+    if (csrfToken) {
+      config.headers["X-CSRF-Token"] = csrfToken;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
+
+// Note: withCredentials: true ensures HttpOnly cookies are automatically sent.
+// No manual Authorization header injection is needed from localStorage.
 
 // Add a response interceptor to handle errors and silent refresh
 apiClient.interceptors.response.use(
@@ -57,8 +56,7 @@ apiClient.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+          .then(() => {
             return apiClient(originalRequest);
           })
           .catch((err) => Promise.reject(err));
@@ -68,42 +66,24 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem("refreshToken");
-
-        // Call the refresh endpoint
-        const response = await axios.post(
+        // Call the refresh endpoint to rotate HttpOnly cookies
+        await axios.post(
           `${API_URL}/auth/refresh-token`,
-          { refreshToken },
+          {}, // Body is empty because backend reads refresh_token from cookie
           { withCredentials: true }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-
-        // Update local storage
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", accessToken);
-          if (newRefreshToken) {
-            localStorage.setItem("refreshToken", newRefreshToken);
-          }
-        }
-
-        // Update current request header
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
         // Resolve all queued requests
-        processQueue(null, accessToken);
+        processQueue(null);
 
-        // RETRY with a clean axios call to avoid request interceptor overwriting
+        // RETRY the original request
         return apiClient.request(originalRequest);
       } catch (refreshError) {
         // Refresh failed — clean up
         if (typeof window !== "undefined") {
-          localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
 
           // ONLY redirect to login if the user is on a protected route (dashboard or account)
-          // and if the request wasn't the session restoration check itself
           const isProtectedRoute =
             window.location.pathname.startsWith("/dashboard") ||
             window.location.pathname.startsWith("/account");
