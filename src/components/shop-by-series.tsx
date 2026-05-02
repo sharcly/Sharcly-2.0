@@ -77,7 +77,7 @@ const SeriesCard = ({ item, index }: { item: typeof seriesData[0], index: number
     <div className="group">
       <Link
         href={item.to}
-        className="relative block aspect-[3/4] rounded-[20px] overflow-hidden shadow-2xl transition-all duration-700 ease-[0.22,1,0.36,1] hover:-translate-y-[10px] hover:scale-[1.015]"
+        className="relative block aspect-[4/5] rounded-[20px] overflow-hidden shadow-2xl transition-all duration-700 ease-[0.22,1,0.36,1] hover:-translate-y-[10px] hover:scale-[1.015]"
         style={{
           backgroundColor: '#0d2518',
           boxShadow: '0 40px 80px rgba(0,0,0,0.6)'
@@ -177,9 +177,9 @@ export const ShopBySeries = () => {
     <section
       style={{
         background: 'linear-gradient(175deg, #040e07 0%, #082f1d 50%, #040e07 100%)',
-        height: 'calc(100vh - 72px)'
+        height: 'calc(100vh - 104px)'
       }}
-      className="relative overflow-hidden py-4 md:py-6 px-4 md:px-8 flex flex-col justify-center"
+      className="relative overflow-hidden py-4 md:py-8 px-4 md:px-8 flex flex-col justify-center"
     >
       {/* Central Glow */}
       <div
@@ -189,7 +189,7 @@ export const ShopBySeries = () => {
 
       <div className="relative z-10 max-w-[1440px] mx-auto w-full flex flex-col items-center">
         {/* Header */}
-        <div className="text-center mb-4 md:mb-6 flex flex-col items-center">
+        <div className="text-center mb-1 md:mb-2 flex flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -215,7 +215,7 @@ export const ShopBySeries = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-[clamp(28px,4vw,48px)] font-bold leading-tight mb-2 md:mb-4"
+            className="text-[clamp(24px,3.5vw,40px)] font-bold leading-tight mb-1 md:mb-2"
             style={{
               fontFamily: 'var(--font-cormorant), serif',
               color: '#eff8ee'
@@ -262,9 +262,9 @@ export const ShopBySeries = () => {
             }
           `)}} />
           
-          <div className="marquee-container py-12 gap-6 md:gap-10">
+          <div className="marquee-container py-2 md:py-4 gap-6 md:gap-10">
             {[...seriesData, ...seriesData, ...seriesData].map((item, index) => (
-              <div key={`${item.number}-${index}`} className="w-[220px] md:w-[320px] shrink-0">
+              <div key={`${item.number}-${index}`} className="w-[180px] md:w-[280px] shrink-0">
                 <SeriesCard item={item} index={index} />
               </div>
             ))}
@@ -277,7 +277,7 @@ export const ShopBySeries = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-4 md:mt-8 text-center"
+          className="mt-1 md:mt-4 text-center"
         >
           <Link
             href="/products"
