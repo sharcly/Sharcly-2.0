@@ -17,6 +17,11 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  
+  // Initialize CSRF token on mount
+  useState(() => {
+    apiClient.get("/health").catch(() => {});
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

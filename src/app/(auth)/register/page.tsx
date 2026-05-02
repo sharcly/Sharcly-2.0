@@ -24,6 +24,11 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login } = useAuth();
+  
+  // Initialize CSRF token on mount
+  useState(() => {
+    apiClient.get("/health").catch(() => {});
+  });
 
   const handleSendOtp = async () => {
     if (!formData.email || !formData.name || !formData.password) {
