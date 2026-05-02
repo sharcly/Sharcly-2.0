@@ -146,7 +146,7 @@ export function Navbar() {
                            )}
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator className="bg-black/5" />
-                        <DropdownMenuItem onSelect={logout} className="rounded-xl cursor-pointer text-xs font-bold text-rose-500 focus:text-rose-600 focus:bg-rose-500/10 py-2.5">
+                        <DropdownMenuItem onSelect={() => logout()} className="rounded-xl cursor-pointer text-xs font-bold text-rose-500 focus:text-rose-600 focus:bg-rose-500/10 py-2.5">
                            Sign Out
                         </DropdownMenuItem>
                      </>
