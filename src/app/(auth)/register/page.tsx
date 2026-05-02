@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -22,22 +22,22 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { login } = useAuth();
   
-  // Initialize CSRF token on mount
   useEffect(() => {
     apiClient.get("/health").catch(() => {});
   }, []);
 
   const handleSendOtp = async () => {
     if (!formData.email || !formData.name || !formData.password) {
-      return toast.error("Please fill in all details first");
+      toast.error("Please fill in all required fields.");
+      return;
     }
     if (formData.password !== formData.confirmPassword) {
-      return toast.error("Passwords do not match");
+      toast.error("Passwords do not match.");
+      return;
     }
-    
+
     setIsSendingOtp(true);
     try {
       await apiClient.post("/auth/send-otp", { email: formData.email });
@@ -58,235 +58,196 @@ export default function RegisterPage() {
     }
     
     setIsLoading(true);
-
     try {
       const { name, email, password } = formData;
       const response = await apiClient.post("/auth/register", { name, email, password, otp });
       const { accessToken, refreshToken, user } = response.data;
       login(accessToken, refreshToken, user);
-      toast.success("Account created successfully!");
+      toast.success("Welcome to Sharcly! Your account has been created.");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Registration failed. Please try again.");
+      toast.error(error.response?.data?.message || "Registration failed. Please check your OTP.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
-  };
-
   return (
-    <div className="min-h-screen w-full flex flex-col md:flex-row bg-background overflow-hidden font-sans">
-      {/* Right Side: Narrative */}
-      <div className="hidden lg:flex w-1/2 relative overflow-hidden bg-primary items-center justify-center p-20 order-last">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#020d08] text-white selection:bg-accent selection:text-primary">
+      {/* Visual Narrative Side */}
+      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-primary items-end p-20">
         <div 
-          className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-[20s] hover:scale-110"
+          className="absolute inset-0 z-0 bg-cover bg-center animate-ken-burns"
           style={{ 
-            backgroundImage: 'url("https://i.postimg.cc/pLvdHRdR/Evening-unwind-(1).jpg")',
-            filter: 'brightness(0.6) contrast(1.1)'
+            backgroundImage: 'url("https://i.postimg.cc/mD8Z8L4j/Close-up-of-hemp-plant-leaves.jpg")',
+            filter: 'brightness(0.5) contrast(1.2)'
           }}
         />
-        <div className="absolute inset-0 z-10 bg-gradient-to-bl from-primary/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020d08] via-transparent to-transparent opacity-80" />
         
-        <div className="relative z-20 max-w-lg space-y-12 animate-in fade-in slide-in-from-right-8 duration-1000">
-          <div className="space-y-4">
-             <Badge className="bg-accent/20 text-accent border-accent/30 font-black text-[9px] uppercase tracking-widest px-4 py-1">Community Access</Badge>
-             <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter italic font-serif leading-none uppercase">
-                Join the <br/> <span className="text-accent">Sharcly</span> <br/> Club.
-             </h2>
+        <div className="relative z-20 max-w-2xl space-y-10">
+          <div className="inline-block px-4 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-8">
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80">Premium Access • Limited Slots</span>
           </div>
           
-          <ul className="space-y-6">
-            {[
-              "Priority access to new product drops",
-              "Detailed lab results & batch tracking",
-              "Member-only discounts & offers",
-              "Faster checkout & order history"
-            ].map((feature, i) => (
-              <li key={i} className="flex items-center gap-4 text-white/80 group">
-                <div className="h-6 w-6 rounded-full bg-accent/20 flex items-center justify-center group-hover:bg-accent/40 transition-colors">
-                   <CheckCircle2 className="h-3 w-3 text-accent" />
-                </div>
-                <span className="font-medium tracking-tight">{feature}</span>
-              </li>
-            ))}
-          </ul>
+          <h1 className="text-8xl xl:text-9xl font-black tracking-tighter leading-[0.85] italic font-serif">
+            JOIN THE <br/> <span className="text-accent underline decoration-white/10 decoration-[8px] underline-offset-[12px]">ELITE.</span>
+          </h1>
+          
+          <p className="text-xl text-white/60 font-medium leading-relaxed max-w-lg">
+            Create your account to unlock exclusive member benefits, early access to new harvests, and personalized wellness plans.
+          </p>
 
-          <div className="bg-white/5 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/10">
-             <p className="text-sm font-medium text-white/60 italic leading-relaxed">
-               "The best quality and focus I've found. Sharcly is now a non-negotiable part of my morning routine."
-             </p>
-             <div className="flex items-center gap-4 mt-6">
-                <div className="h-10 w-10 rounded-full bg-accent/20 border border-accent/20" />
-                <div>
-                   <p className="text-[10px] font-black uppercase tracking-widest text-white">Sarah Jenkins</p>
-                   <p className="text-[9px] font-bold text-white/40">Verified Member</p>
-                </div>
-             </div>
+          <div className="flex gap-12 pt-10">
+            <div className="space-y-1">
+              <p className="text-4xl font-black italic tracking-tighter">SECURE</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">End-to-End Encryption</p>
+            </div>
+            <div className="space-y-1 border-l border-white/10 pl-12">
+              <p className="text-4xl font-black italic tracking-tighter">FAST</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">Instant Verification</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Left Side: Auth Form */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12 relative">
-        <div className="w-full max-w-md space-y-12 animate-in fade-in slide-in-from-left-8 duration-1000">
-          <div className="space-y-4">
-             <Link href="/" className="inline-flex items-center gap-2 text-primary/40 hover:text-primary transition-colors mb-4 group">
-                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Return home</span>
-             </Link>
-             <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-foreground leading-[0.9]">
-               {step === 1 ? "CREATE YOUR" : "VERIFY YOUR"} <br/> {step === 1 ? "ACCOUNT." : "EMAIL."}
-             </h1>
-             <p className="text-foreground/50 font-medium tracking-tight">
-               {step === 1 ? "Join our community in just a few seconds." : `We've sent a 6-digit code to ${formData.email}`}
-             </p>
+      {/* Auth Side */}
+      <div className="flex-1 flex items-center justify-center p-8 lg:p-20 bg-[#020d08] relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="w-full max-w-md space-y-16 relative z-10">
+          <div className="space-y-6">
+            <Link href="/" className="inline-block group">
+              <img 
+                src="https://cdn.mignite.app/ws/works_01KM0WR2ZSKYNHV0ZE2MPNM9EF/final-Logo-1--01KM5Y2NCW8720B30G9G0XW18Y.png" 
+                alt="Sharcly" 
+                className="h-12 w-auto brightness-0 invert opacity-100 group-hover:scale-110 transition-transform duration-500" 
+              />
+            </Link>
+            <div className="space-y-2">
+              <h2 className="text-5xl font-black italic tracking-tighter uppercase leading-none">
+                {step === 1 ? <>Join <span className="text-accent">Us</span></> : <>Verify <span className="text-accent">Identity</span></>}
+              </h2>
+              <p className="text-white/40 font-medium">
+                {step === 1 ? "Fill in your details to start your journey." : `We've sent a code to ${formData.email}`}
+              </p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-8">
             {step === 1 ? (
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Full Name</Label>
+              <div className="space-y-6">
+                <div className="space-y-3 group">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 group-focus-within:text-accent transition-colors">Legal Full Name</Label>
                   <Input
-                    id="name"
-                    placeholder="Enter your name"
-                    required
+                    placeholder="ALEXANDER SHARCLY"
                     value={formData.name}
-                    onChange={handleChange}
-                    className="h-14 rounded-2xl border-primary/5 bg-primary/5 px-6 font-medium focus:ring-accent/20 focus:border-accent/40 transition-all placeholder:text-foreground/20"
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    required
+                    className="h-16 px-8 rounded-2xl bg-white/[0.03] border-2 border-white/5 focus:border-accent/40 focus:bg-white/[0.05] transition-all duration-300 font-bold text-lg placeholder:text-white/10"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Email Address</Label>
+                <div className="space-y-3 group">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 group-focus-within:text-accent transition-colors">Primary Email</Label>
                   <Input
-                    id="email"
                     type="email"
-                    placeholder="name@email.com"
-                    required
+                    placeholder="name@sharcly.io"
                     value={formData.email}
-                    onChange={handleChange}
-                    className="h-14 rounded-2xl border-primary/5 bg-primary/5 px-6 font-medium focus:ring-accent/20 focus:border-accent/40 transition-all placeholder:text-foreground/20"
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    required
+                    className="h-16 px-8 rounded-2xl bg-white/[0.03] border-2 border-white/5 focus:border-accent/40 focus:bg-white/[0.05] transition-all duration-300 font-bold text-lg placeholder:text-white/10"
                   />
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        required
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="h-14 rounded-2xl border-primary/5 bg-primary/5 px-6 pr-12 font-medium focus:ring-accent/20 focus:border-accent/40 transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                    </div>
+
+                <div className="space-y-3 group">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 group-focus-within:text-accent transition-colors">Create Password</Label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={(e) => setFormData({...formData, password: e.target.value})}
+                      required
+                      className="h-16 px-8 rounded-2xl bg-white/[0.03] border-2 border-white/5 focus:border-accent/40 focus:bg-white/[0.05] transition-all duration-300 font-bold text-lg pr-16 placeholder:text-white/10"
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20">
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Confirm Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        required
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        className="h-14 rounded-2xl border-primary/5 bg-primary/5 px-6 pr-12 font-medium focus:ring-accent/20 focus:border-accent/40 transition-all"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary transition-colors"
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                      </button>
-                    </div>
-                  </div>
+                </div>
+
+                <div className="space-y-3 group">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 group-focus-within:text-accent transition-colors">Confirm Password</Label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                    required
+                    className="h-16 px-8 rounded-2xl bg-white/[0.03] border-2 border-white/5 focus:border-accent/40 focus:bg-white/[0.05] transition-all duration-300 font-bold text-lg placeholder:text-white/10"
+                  />
                 </div>
               </div>
             ) : (
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="otp" className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60">Verification Code</Label>
+              <div className="space-y-6">
+                <div className="space-y-3 group">
+                  <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 group-focus-within:text-accent transition-colors">6-Digit Access Code</Label>
                   <Input
-                    id="otp"
                     placeholder="000000"
-                    required
-                    maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
-                    className="h-20 text-center text-3xl tracking-[1rem] font-black rounded-2xl border-primary/5 bg-primary/5 px-6 focus:ring-accent/20 focus:border-accent/40 transition-all placeholder:text-foreground/10"
+                    required
+                    maxLength={6}
+                    className="h-24 px-8 rounded-2xl bg-white/[0.03] border-2 border-white/5 focus:border-accent/40 focus:bg-white/[0.05] transition-all duration-300 font-black text-5xl tracking-[0.5em] text-center placeholder:text-white/10"
                   />
                 </div>
-                <div className="flex justify-between items-center">
-                   <button 
-                     type="button" 
-                     onClick={() => setStep(1)}
-                     className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-colors"
-                   >
-                     Change Details
-                   </button>
-                   <button 
-                     type="button" 
-                     onClick={handleSendOtp}
-                     disabled={isSendingOtp}
-                     className="text-[10px] font-black uppercase tracking-widest text-accent hover:text-accent/80 transition-colors"
-                   >
-                     {isSendingOtp ? "Sending..." : "Resend Code"}
-                   </button>
-                </div>
+                <button 
+                  type="button" 
+                  onClick={handleSendOtp}
+                  className="text-[10px] font-black uppercase tracking-widest text-accent hover:underline w-full text-center"
+                >
+                  Didn't receive it? Resend Code
+                </button>
               </div>
             )}
 
-            <div className="pt-4">
-               <Button className="w-full h-16 rounded-2xl premium-gradient font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-primary/20 group border-none hover:opacity-90" type="submit" disabled={isLoading || isSendingOtp}>
-                 {isLoading || isSendingOtp ? (
-                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                 ) : (
-                   step === 1 ? "Next: Verify Email" : "Complete Registration"
-                 )}
-               </Button>
-            </div>
-
-            <div className="relative py-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-primary/5" />
-              </div>
-              <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest leading-none">
-                <span className="bg-background px-4 text-foreground/30">Already have an account?</span>
-              </div>
-            </div>
-
-            <Button variant="ghost" className="w-full h-16 rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-primary/5" asChild>
-               <Link href="/login">Sign In</Link>
+            <Button 
+              type="submit" 
+              disabled={isLoading || isSendingOtp}
+              className="w-full h-18 py-8 rounded-2xl text-[14px] font-black uppercase tracking-[0.4em] bg-accent text-primary hover:bg-white hover:scale-[1.02] active:scale-95 transition-all duration-500 shadow-[0_20px_50px_rgba(235,181,107,0.15)] group"
+            >
+              {isLoading || isSendingOtp ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <span className="flex items-center gap-3">
+                  {step === 1 ? "Request Access" : "Validate & Enter"} <ShieldCheck className="h-4 w-4 opacity-40 group-hover:opacity-100" />
+                </span>
+              )}
             </Button>
           </form>
-          
-          <p className="text-center text-[9px] font-bold text-foreground/30 max-w-xs mx-auto leading-relaxed">
-             By creating an account, you agree to our <Link href="/terms" className="text-accent underline decoration-accent/20 hover:text-accent/80">Terms of Service</Link> and <Link href="/privacy" className="text-accent underline decoration-accent/20 hover:text-accent/80">Privacy Policy</Link>.
-          </p>
+
+          <div className="pt-10 border-t border-white/5 flex flex-col items-center gap-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white/20">
+              Already have credentials?
+            </p>
+            <Link href="/login">
+              <Button variant="outline" className="h-14 px-10 rounded-2xl border-2 border-white/5 bg-transparent hover:bg-white/5 hover:border-white/10 text-[10px] font-black uppercase tracking-[0.3em] transition-all">
+                Sign In
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-// Helper Badge component if not available, or I'll just use the one from UI
-function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
-  return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`}>
-      {children}
-    </span>
+      <style jsx global>{`
+        @keyframes ken-burns {
+          0% { transform: scale(1); }
+          100% { transform: scale(1.2); }
+        }
+        .animate-ken-burns {
+          animation: ken-burns 30s infinite alternate linear;
+        }
+      `}</style>
+    </div>
   );
 }
