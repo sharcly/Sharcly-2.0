@@ -13,6 +13,7 @@ import {
   X 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 // --- Types ---
 interface Product {
@@ -88,11 +89,11 @@ export default function ProductDashboard() {
 
   return (
     <div className="min-h-screen bg-[#f4f4f0] text-[#0f2318] p-4 sm:p-10 font-sans">
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
         h1, h2, h3, .heading-serif {
           font-family: Georgia, serif;
         }
-      `}} />
+      `)}} />
 
       {/* --- Page Header --- */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">

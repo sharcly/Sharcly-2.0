@@ -28,8 +28,10 @@ import {
   Share2,
   List,
   ShieldCheck,
-  Zap
+  Zap,
+  ArrowLeft
 } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
 import Image from "next/image";
