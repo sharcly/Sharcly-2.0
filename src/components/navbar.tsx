@@ -210,7 +210,7 @@ export function Navbar() {
                              <div className="h-px bg-black/5 my-2" />
                              <Link href="/account" className="text-sm font-bold uppercase tracking-widest">My Account</Link>
                              <button 
-                               onClick={logout}
+                               onClick={() => logout()}
                                className="text-sm font-bold uppercase tracking-widest text-rose-500 text-left"
                              >
                                Sign Out
