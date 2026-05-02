@@ -33,10 +33,10 @@ export const TestimonialCard = ({ testimonial, index }: TestimonialCardProps) =>
         boxShadow: "0 20px 40px -15px rgba(13, 39, 25, 0.1)",
         borderColor: "rgba(13, 39, 25, 0.1)"
       }}
-      className="bg-white p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-transparent flex flex-col justify-between h-full transition-all duration-300"
+      className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-transparent flex flex-col justify-between h-full transition-all duration-300"
     >
       <div>
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-start mb-5">
           <StarRating rating={testimonial.rating} />
           {testimonial.featured && (
             <div className="bg-[#f0f9f0] text-[#0d2719] text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full border border-[#0d2719]/10">
@@ -45,20 +45,20 @@ export const TestimonialCard = ({ testimonial, index }: TestimonialCardProps) =>
           )}
         </div>
         
-        <blockquote className="text-[#0d2719] text-lg leading-relaxed font-medium mb-10">
+        <blockquote className="text-[#0d2719] text-[15px] leading-relaxed font-medium mb-6">
           "{testimonial.message}"
         </blockquote>
       </div>
       
-      <div className="flex items-center gap-4 pt-6 border-t border-gray-50">
+      <div className="flex items-center gap-3 pt-4 border-t border-gray-50">
         {testimonial.image ? (
           <img 
             src={testimonial.image} 
             alt={testimonial.name} 
-            className="w-12 h-12 rounded-full object-cover border-2 border-[#f0f9f0]" 
+            className="w-10 h-10 rounded-full object-cover border-2 border-[#f0f9f0]" 
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-[#f0f9f0] flex items-center justify-center text-[#0d2719] font-bold text-lg">
+          <div className="w-10 h-10 rounded-full bg-[#f0f9f0] flex items-center justify-center text-[#0d2719] font-bold text-base">
             {testimonial.name.charAt(0)}
           </div>
         )}
