@@ -209,13 +209,17 @@ export function Navbar() {
                            <>
                              <div className="h-px bg-black/5 my-2" />
                              <Link href="/account" className="text-sm font-bold uppercase tracking-widest">My Account</Link>
-                             <button 
-                               type="button"
-                               onClick={() => logout()}
-                               className="text-sm font-bold uppercase tracking-widest text-rose-500 text-left cursor-pointer active:opacity-50"
-                             >
-                               Sign Out
-                             </button>
+                              <button 
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  logout();
+                                }}
+                                className="text-sm font-bold uppercase tracking-widest text-rose-500 text-left w-full py-2 cursor-pointer active:opacity-50 touch-manipulation"
+                              >
+                                Sign Out
+                              </button>
                            </>
                          ) : (
                            <>

@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = React.useCallback(async () => {
     const toastId = (await import("sonner")).toast.loading("Signing out...");
     try {
       // 1. Call backend logout first while we still have the token/session
@@ -161,7 +161,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         window.location.href = "/login";
       }, 1000);
     }
-  };
+  }, [router]);
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
