@@ -18,6 +18,8 @@ import {
   ArrowRight
 } from "lucide-react";
 import Link from "next/link";
+import { sanitizeHtml } from "@/lib/sanitize";
+import { BlogStatus } from "@prisma/client";
 import { apiClient } from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, useScroll, useSpring } from "framer-motion";
@@ -194,9 +196,7 @@ export default function BlogDetailPage() {
                 prose-strong:text-[#0d2719] prose-strong:font-black
                 prose-blockquote:border-l-4 prose-blockquote:border-[#0d2719] prose-blockquote:pl-10 prose-blockquote:italic
                 prose-img:rounded-[3rem] prose-img:shadow-2xl"
-                dangerouslySetInnerHTML={{ 
-                  __html: blog.content 
-                }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(blog.content) }}
               />
 
               {/* Tags & Social Share */}
@@ -272,7 +272,7 @@ export default function BlogDetailPage() {
 
       <Footer />
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
         .prose-sharcly h2 {
           font-size: 3rem;
           line-height: 1;
@@ -298,7 +298,7 @@ export default function BlogDetailPage() {
           font-weight: 500;
           color: rgba(13, 39, 25, 0.7);
         }
-      `}} />
+      `)}} />
     </div>
   );
 }

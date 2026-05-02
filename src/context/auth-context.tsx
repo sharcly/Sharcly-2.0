@@ -16,7 +16,6 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
-  token: string | null;
   login: (accessToken: string, refreshToken: string, user: { id: string; email: string; name: string; role: any }) => void;
   logout: () => void;
   isLoading: boolean;
@@ -26,7 +25,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -34,17 +32,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const storedToken = localStorage.getItem("token");
         const storedUser = localStorage.getItem("user");
-
-        // If no token in storage, don't bother the backend (prevents 401 loop on login page)
-        if (!storedToken) {
-          setIsLoading(false);
-          return;
-        }
+        
+        // On mount, we always check /auth/me to verify the session
+        // (HttpOnly cookie is the source of truth)
 
         if (storedUser) {
-          setToken(storedToken);
           setUser(JSON.parse(storedUser));
         }
 
@@ -69,16 +62,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } catch (error) {
         // Only clear if we actually had a session that is now invalid
-        if (localStorage.getItem("token")) {
-          setUser(null);
-          setToken(null);
-          localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("user");
-          Cookies.remove("token", { path: "/" });
-          Cookies.remove("refreshToken", { path: "/" });
-          Cookies.remove("role", { path: "/" });
-        }
+        // If session is invalid, clear local user state
+        setUser(null);
+        localStorage.removeItem("user");
+        Cookies.remove("role", { path: "/" });
       } finally {
         setIsLoading(false);
       }
@@ -104,18 +91,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       role: roleSlug as Role,
     };
 
-    setToken(newAccessToken);
     setUser(newUser);
 
-    // Keep localStorage for fast hydration only (not as auth source of truth)
-    localStorage.setItem("token", newAccessToken);
-    localStorage.setItem("refreshToken", newRefreshToken);
+    // Keep user in localStorage for fast UI hydration only
     localStorage.setItem("user", JSON.stringify(newUser));
 
-    // Set JS-accessible cookies for Next.js middleware route protection
-    // (The real auth token is in the httpOnly cookie set by the backend)
-    Cookies.set("token", newAccessToken, { expires: 1, path: "/" });
-    Cookies.set("refreshToken", newRefreshToken, { expires: 7, path: "/" });
+    // Role cookie for Next.js middleware routing
     Cookies.set("role", newUser.role, { expires: 1, path: "/" });
 
     // Redirect based on role
@@ -135,15 +116,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       // 2. Clear local state and storage
-      setToken(null);
       setUser(null);
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
 
-      // 3. Remove client-side cookies
-      Cookies.remove("token", { path: "/" });
-      Cookies.remove("refreshToken", { path: "/" });
+      // 3. Remove client-side role cookie
       Cookies.remove("role", { path: "/" });
 
       (await import("sonner")).toast.success("Logged out successfully", { id: toastId });
@@ -164,7 +140,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

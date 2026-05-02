@@ -28,8 +28,10 @@ import {
   Share2,
   List,
   ShieldCheck,
-  Zap
+  Zap,
+  ArrowLeft
 } from "lucide-react";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
 import Image from "next/image";
@@ -230,11 +232,11 @@ export default function ProductDrawer({
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@100..1000&family=Sora:wght@100..800&display=swap');
         .font-sans { font-family: 'DM Sans', sans-serif; }
         .font-heading { font-family: 'Sora', sans-serif; }
-      `}} />
+      `)}} />
 
       {/* BACKDROP */}
       <div className="absolute inset-0 bg-neutral-900/40 backdrop-blur-sm" onClick={onClose} />

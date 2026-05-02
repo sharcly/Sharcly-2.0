@@ -42,6 +42,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { sanitizeHtml } from "@/lib/sanitize";
 import { 
   CardNumberElement, 
   CardExpiryElement, 
@@ -887,7 +888,7 @@ function CheckoutContent() {
         </div>
       </main>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
         .checkout-input {
           height: 3.5rem !important;
           border-radius: 0.75rem !important;
@@ -918,7 +919,7 @@ function CheckoutContent() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-      `}} />
+      `)}} />
     </div>
   );
 }

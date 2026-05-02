@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const seriesData = [
   {
@@ -246,8 +247,7 @@ export const ShopBySeries = () => {
             WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
           }}
         >
-          <style dangerouslySetInnerHTML={{
-            __html: `
+          <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
             @keyframes marquee {
               0% { transform: translateX(0); }
               100% { transform: translateX(-33.333%); }
@@ -260,9 +260,9 @@ export const ShopBySeries = () => {
             .marquee-container:hover {
               animation-play-state: paused;
             }
-          `}} />
-
-          <div className="marquee-container py-4 md:py-6 gap-6 md:gap-8">
+          `)}} />
+          
+          <div className="marquee-container py-12 gap-6 md:gap-10">
             {[...seriesData, ...seriesData, ...seriesData].map((item, index) => (
               <div key={`${item.number}-${index}`} className="w-[220px] md:w-[320px] shrink-0">
                 <SeriesCard item={item} index={index} />

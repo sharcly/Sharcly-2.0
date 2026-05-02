@@ -20,6 +20,7 @@ import Link from "next/link";
 import { apiClient } from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export default function BlogPostDetail() {
   const { slug } = useParams();
@@ -162,7 +163,7 @@ export default function BlogPostDetail() {
               <div 
                 className="prose prose-lg prose-sharcly max-w-none prose-headings:font-serif prose-headings:italic prose-headings:tracking-tighter prose-p:text-lg prose-p:leading-relaxed prose-p:font-medium prose-p:text-[#062D1B]/80"
                 dangerouslySetInnerHTML={{ 
-                  __html: blog.content.replace(/\n/g, '<br/>') 
+                  __html: sanitizeHtml(blog.content.replace(/\n/g, '<br/>')) 
                 }}
               />
 
@@ -203,7 +204,7 @@ export default function BlogPostDetail() {
 
       <Footer />
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
         .prose-sharcly h1, .prose-sharcly h2, .prose-sharcly h3 {
           margin-top: 4rem;
           margin-bottom: 2rem;
@@ -216,7 +217,7 @@ export default function BlogPostDetail() {
           color: #062D1B;
           font-weight: 800;
         }
-      `}} />
+      `)}} />
     </div>
   );
 }
