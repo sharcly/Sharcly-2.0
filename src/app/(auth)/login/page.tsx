@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -27,9 +27,9 @@ export default function LoginPage() {
     try {
       const response = await apiClient.post("/auth/login", { email, password });
       login(response.data.accessToken, response.data.refreshToken, response.data.user);
-      toast.success("Welcome back to Sharcly.");
+      toast.success("Login successful.");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Invalid credentials. Please try again.");
+      toast.error(error.response?.data?.message || "Invalid email or password.");
     } finally {
       setIsLoading(false);
     }
@@ -37,97 +37,93 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-[#FDFDFB]">
-      {/* Narrative Side: Brand Heritage */}
-      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-[#062D1B] items-center justify-center p-24">
-        {/* Abstract Brand Background */}
+      {/* Narrative Side */}
+      <div className="hidden lg:flex w-[55%] relative overflow-hidden bg-[#062D1B] items-center justify-center p-16">
         <div 
-          className="absolute inset-0 opacity-40 mix-blend-overlay"
+          className="absolute inset-0 opacity-20 mix-blend-overlay"
           style={{ 
             backgroundImage: 'url("https://i.postimg.cc/0y2xqZs9/Sunlit-forest-path-with-wooden-platform.jpg")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#062D1B] via-[#062D1B]/90 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#062D1B] to-[#062D1B]/80" />
         
-        <div className="relative z-20 max-w-xl space-y-12">
-          <div className="space-y-6">
-            <h1 className="text-7xl xl:text-8xl font-black text-white tracking-tighter leading-[0.9] uppercase italic">
-              Better <br/> <span className="text-[#EBB56B]">Nature</span> <br/> Better You.
-            </h1>
-            <p className="text-xl text-white/60 font-medium leading-relaxed">
-              Experience the pinnacle of wellness with our premium, lab-verified hemp essentials. Designed for those who seek the extraordinary.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-12 pt-8 border-t border-white/10">
-            <div className="space-y-1">
-              <p className="text-3xl font-black text-[#EBB56B] italic uppercase tracking-tighter">Gold Standard</p>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 text-nowrap">Industry Certified Purity</p>
+        <div className="relative z-20 max-w-lg space-y-8">
+          <h1 className="text-6xl font-bold text-white tracking-tight leading-[1.1]">
+            Experience <br/> <span className="text-[#EBB56B]">Natural</span> Wellness.
+          </h1>
+          <p className="text-lg text-white/70 font-medium leading-relaxed">
+            Join Sharcly to explore our collection of premium, lab-verified hemp essentials delivered directly to your door.
+          </p>
+          <div className="flex gap-8 pt-6 border-t border-white/10">
+            <div>
+              <p className="text-2xl font-bold text-[#EBB56B]">100%</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Lab Verified</p>
             </div>
-            <div className="space-y-1">
-              <p className="text-3xl font-black text-[#EBB56B] italic uppercase tracking-tighter">Direct Farm</p>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 text-nowrap">Ethically Sourced Worldwide</p>
+            <div>
+              <p className="text-2xl font-bold text-[#EBB56B]">Pure</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Farm Sourced</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Auth Side: Professional Form */}
-      <div className="flex-1 flex items-center justify-center p-8 lg:p-24 relative bg-white">
-        <div className="w-full max-w-md space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="flex flex-col items-center lg:items-start space-y-8">
-            <Link href="/" className="transition-transform hover:scale-105 duration-300">
+      {/* Auth Side */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+        <div className="w-full max-w-md space-y-10">
+          <div className="space-y-6">
+            <Link href="/" className="inline-block">
               <img 
                 src="https://cdn.mignite.app/ws/works_01KM0WR2ZSKYNHV0ZE2MPNM9EF/final-Logo-1--01KM5Y2NCW8720B30G9G0XW18Y.png" 
                 alt="Sharcly" 
-                className="h-10 w-auto" 
+                className="h-8 w-auto" 
               />
             </Link>
-            <div className="space-y-2 text-center lg:text-left">
-              <h2 className="text-4xl font-black text-[#062D1B] tracking-tighter uppercase italic leading-none">
-                Sign In To <br/> <span className="text-[#EBB56B]">Dashboard</span>
-              </h2>
-              <p className="text-[#062D1B]/40 font-bold uppercase tracking-widest text-[10px]">Administrative Access Only</p>
+            <div className="space-y-1">
+              <h2 className="text-3xl font-bold text-[#062D1B] tracking-tight">Login</h2>
+              <p className="text-gray-500 text-sm font-medium">Welcome back! Please enter your details.</p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-3 group">
-                <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#062D1B]/40 group-focus-within:text-[#062D1B] transition-colors">Registered Email</Label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-semibold text-[#062D1B]">Email Address</Label>
                 <Input
+                  id="email"
                   type="email"
-                  placeholder="admin@sharcly.io"
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-16 px-8 rounded-2xl border-2 border-[#062D1B]/5 bg-[#062D1B]/[0.02] focus:border-[#062D1B] focus:bg-white transition-all font-bold text-lg placeholder:text-[#062D1B]/10"
+                  className="h-12 px-4 rounded-xl border-gray-200 focus:border-[#062D1B] focus:ring-[#062D1B] transition-all"
                 />
               </div>
 
-              <div className="space-y-3 group">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#062D1B]/40 group-focus-within:text-[#062D1B] transition-colors">Access Password</Label>
-                  <Link href="/forgot-password" title="Recover Password" className="text-[10px] font-black uppercase tracking-widest text-[#EBB56B] hover:text-[#062D1B] transition-colors">
-                    Lost Access?
+                  <Label htmlFor="password" className="text-sm font-semibold text-[#062D1B]">Password</Label>
+                  <Link href="/forgot-password" size="sm" className="text-xs font-bold text-[#EBB56B] hover:text-[#062D1B]">
+                    Forgot password?
                   </Link>
                 </div>
                 <div className="relative">
                   <Input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="h-16 px-8 rounded-2xl border-2 border-[#062D1B]/5 bg-[#062D1B]/[0.02] focus:border-[#062D1B] focus:bg-white transition-all font-bold text-lg pr-16 placeholder:text-[#062D1B]/10"
+                    className="h-12 px-4 rounded-xl border-gray-200 focus:border-[#062D1B] focus:ring-[#062D1B] transition-all pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-6 top-1/2 -translate-y-1/2 text-[#062D1B]/20 hover:text-[#062D1B] transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
@@ -136,25 +132,23 @@ export default function LoginPage() {
             <Button 
               type="submit" 
               disabled={isLoading}
-              className="w-full h-20 rounded-2xl bg-[#062D1B] text-white hover:bg-[#083a23] hover:shadow-2xl hover:shadow-[#062D1B]/20 active:scale-95 transition-all duration-300 text-[12px] font-black uppercase tracking-[0.4em] shadow-xl shadow-[#062D1B]/10"
+              className="w-full h-12 rounded-xl bg-[#062D1B] text-white hover:bg-[#083a23] font-bold text-sm transition-all"
             >
               {isLoading ? (
-                <Loader2 className="h-6 w-6 animate-spin text-white/50" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
-                <span className="flex items-center gap-3">
-                  Secure Sign In <ShieldCheck className="h-4 w-4 text-[#EBB56B]" />
-                </span>
+                "Login"
               )}
             </Button>
           </form>
 
-          <div className="pt-12 border-t border-[#062D1B]/5 flex flex-col items-center lg:items-start gap-4">
-            <p className="text-[11px] font-black uppercase tracking-widest text-[#062D1B]/20">Don't have an account yet?</p>
-            <Link href="/register">
-              <Button variant="outline" className="h-14 px-10 rounded-2xl border-2 border-[#062D1B]/5 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-[#062D1B] hover:text-white transition-all">
-                Join Community
-              </Button>
-            </Link>
+          <div className="pt-8 border-t border-gray-100 text-center">
+            <p className="text-sm text-gray-500">
+              Don't have an account?{" "}
+              <Link href="/register" className="text-[#062D1B] font-bold hover:underline">
+                Sign up
+              </Link>
+            </p>
           </div>
         </div>
       </div>
