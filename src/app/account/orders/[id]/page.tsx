@@ -81,7 +81,7 @@ export default function OrderDetailsPage() {
                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                       <p className="font-bold">${(Number(item.price) * item.quantity).toFixed(2)}</p>
+                       <p className="font-bold">${(Number(item.price) * item.quantity)}</p>
                     </div>
                   </div>
                 ))}
@@ -94,21 +94,21 @@ export default function OrderDetailsPage() {
               <div className="relative z-10 space-y-4">
                  <div className="flex justify-between text-white/40 text-sm font-bold uppercase tracking-widest">
                     <span>Subtotal</span>
-                    <span className="text-white">${(Number(order.totalAmount) - Number(order.taxAmount) - Number(order.shippingAmount)).toFixed(2)}</span>
+                    <span className="text-white">${(Number(order.totalAmount) - Number(order.taxAmount) - Number(order.shippingAmount))}</span>
                  </div>
                  <div className="flex justify-between text-white/40 text-sm font-bold uppercase tracking-widest">
                     <span>Shipping</span>
-                    <span className="text-white">${Number(order.shippingAmount).toFixed(2)}</span>
+                    <span className="text-white">${Number(order.shippingAmount)}</span>
                  </div>
                  <div className="flex justify-between text-white/40 text-sm font-bold uppercase tracking-widest">
                     <span>Taxes</span>
-                    <span className="text-white">${Number(order.taxAmount).toFixed(2)}</span>
+                    <span className="text-white">${Number(order.taxAmount)}</span>
                  </div>
                  <div className="h-px w-full bg-white/10 my-6" />
                  <div className="flex justify-between items-end">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EBB56B] mb-2">Total Amount Paid</p>
-                      <p className="text-4xl font-black tracking-tighter">${Number(order.totalAmount).toFixed(2)}</p>
+                      <p className="text-4xl font-black tracking-tighter">${Number(order.totalAmount)}</p>
                     </div>
                     <div className="text-right hidden sm:block">
                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Payment Method</p>

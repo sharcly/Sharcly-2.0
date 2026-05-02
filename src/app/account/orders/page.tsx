@@ -72,7 +72,7 @@ export default function OrdersPage() {
                         {order.status}
                       </Badge>
                     </td>
-                    <td className="px-6 py-6 font-bold text-sm">${Number(order.totalAmount).toFixed(2)}</td>
+                    <td className="px-6 py-6 font-bold text-sm">${Number(order.totalAmount)}</td>
                     <td className="px-6 py-6 text-right">
                       <Link href={`/account/orders/${order.id}`} className="text-xs font-bold text-[#062D1B] hover:underline">
                         View Details
