@@ -10,7 +10,7 @@ const footerLinks = [
   {
     title: "Shop",
     links: [
-      { name: "New Arrivals", href: "/products" },
+      { name: "New Arrivals", href: "/new-arrivals" },
       { name: "Collections", href: "/collections" },
       { name: "Bestsellers", href: "/bestsellers" },
       { name: "Sale", href: "/sale" },
@@ -23,7 +23,6 @@ const footerLinks = [
       { name: "The Journal", href: "/blogs" },
       { name: "Manufacturing", href: "/manufacturing" },
       { name: "Sustainability", href: "/sustainability" },
-      { name: "Careers", href: "/careers" },
     ],
   },
   {
