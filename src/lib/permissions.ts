@@ -2,6 +2,10 @@ import { Role, navigationConfig } from "@/config/navigation.config";
 
 export function canAccess(role: Role, path: string): boolean {
   console.log(`[Permissions] Checking access for role: ${role}, path: ${path}`);
+  
+  // Super admin has access to EVERYTHING
+  if (role === "super_admin") return true;
+
   // Public paths or paths that don't match our dashboard structure
   if (!path.startsWith("/dashboard") && !path.startsWith("/account")) {
     return true;
@@ -20,6 +24,20 @@ export function canAccess(role: Role, path: string): boolean {
   return item.allowedRoles.includes(role);
 }
 
-export function getVisibleNavItems(role: Role) {
-  return navigationConfig.filter(item => item.allowedRoles.includes(role));
+export function getVisibleNavItems(user: { role: Role; permissions: string[] }) {
+  // Super admin sees EVERYTHING
+  if (user.role === "super_admin") return navigationConfig;
+
+  return navigationConfig.filter(item => {
+    // Check if the role is allowed
+    const isRoleAllowed = item.allowedRoles.includes(user.role);
+    if (!isRoleAllowed) return false;
+
+    // If a specific permission is required, check if user has it
+    if (item.requiredPermission) {
+      return user.permissions.includes(item.requiredPermission);
+    }
+
+    return true;
+  });
 }

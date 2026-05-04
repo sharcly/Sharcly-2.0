@@ -12,22 +12,26 @@ export function middleware(request: NextRequest) {
 
   // 1. If trying to access admin dashboard without admin role
   if (isAdminRoute) {
-    if (!role || !['admin', 'manager', 'content_manager'].includes(role)) {
+    if (!role || !['admin', 'super_admin', 'manager', 'content_manager'].includes(role)) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
   }
 
-  // 2. If trying to access user account without any role (not logged in)
+  // 2. If trying to access user account
   if (isUserRoute) {
     if (!role) {
       return NextResponse.redirect(new URL('/login', request.url))
+    }
+    // Only 'user' role can access /account. Others go to /dashboard.
+    if (role !== 'user' && pathname.startsWith('/account')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 
   // 3. If already logged in and trying to access login/register
   if (isAuthRoute) {
     if (role) {
-      if (['admin', 'manager', 'content_manager'].includes(role)) {
+      if (['admin', 'super_admin', 'manager', 'content_manager'].includes(role)) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
       }
       return NextResponse.redirect(new URL('/account', request.url))

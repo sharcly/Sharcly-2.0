@@ -24,6 +24,7 @@ import { TestimonialsSection } from "@/components/testimonials";
 import { TrustLoyaltySection } from "@/components/trust-loyalty-section";
 import { ShopBySeries } from "@/components/shop-by-series";
 import ProcessStorySection from "@/components/ProcessStorySection";
+import { FinalCTA } from "@/components/final-cta";
 const MOCK_PRODUCTS = [
    {
       id: "p1",
@@ -77,26 +78,190 @@ export default function Home() {
 
 
             {/* Modular Info Section */}
-            <section className="py-24 bg-[#F9FAFB] border-y border-gray-50">
-               <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
-                  <div className="space-y-10">
-                     <h2 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight">
-                        Rooted in radical <br /> transparency.
-                     </h2>
-                     <p className="text-sm text-[#062D1B]/60 leading-relaxed max-w-lg">
-                        We believe you should know exactly what you are putting into your body. That is why we provide full, third-party lab results for every single batch of Sharcly products ever produced.
-                     </p>
-                     <div className="pt-4">
-                        <Button variant="outline" className="btn-slim border-gray-200">Access Lab Results</Button>
+            <section
+               style={{
+                  position: "relative",
+                  padding: "120px 0",
+                  background:
+                     "linear-gradient(180deg, #040e07 0%, #051a10 40%, #082f1d 70%, #051a10 100%)",
+                  overflow: "hidden",
+                  color: "#eff8ee",
+               }}
+            >
+               {/* dot grid */}
+               <div
+                  style={{
+                     position: "absolute",
+                     inset: 0,
+                     backgroundImage:
+                        "radial-gradient(circle, rgba(239,248,238,0.05) 1px, transparent 1px)",
+                     backgroundSize: "36px 36px",
+                     pointerEvents: "none",
+                  }}
+               />
+
+               <div
+                  style={{
+                     maxWidth: "1200px",
+                     margin: "0 auto",
+                     padding: "0 24px",
+                     display: "grid",
+                     gridTemplateColumns: "1fr 1fr",
+                     gap: "80px",
+                     alignItems: "center",
+                     position: "relative",
+                     zIndex: 2,
+                  }}
+               >
+                  {/* LEFT */}
+                  <div>
+                     {/* label */}
+                     <div
+                        style={{
+                           display: "flex",
+                           alignItems: "center",
+                           gap: "10px",
+                           fontSize: "10px",
+                           letterSpacing: "0.2em",
+                           textTransform: "uppercase",
+                           color: "#E8C547",
+                           marginBottom: "20px",
+                        }}
+                     >
+                        <span style={{ width: "24px", height: "1px", background: "#E8C547" }} />
+                        Radical Transparency
                      </div>
+
+                     {/* headline */}
+                     <h2
+                        style={{
+                           fontFamily: "serif",
+                           fontSize: "clamp(36px, 4vw, 58px)",
+                           lineHeight: 1.1,
+                           marginBottom: "24px",
+                        }}
+                     >
+                        Rooted in <br />
+                        <span style={{ color: "#E8C547", fontStyle: "italic" }}>
+                           radical
+                        </span>{" "}
+                        <br />
+                        transparency.
+                     </h2>
+
+                     {/* body */}
+                     <p
+                        style={{
+                           fontSize: "15px",
+                           lineHeight: 1.8,
+                           color: "rgba(239,248,238,0.6)",
+                           maxWidth: "420px",
+                           marginBottom: "30px",
+                        }}
+                     >
+                        We believe you should know exactly what you are putting into your body.
+                        That is why we provide full, third-party lab results for every single
+                        batch of Sharcly products ever produced.
+                     </p>
+
+                     {/* stats */}
+                     <div
+                        style={{
+                           display: "flex",
+                           gap: "30px",
+                           padding: "20px 0",
+                           borderTop: "1px solid rgba(239,248,238,0.08)",
+                           borderBottom: "1px solid rgba(239,248,238,0.08)",
+                           marginBottom: "30px",
+                        }}
+                     >
+                        <div>
+                           <div
+                              style={{
+                                 fontFamily: "serif",
+                                 fontSize: "30px",
+                                 color: "#E8C547",
+                              }}
+                           >
+                              100%
+                           </div>
+                           <div style={{ fontSize: "11px", color: "rgba(239,248,238,0.5)" }}>
+                              Batches Lab Tested
+                           </div>
+                        </div>
+
+                        <div>
+                           <div
+                              style={{
+                                 fontFamily: "serif",
+                                 fontSize: "30px",
+                                 color: "#E8C547",
+                              }}
+                           >
+                              3rd
+                           </div>
+                           <div style={{ fontSize: "11px", color: "rgba(239,248,238,0.5)" }}>
+                              Party Verified
+                           </div>
+                        </div>
+
+                        <div>
+                           <div
+                              style={{
+                                 fontFamily: "serif",
+                                 fontSize: "30px",
+                                 color: "#E8C547",
+                              }}
+                           >
+                              0
+                           </div>
+                           <div style={{ fontSize: "11px", color: "rgba(239,248,238,0.5)" }}>
+                              Hidden Ingredients
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* button */}
+                     <button
+                        style={{
+                           padding: "14px 28px",
+                           borderRadius: "999px",
+                           border: "1px solid rgba(239,248,238,0.2)",
+                           background: "transparent",
+                           color: "#eff8ee",
+                           fontSize: "12px",
+                           letterSpacing: "0.12em",
+                           textTransform: "uppercase",
+                           cursor: "pointer",
+                        }}
+                     >
+                        Access Lab Results →
+                     </button>
                   </div>
-                  <div className="aspect-square relative rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm">
-                     <Image
-                        src="https://i.postimg.cc/Y2hVpsDp/Sharcy-wellness-products-in-nature-setting.jpg"
-                        alt="Science to Nature"
-                        fill
-                        className="object-cover"
-                     />
+
+                  {/* RIGHT IMAGE */}
+                  <div style={{ position: "relative" }}>
+                     <div
+                        style={{
+                           borderRadius: "24px",
+                           overflow: "hidden",
+                           border: "1px solid rgba(239,248,238,0.08)",
+                           boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
+                           aspectRatio: "1.1/1",
+                           background: "#0a1f12",
+                        }}
+                     >
+                        <img
+                           src="https://i.postimg.cc/Y2hVpsDp/Sharcy-wellness-products-in-nature-setting.jpg"
+                           alt="Science to Nature"
+                           style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              filter: "brightness(0.9) saturate(1.1)",
+                           }}
+                        />
+                     </div>
                   </div>
                </div>
             </section>
@@ -112,15 +277,7 @@ export default function Home() {
             <TestimonialsSection />
 
             {/* Minimal Final CTA */}
-            <section className="py-24 px-6 md:px-12">
-               <div className="max-w-5xl mx-auto text-center space-y-10">
-                  <h2 className="text-3xl md:text-5xl font-semibold tracking-tight">Ready to find your rhythm?</h2>
-                  <div className="flex justify-center flex-wrap gap-4 pt-6">
-                     <Button className="btn-slim bg-[#062D1B] text-white px-12">Explore Products</Button>
-                     <Button variant="ghost" className="btn-slim border border-gray-100">Take the Routine Quiz</Button>
-                  </div>
-               </div>
-            </section>
+            <FinalCTA />
          </main>
 
          <Footer />

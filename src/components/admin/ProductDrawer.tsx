@@ -33,8 +33,8 @@ import {
 } from "lucide-react";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/api-client";
 import Image from "next/image";
+import { getImageUrl } from "@/lib/image-utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
@@ -402,7 +402,7 @@ export default function ProductDrawer({
                     <Field label="Main Hero Image">
                        <label className="group relative size-44 bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-[2.5rem] flex items-center justify-center cursor-pointer hover:border-emerald-500 transition-all overflow-hidden">
                           {form.thumbnail ? (
-                            <Image src={typeof form.thumbnail === 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/images/${form.thumbnail}` : URL.createObjectURL(form.thumbnail)} fill className="object-cover" alt="Main" />
+                            <Image src={typeof form.thumbnail === 'string' ? getImageUrl(form.thumbnail) : URL.createObjectURL(form.thumbnail)} fill className="object-cover" alt="Main" />
                           ) : <Plus className="text-neutral-300" />}
                           <input type="file" className="hidden" onChange={e => updateForm({ thumbnail: e.target.files?.[0] })} />
                        </label>
@@ -524,7 +524,7 @@ export default function ProductDrawer({
                        <Field label="Social Image (OG)">
                           <div className="flex items-center gap-4">
                              <label className="relative size-16 bg-neutral-50 border border-neutral-200 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden">
-                                {form.ogImage ? <Image src={typeof form.ogImage === 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/images/${form.ogImage}` : URL.createObjectURL(form.ogImage)} fill className="object-cover" alt="OG" /> : <Plus className="text-neutral-300" />}
+                                {form.ogImage ? <Image src={typeof form.ogImage === 'string' ? getImageUrl(form.ogImage) : URL.createObjectURL(form.ogImage)} fill className="object-cover" alt="OG" /> : <Plus className="text-neutral-300" />}
                                 <input type="file" className="hidden" onChange={e => updateForm({ ogImage: e.target.files?.[0] })} />
                              </label>
                              <span className="text-[10px] font-bold text-neutral-400">Share Preview</span>

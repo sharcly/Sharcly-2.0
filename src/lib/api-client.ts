@@ -32,6 +32,22 @@ apiClient.interceptors.request.use(
     if (csrfToken) {
       config.headers["X-CSRF-Token"] = csrfToken;
     }
+
+    // FALLBACK: Attach Bearer token from localStorage if cookies are blocked (HTTP/IP scenarios)
+    if (typeof window !== "undefined") {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          if (user.accessToken && !config.headers["Authorization"]) {
+            config.headers["Authorization"] = `Bearer ${user.accessToken}`;
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

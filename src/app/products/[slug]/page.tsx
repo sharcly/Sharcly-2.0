@@ -26,6 +26,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useSeo } from "@/hooks/use-seo";
 import { cn } from "@/lib/utils";
+import { getImageUrl } from "@/lib/image-utils";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
@@ -95,17 +96,14 @@ export default function ProductDetailsPage() {
 
   if (!product) return null;
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "http://localhost:8181";
-  const productImages = product.imageUrls?.length > 0 
-    ? product.imageUrls.map((url: string) => url.startsWith('/api') ? `${baseUrl}${url}` : url) 
-    : (product.images?.length > 0 
-        ? product.images.map((img: any) => img.url || img) 
-        : [
-            product.image_url || "https://i.postimg.cc/T3qHks4z/Sharcly-Chill-Collection.jpg",
-            "https://i.postimg.cc/9F7Kz7H4/Sharcly-Lift-Series.jpg",
-            "https://i.postimg.cc/vHgY9D41/Daytime-Clarity.jpg",
-            "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg"
-          ]);
+  const productImages = (product.imageUrls?.length > 0 || product.images?.length > 0)
+    ? [...(product.imageUrls || []), ...(product.images || [])].map(img => getImageUrl(img))
+    : [
+        "https://i.postimg.cc/T3qHks4z/Sharcly-Chill-Collection.jpg",
+        "https://i.postimg.cc/9F7Kz7H4/Sharcly-Lift-Series.jpg",
+        "https://i.postimg.cc/vHgY9D41/Daytime-Clarity.jpg",
+        "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg"
+      ];
 
   const displayPrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
   const isOutOfStock = (selectedVariant ? selectedVariant.inventoryQuantity : product.stock) === 0;

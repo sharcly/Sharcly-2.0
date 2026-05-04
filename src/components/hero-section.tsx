@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { ShieldCheck, Leaf, TrendingUp, ArrowRight, Star } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 
 const SERIES = ["Chill", "Lift", "Balance", "Sleep", "Vape"];
@@ -165,25 +164,27 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="relative w-full h-full rounded-[28px] overflow-hidden border border-[#eff8ee]/07 shadow-[0_40px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(232,197,71,0.06)] bg-black"
+            className="relative w-full h-full rounded-[28px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(232,197,71,0.1),inset_0_0_40px_rgba(0,0,0,0.4)] bg-black isolate"
+            style={{ maskImage: "linear-gradient(white, white)" }}
           >
-            {/* Product Image with Float */}
-            <motion.div
-              animate={{ y: [0, -7, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="relative w-full h-full"
-            >
-              <Image
-                src="https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg"
-                alt="Premium Hemp Collection"
-                fill
-                className="object-cover saturate-[1.15] brightness-[0.92]"
-              />
+            {/* Video Background */}
+            <div className="relative w-full h-full">
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover saturate-[1.15] brightness-[0.92] transition-opacity duration-1000"
+              >
+                <source src="/assets/main-hero.mp4" type="video/mp4" />
+              </video>
 
-              {/* Overlays */}
-              <div className="absolute inset-x-0 top-0 h-[45%] bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+              {/* Overlays for smoother integration */}
+              <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.5)] pointer-events-none" />
+              <div className="absolute inset-x-0 top-0 h-[30%] bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
               <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-            </motion.div>
+            </div>
 
             {/* Corner Brackets */}
             <div className="absolute top-6 left-6 w-7 h-7 border-t-[1.5px] border-l-[1.5px] border-[#E8C547]/40 pointer-events-none" />
