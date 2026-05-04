@@ -122,6 +122,13 @@ export const navigationConfig: NavItem[] = [
     requiredPermission: "messages.view",
     category: "Content"
   },
+  {
+    label: "Testimonials",
+    href: "/dashboard/testimonials",
+    icon: MessageSquare,
+    allowedRoles: ["admin", "manager"],
+    category: "Content"
+  },
 
   // BUSINESS
   {

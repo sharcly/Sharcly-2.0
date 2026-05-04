@@ -60,6 +60,7 @@ export default function RootLayout({
                 </div>
                 <AgeVerification />
                 <WelcomePopup />
+                <AgeGateModal />
                 <Toaster position="top-right" />
                 <CartDrawer />
                 <ChatwootWidget />

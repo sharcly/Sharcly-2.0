@@ -15,55 +15,29 @@ const testimonialSchema = z.object({
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const featuredOnly = searchParams.get("featured") === "true";
-    const search = searchParams.get("search");
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const skip = (page - 1) * limit;
+    const featured = searchParams.get("featured");
+    const limit = searchParams.get("limit");
+    
+    // Construct backend URL
+    const backendUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api"}/testimonials`);
+    if (featured) backendUrl.searchParams.append("featured", featured);
+    if (limit) backendUrl.searchParams.append("limit", limit);
 
-    const where: any = {};
-    if (featuredOnly) {
-      where.featured = true;
-    }
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { company: { contains: search, mode: "insensitive" } },
-        { message: { contains: search, mode: "insensitive" } },
-      ];
+    const response = await fetch(backendUrl.toString());
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Backend fetch failed");
     }
 
-    const [testimonials, total] = await Promise.all([
-      prisma.testimonial.findMany({
-        where,
-        orderBy: [
-          { featured: "desc" },
-          { createdAt: "desc" },
-        ],
-        skip,
-        take: limit,
-      }),
-      prisma.testimonial.count({ where }),
-    ]);
-
-    return NextResponse.json({
-      success: true,
-      data: testimonials,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
+    return NextResponse.json(data);
   } catch (error: any) {
-    console.error("Fetch Testimonials Error:", error);
+    console.error("Fetch Testimonials Proxy Error:", error);
     return NextResponse.json(
       { 
         success: false, 
         error: "Internal Server Error", 
-        message: error.message,
-        stack: process.env.NODE_ENV === "development" ? error.stack : undefined 
+        message: error.message 
       },
       { status: 500 }
     );
@@ -73,23 +47,26 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const validatedData = testimonialSchema.parse(body);
-
-    const testimonial = await prisma.testimonial.create({
-      data: validatedData,
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api"}/testimonials`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     });
 
-    return NextResponse.json({ success: true, data: testimonial }, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "Validation Error", details: error.issues },
-        { status: 400 }
-      );
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status });
     }
-    console.error("Create Testimonial Error:", error);
+
+    return NextResponse.json(data, { status: 201 });
+  } catch (error: any) {
+    console.error("Create Testimonial Proxy Error:", error);
     return NextResponse.json(
-      { success: false, error: "Internal Server Error" },
+      { success: false, error: "Internal Server Error", message: error.message },
       { status: 500 }
     );
   }
