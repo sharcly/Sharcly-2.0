@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
 import { cn } from "@/lib/utils";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface ProductCardProps {
   product: {
@@ -25,9 +26,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "http://localhost:8181";
-  const rawImage = product.imageUrls?.[0] || product.images?.[0]?.url || product.images?.[0];
-  const imageUrl = rawImage?.startsWith('/api') ? `${baseUrl}${rawImage}` : (rawImage || "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg");
+  const imageUrl = getImageUrl(product.imageUrls?.[0] || product.images?.[0]);
   const dispatch = useDispatch();
 
   return (

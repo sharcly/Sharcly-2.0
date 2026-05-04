@@ -139,7 +139,7 @@ export function Navbar() {
                            <DropdownMenuItem asChild className="rounded-xl cursor-pointer text-xs font-bold text-[#062D1B]/60 focus:text-[#062D1B] focus:bg-black/5 py-2.5">
                               <Link href="/account/orders">Order History</Link>
                            </DropdownMenuItem>
-                           {["admin", "manager", "content_manager"].includes(user.role) && (
+                           {["admin", "super_admin", "manager", "content_manager"].includes(user.role) && (
                               <DropdownMenuItem asChild className="rounded-xl cursor-pointer text-xs font-bold text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 py-2.5">
                                  <Link href="/dashboard">Admin Dashboard</Link>
                               </DropdownMenuItem>

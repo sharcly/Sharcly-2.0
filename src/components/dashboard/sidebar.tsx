@@ -35,7 +35,7 @@ export function DashboardNav({ isCollapsed = false, onItemClick }: DashboardNavP
 
   if (!user) return null;
 
-  const navItems = getVisibleNavItems(user.role);
+  const navItems = getVisibleNavItems(user);
   const groupedNavItems = navItems.reduce((acc, item) => {
     const category = item.category || "General";
     if (!acc[category]) acc[category] = [];
