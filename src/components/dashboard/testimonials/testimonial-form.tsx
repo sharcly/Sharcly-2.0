@@ -70,139 +70,143 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Author Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. Sarah M." {...field} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-xs font-bold" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Role / Designation</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. Customer" {...field} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-xs font-bold" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div className="flex-1 overflow-y-auto px-8 custom-scrollbar">
+          <div className="space-y-8 pb-10 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Author Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Sarah M." {...field} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-xs font-bold" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Role / Designation</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Customer" {...field} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-xs font-bold" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField
-            control={form.control}
-            name="company"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Location (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g. Austin, TX" {...field} value={field.value || ""} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-xs font-bold" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="rating"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Star Rating</FormLabel>
-                <FormControl>
-                  <div className="flex items-center gap-2 h-12 px-2 bg-gray-50/50 rounded-xl border border-black/[0.05]">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => {
-                          setRating(star);
-                          form.setValue("rating", star);
-                        }}
-                        className={cn(
-                          "p-1 transition-all hover:scale-125 active:scale-90",
-                          rating >= star ? "text-amber-400" : "text-gray-200"
-                        )}
-                      >
-                        <Star className={cn("size-5", rating >= star ? "fill-current" : "fill-none")} />
-                      </button>
-                    ))}
-                    <span className="ml-auto font-black text-[10px] text-muted-foreground opacity-40 pr-2">{rating}/5</span>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <FormField
+                control={form.control}
+                name="company"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Location (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Austin, TX" {...field} value={field.value || ""} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-xs font-bold" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="rating"
+                render={({ field }) => (
+                  <FormItem className="space-y-2">
+                    <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Star Rating</FormLabel>
+                    <FormControl>
+                      <div className="flex items-center gap-2 h-12 px-2 bg-gray-50/50 rounded-xl border border-black/[0.05]">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => {
+                              setRating(star);
+                              form.setValue("rating", star);
+                            }}
+                            className={cn(
+                              "p-1 transition-all hover:scale-125 active:scale-90",
+                              rating >= star ? "text-amber-400" : "text-gray-200"
+                            )}
+                          >
+                            <Star className={cn("size-5", rating >= star ? "fill-current" : "fill-none")} />
+                          </button>
+                        ))}
+                        <span className="ml-auto font-black text-[10px] text-muted-foreground opacity-40 pr-2">{rating}/5</span>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-        <FormField
-          control={form.control}
-          name="message"
-          render={({ field }) => (
-            <FormItem className="space-y-2">
-              <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Testimonial Message</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="Enter the customer's testimonial..." 
-                  className="min-h-[140px] rounded-[1.5rem] border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all p-5 text-xs font-medium leading-relaxed resize-none" 
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
-          <div className="md:col-span-2">
             <FormField
               control={form.control}
-              name="image"
+              name="message"
               render={({ field }) => (
                 <FormItem className="space-y-2">
-                  <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Avatar Image URL</FormLabel>
+                  <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Testimonial Message</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://..." {...field} value={field.value || ""} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-[10px] font-mono" />
+                    <Textarea 
+                      placeholder="Enter the customer's testimonial..." 
+                      className="min-h-[140px] rounded-[1.5rem] border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all p-5 text-xs font-medium leading-relaxed resize-none" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+              <div className="md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="image"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-[8px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 pl-1">Avatar Image URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://..." {...field} value={field.value || ""} className="rounded-xl border-black/[0.05] bg-gray-50/50 focus:bg-white transition-all h-12 px-4 text-[10px] font-mono" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <FormField
+                control={form.control}
+                name="featured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-xl border border-black/[0.05] bg-[#062D1B]/[0.02] p-3 h-12">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-[7px] font-black uppercase tracking-widest text-[#062D1B]">Featured</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="data-[state=checked]:bg-[#062D1B] scale-75"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
-          <FormField
-            control={form.control}
-            name="featured"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center justify-between rounded-xl border border-black/[0.05] bg-[#062D1B]/[0.02] p-3 h-12">
-                <div className="space-y-0.5">
-                  <FormLabel className="text-[7px] font-black uppercase tracking-widest text-[#062D1B]">Featured</FormLabel>
-                </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    className="data-[state=checked]:bg-[#062D1B] scale-75"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
         </div>
 
-        {/* Form Footer - Styled like Roles Page */}
-        <div className="-mx-8 -mb-10 mt-10 p-8 bg-gray-50/50 border-t border-black/[0.03]">
+        {/* Form Footer */}
+        <div className="p-8 bg-gray-50/50 border-t border-black/[0.03]">
           <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               type="button" 
