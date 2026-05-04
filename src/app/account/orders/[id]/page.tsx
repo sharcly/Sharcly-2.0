@@ -49,7 +49,7 @@ export default function OrderDetailsPage() {
           </Link>
           <div className="space-y-1">
              <h2 className="text-4xl font-bold tracking-tight">Order <span className="text-[#EBB56B]">#{order.display_id || order.id.slice(-8).toUpperCase()}</span></h2>
-             <p className="text-sm text-gray-500 font-medium">Placed on {new Date(order.created_at).toLocaleDateString()} at {new Date(order.created_at).toLocaleTimeString()}</p>
+             <p className="text-sm text-gray-500 font-medium">Placed on {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString()}</p>
           </div>
         </div>
         <Badge className={cn(
@@ -74,14 +74,14 @@ export default function OrderDetailsPage() {
                     i !== 0 && "border-t border-black/5"
                   )}>
                     <div className="size-20 rounded-2xl bg-neutral-50 overflow-hidden shrink-0 border border-black/5">
-                       <img src={item.thumbnail || "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg"} alt={item.title} className="w-full h-full object-cover" />
+                       <img src={item.product?.images?.[0]?.url || "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg"} alt={item.product?.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                       <p className="font-bold text-lg tracking-tight truncate">{item.title}</p>
+                       <p className="font-bold text-lg tracking-tight truncate">{item.product?.name || "Product"}</p>
                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Qty: {item.quantity}</p>
                     </div>
                     <div className="text-right">
-                       <p className="font-bold">${(item.total / 100).toFixed(2)}</p>
+                       <p className="font-bold">${(Number(item.price) * item.quantity)}</p>
                     </div>
                   </div>
                 ))}
@@ -94,26 +94,26 @@ export default function OrderDetailsPage() {
               <div className="relative z-10 space-y-4">
                  <div className="flex justify-between text-white/40 text-sm font-bold uppercase tracking-widest">
                     <span>Subtotal</span>
-                    <span className="text-white">${(order.subtotal / 100).toFixed(2)}</span>
+                    <span className="text-white">${(Number(order.totalAmount) - Number(order.taxAmount) - Number(order.shippingAmount))}</span>
                  </div>
                  <div className="flex justify-between text-white/40 text-sm font-bold uppercase tracking-widest">
                     <span>Shipping</span>
-                    <span className="text-white">${(order.shipping_total / 100).toFixed(2)}</span>
+                    <span className="text-white">${Number(order.shippingAmount)}</span>
                  </div>
                  <div className="flex justify-between text-white/40 text-sm font-bold uppercase tracking-widest">
                     <span>Taxes</span>
-                    <span className="text-white">${(order.tax_total / 100).toFixed(2)}</span>
+                    <span className="text-white">${Number(order.taxAmount)}</span>
                  </div>
                  <div className="h-px w-full bg-white/10 my-6" />
                  <div className="flex justify-between items-end">
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EBB56B] mb-2">Total Amount Paid</p>
-                      <p className="text-4xl font-black tracking-tighter">${(order.total / 100).toFixed(2)}</p>
+                      <p className="text-4xl font-black tracking-tighter">${Number(order.totalAmount)}</p>
                     </div>
                     <div className="text-right hidden sm:block">
                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2">Payment Method</p>
                        <p className="text-sm font-bold flex items-center gap-2 justify-end">
-                          <CreditCard className="size-4 text-[#EBB56B]" /> VISA Ending in 4242
+                          <CreditCard className="size-4 text-[#EBB56B]" /> {order.paymentMethod || "Saved Card"}
                        </p>
                     </div>
                  </div>
@@ -129,16 +129,24 @@ export default function OrderDetailsPage() {
                 <Truck className="size-4" /> Shipping Address
               </h4>
               <div className="space-y-1 text-[#062D1B] font-bold">
-                 <p>{order.shipping_address?.first_name} {order.shipping_address?.last_name}</p>
-                 <p className="opacity-60 font-medium">{order.shipping_address?.address_1}</p>
-                 <p className="opacity-60 font-medium">{order.shipping_address?.city}, {order.shipping_address?.province} {order.shipping_address?.postal_code}</p>
-                 <p className="opacity-60 font-medium">{order.shipping_address?.country_code?.toUpperCase()}</p>
+                 {typeof order.shippingAddress === 'string' ? (
+                   <p className="opacity-60 font-medium">{order.shippingAddress}</p>
+                 ) : (
+                   <>
+                     <p>{order.shippingAddress?.first_name} {order.shippingAddress?.last_name}</p>
+                     <p className="opacity-60 font-medium">{order.shippingAddress?.address_1}</p>
+                     <p className="opacity-60 font-medium">{order.shippingAddress?.city}, {order.shippingAddress?.province} {order.shippingAddress?.postal_code}</p>
+                   </>
+                 )}
               </div>
               <div className="pt-6 border-t border-black/5">
                  <p className="text-[10px] font-black uppercase tracking-widest text-[#062D1B]/40 mb-3">Shipment Status</p>
                  <div className="flex items-center gap-3 text-sm font-bold">
-                    <div className="size-2 rounded-full bg-orange-500 animate-pulse" />
-                    In Transit
+                    <div className={cn(
+                      "size-2 rounded-full animate-pulse",
+                      order.status === 'DELIVERED' ? "bg-green-500" : "bg-orange-500"
+                    )} />
+                    {order.status}
                  </div>
               </div>
            </section>

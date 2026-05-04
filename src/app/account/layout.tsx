@@ -16,11 +16,11 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 
 const navItems = [
-  { label: "Dashboard", href: "/account", icon: ShoppingBag },
+  { label: "Overview", href: "/account", icon: User },
   { label: "Orders", href: "/account/orders", icon: ShoppingBag },
   { label: "Addresses", href: "/account/addresses", icon: MapPin },
-  { label: "Payments", href: "/account/payments", icon: CreditCard },
-  { label: "Profile", href: "/account/profile", icon: User },
+  { label: "Payment Methods", href: "/account/payments", icon: CreditCard },
+  { label: "Account Settings", href: "/account/profile", icon: User },
 ];
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
@@ -34,13 +34,13 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
       <main className="flex-1 pt-32 pb-20 container mx-auto px-6 md:px-12 max-w-7xl">
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Sidebar */}
-          <aside className="lg:w-64 space-y-8 shrink-0">
-            <div className="space-y-1">
-              <h1 className="text-2xl font-bold tracking-tight">Account</h1>
-              <p className="text-gray-500 text-xs font-medium uppercase tracking-widest">Personal Workspace</p>
+          <aside className="lg:w-64 shrink-0">
+            <div className="mb-10">
+              <h1 className="text-3xl font-bold tracking-tight text-[#062D1B]">My Account</h1>
+              <p className="text-gray-400 text-sm mt-1">Manage your details and orders.</p>
             </div>
 
-            <nav className="space-y-1">
+            <nav className="flex flex-col gap-1">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -48,24 +48,23 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
                     key={item.href} 
                     href={item.href}
                     className={cn(
-                      "flex items-center justify-between p-4 rounded-2xl text-sm font-bold transition-all group",
+                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
                       isActive 
-                        ? "bg-[#062D1B] text-white shadow-xl shadow-[#062D1B]/10" 
-                        : "hover:bg-black/5 text-[#062D1B]/60 hover:text-[#062D1B]"
+                        ? "bg-[#062D1B] text-white shadow-md" 
+                        : "text-gray-500 hover:bg-gray-100 hover:text-[#062D1B]"
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <item.icon className={cn("size-4", isActive ? "text-[#EBB56B]" : "opacity-40")} />
-                      {item.label}
-                    </div>
-                    {isActive && <ChevronRight className="size-4 text-[#EBB56B]" />}
+                    <item.icon className={cn("size-4", isActive ? "text-[#EBB56B]" : "opacity-40")} />
+                    {item.label}
                   </Link>
                 );
               })}
               
+              <div className="h-px bg-gray-100 my-6" />
+
               <button 
                 onClick={() => logout()}
-                className="w-full flex items-center gap-3 p-4 rounded-2xl text-sm font-bold text-red-500 hover:bg-red-50 transition-all mt-4"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-all"
               >
                 <LogOut className="size-4" />
                 Sign Out
