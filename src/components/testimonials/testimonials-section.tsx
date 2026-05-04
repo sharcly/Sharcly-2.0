@@ -18,7 +18,6 @@ const formattedCustomerReviews: Testimonial[] = [
   { name: "Sophie W.", role: "Customer", company: "San Diego, CA", message: "The branding is beautiful but the results are better. The THCP blend is perfect for weekend hiking trips. Truly elevated.", rating: 5, featured: true }
 ];
 
-// Global cache to persist across re-renders and component mounts
 // This ensures the API is only called once per session
 let testimonialsCache: Testimonial[] | null = null;
 let isFetchingTestimonials = false;
@@ -132,20 +131,51 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
   }, [testimonials, featuredOnly, limit]);
 
   return (
-    <section 
-      className="bg-[#f0f9f0] px-6 md:px-12 overflow-hidden flex flex-col justify-center items-center"
-      style={{ minHeight: 'calc(100vh - 72px)', padding: '32px 24px' }}
+    <section
+      className="px-6 md:px-12 overflow-hidden flex flex-col justify-center items-center relative"
+      style={{ 
+        minHeight: 'calc(100vh - 72px)', 
+        padding: '80px 24px',
+        background: "linear-gradient(160deg, #040e07 0%, #082f1d 50%, #040e07 100%)",
+        color: "#eff8ee"
+      }}
     >
-      <div className="max-w-7xl mx-auto w-full">
+      {/* grid background */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* gold glow */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "800px",
+          height: "400px",
+          background:
+            "radial-gradient(ellipse, rgba(232,197,71,0.08), transparent 65%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div className="max-w-7xl mx-auto w-full relative z-10">
         <header className="flex flex-col md:flex-row justify-between items-end mb-8 gap-8">
           <div className="text-left">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="inline-block px-4 py-1.5 mb-6 bg-white rounded-full border border-[#0d2719]/10"
+              className="inline-block px-4 py-1.5 mb-6 bg-white/5 rounded-full border border-[#E8C547]/20 backdrop-blur-sm"
             >
-              <span className="text-[#0d2719] text-xs font-bold uppercase tracking-widest">
+              <span className="text-[#E8C547] text-xs font-bold uppercase tracking-widest">
                 Community Voices
               </span>
             </motion.div>
@@ -155,9 +185,10 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="text-3xl md:text-5xl font-bold text-[#0d2719] mb-0 tracking-tight leading-[1.1]"
+              className="text-3xl md:text-5xl font-bold text-white mb-0 tracking-tight leading-[1.1] font-serif"
             >
-              Shared Success <br className="hidden md:block" /> with Sharcly.
+              Shared Success <br className="hidden md:block" /> 
+              <span style={{ fontStyle: "italic", color: "#E8C547" }}>with Sharcly.</span>
             </motion.h2>
           </div>
 
@@ -165,14 +196,14 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
             <button
               onClick={scrollPrev}
               aria-label="Previous testimonial"
-              className="w-14 h-14 rounded-full border border-[#0d2719]/10 flex items-center justify-center text-[#0d2719] hover:bg-white hover:border-transparent hover:shadow-[0_10px_30px_rgb(0,0,0,0.08)] transition-all duration-300 active:scale-95 group"
+              className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-[#E8C547] hover:text-[#082f1d] hover:border-transparent transition-all duration-300 active:scale-95 group"
             >
               <ChevronLeft size={24} className="group-hover:-translate-x-0.5 transition-transform" />
             </button>
             <button
               onClick={scrollNext}
               aria-label="Next testimonial"
-              className="w-14 h-14 rounded-full border border-[#0d2719]/10 flex items-center justify-center text-[#0d2719] hover:bg-white hover:border-transparent hover:shadow-[0_10px_30px_rgb(0,0,0,0.08)] transition-all duration-300 active:scale-95 group"
+              className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-[#E8C547] hover:text-[#082f1d] hover:border-transparent transition-all duration-300 active:scale-95 group"
             >
               <ChevronRight size={24} className="group-hover:translate-x-0.5 transition-transform" />
             </button>
@@ -210,7 +241,7 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
           transition={{ delay: 0.4 }}
           className="mt-8 text-center"
         >
-          <button className="bg-[#0d2719] text-white px-8 py-3.5 rounded-full font-bold text-base hover:bg-black transition-all duration-300 shadow-xl shadow-[#0d2719]/10 active:scale-95">
+          <button className="bg-[#E8C547] text-[#082f1d] px-10 py-4 rounded-full font-bold text-base hover:opacity-90 transition-all duration-300 shadow-xl shadow-[#E8C547]/20 active:scale-95 uppercase tracking-wider">
             Read All Reviews
           </button>
         </motion.div>

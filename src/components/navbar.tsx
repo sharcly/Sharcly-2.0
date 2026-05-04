@@ -48,6 +48,9 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isAbout = pathname === "/about";
+  const isWholesale = pathname === "/wholesale";
+  const isDarkPage = isHome || isAbout || isWholesale;
   const { user, logout } = useAuth();
   
   const dispatch = useDispatch();
@@ -72,16 +75,18 @@ export function Navbar() {
           className={cn(
             "h-16 px-6 rounded-2xl flex items-center justify-between transition-all duration-500",
             scrolled 
-              ? "bg-white/80 backdrop-blur-xl border border-gray-100 shadow-sm" 
-              : "bg-transparent border-transparent"
+              ? "bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg shadow-black/5" 
+              : isDarkPage
+                ? "bg-white/5 backdrop-blur-md border border-white/10"
+                : "bg-white/50 backdrop-blur-md border border-gray-200/50"
           )}
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="size-8 rounded-lg bg-[#062D1B] flex items-center justify-center text-white font-black text-xs group-hover:scale-110 transition-transform">S</div>
             <span className={cn(
-              "text-xs font-bold uppercase tracking-[0.3em] transition-colors",
-              !scrolled && isHome ? "text-[#062D1B]" : "text-[#062D1B]"
+              "text-[11px] font-bold uppercase tracking-[0.35em] transition-colors",
+              !scrolled && isDarkPage ? "text-white" : "text-[#062D1B]"
             )}>
               Sharcly
             </span>
@@ -93,7 +98,12 @@ export function Navbar() {
               <Link 
                 key={link.name}
                 href={link.href}
-                className="nav-link text-[#062D1B]/60 hover:text-[#062D1B]"
+                className={cn(
+                  "nav-link transition-colors text-[10.5px] font-bold uppercase tracking-[0.18em]",
+                  !scrolled && isDarkPage 
+                    ? "text-white/60 hover:text-white" 
+                    : "text-[#062D1B]/60 hover:text-[#062D1B]"
+                )}
               >
                 {link.name}
               </Link>
@@ -107,7 +117,11 @@ export function Navbar() {
                   onClick={() => setSearchOpen(!searchOpen)}
                   className={cn(
                     "p-2 rounded-full transition-all duration-300",
-                    searchOpen ? "bg-black text-white" : "hover:bg-neutral-50 text-[#062D1B]/40 hover:text-[#062D1B]"
+                    searchOpen 
+                      ? "bg-black text-white" 
+                      : !scrolled && isDarkPage
+                        ? "hover:bg-white/10 text-white/60 hover:text-white"
+                        : "hover:bg-neutral-50 text-[#062D1B]/40 hover:text-[#062D1B]"
                   )}
                 >
                    {searchOpen ? <X className="size-4" /> : <Search className="size-4" />}
@@ -117,7 +131,12 @@ export function Navbar() {
              
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                   <button className="px-2 py-1.5 rounded-full hover:bg-neutral-50 transition-colors text-[#062D1B]/40 hover:text-[#062D1B] flex items-center gap-1">
+                   <button className={cn(
+                     "px-2 py-1.5 rounded-full transition-colors flex items-center gap-1",
+                     !scrolled && isDarkPage
+                       ? "hover:bg-white/10 text-white/60 hover:text-white"
+                       : "hover:bg-neutral-50 text-[#062D1B]/40 hover:text-[#062D1B]"
+                   )}>
                       <User className="size-4" />
                       <ChevronDown className="size-3 opacity-50" />
                    </button>
@@ -139,7 +158,7 @@ export function Navbar() {
                            <DropdownMenuItem asChild className="rounded-xl cursor-pointer text-xs font-bold text-[#062D1B]/60 focus:text-[#062D1B] focus:bg-black/5 py-2.5">
                               <Link href="/account/orders">Order History</Link>
                            </DropdownMenuItem>
-                           {["admin", "manager", "content_manager"].includes(user.role) && (
+                           {["admin", "super_admin", "manager", "content_manager"].includes(user.role) && (
                               <DropdownMenuItem asChild className="rounded-xl cursor-pointer text-xs font-bold text-amber-600 focus:text-amber-700 focus:bg-amber-500/10 py-2.5">
                                  <Link href="/dashboard">Admin Dashboard</Link>
                               </DropdownMenuItem>
@@ -173,12 +192,20 @@ export function Navbar() {
              
              <button 
                onClick={() => dispatch(toggleCart(true))}
-               className="p-2 rounded-full hover:bg-neutral-50 transition-all text-[#062D1B] flex items-center gap-2 group relative"
+               className={cn(
+                 "p-2 rounded-full transition-all flex items-center gap-2 group relative",
+                 !scrolled && isDarkPage
+                   ? "hover:bg-white/10 text-white hover:text-white"
+                   : "hover:bg-neutral-50 text-[#062D1B]"
+               )}
              >
                 <div className="relative">
                    <ShoppingBag className="size-4 transition-transform group-hover:scale-110" />
                    {totalItems > 0 && (
-                     <div className="absolute -top-1.5 -right-1.5 size-3.5 bg-[#062D1B] text-white text-[8px] font-bold rounded-full flex items-center justify-center animate-in zoom-in duration-300">
+                     <div className={cn(
+                       "absolute -top-1.5 -right-1.5 size-3.5 text-white text-[8px] font-bold rounded-full flex items-center justify-center animate-in zoom-in duration-300",
+                       !scrolled && isDarkPage ? "bg-amber-500" : "bg-[#062D1B]"
+                     )}>
                         {totalItems}
                      </div>
                    )}
@@ -190,7 +217,12 @@ export function Navbar() {
              <div className="lg:hidden">
                 <Sheet>
                    <SheetTrigger asChild>
-                      <button className="p-2 rounded-full hover:bg-neutral-50 transition-colors text-[#062D1B]">
+                      <button className={cn(
+                        "p-2 rounded-full transition-colors",
+                         !scrolled && isDarkPage
+                          ? "hover:bg-white/10 text-white"
+                          : "hover:bg-neutral-50 text-[#062D1B]"
+                      )}>
                          <Menu className="size-4" />
                       </button>
                    </SheetTrigger>

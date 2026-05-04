@@ -18,14 +18,14 @@ export const StarRating = ({ rating }: StarRatingProps) => {
         return (
           <div key={i} className="relative w-4 h-4">
             {/* Background star (empty) */}
-            <Star size={16} className="text-gray-200" />
+            <Star size={16} className="text-white/10" />
             
             {/* Foreground star (filled) with clip-path/width */}
             <div 
               className="absolute inset-0 overflow-hidden" 
               style={{ width: `${fillPercentage * 100}%` }}
             >
-              <Star size={16} className="fill-[#0d2719] text-[#0d2719]" />
+              <Star size={16} className="fill-[#E8C547] text-[#E8C547]" />
             </div>
           </div>
         );
