@@ -31,8 +31,11 @@ export function WelcomePopup() {
     try {
       const response = await apiClient.get("/marketing/active-offers");
       setOffers(response.data);
-    } catch (error) {
-      console.error("Failed to fetch offers");
+    } catch (error: any) {
+      // Only log if it's a real error, not just an empty result
+      if (error?.response?.status !== 404) {
+        console.error("Failed to fetch offers:", error?.message || error);
+      }
     }
   };
 

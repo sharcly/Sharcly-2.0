@@ -2,10 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ShoppingBag, Plus } from "lucide-react";
-import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
 import { cn } from "@/lib/utils";
@@ -31,30 +29,61 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div className="group flex flex-col h-full transition-all duration-500">
-      <Link href={`/products/${product.slug}`} className="block relative aspect-[5/6] overflow-hidden rounded-xl bg-neutral-100 mb-6 group-hover:shadow-sm transition-shadow duration-500">
+      <Link
+        href={`/products/${product.slug}`}
+        className="block relative aspect-[4/5] overflow-hidden rounded-[20px] mb-5 transition-all duration-700 ease-[0.22,1,0.36,1] group-hover:-translate-y-[6px] group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
+        style={{ backgroundColor: '#0d2518', boxShadow: '0 20px 50px rgba(0,0,0,0.4)' }}
+      >
         <img 
           src={imageUrl} 
           alt={product.name}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-[0.22,1,0.36,1] group-hover:scale-[1.06]"
         />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.02] transition-colors" />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(4,14,7,0.85) 0%, rgba(4,14,7,0.05) 60%)' }} />
+
+        {/* Gold glow on hover */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{ background: 'radial-gradient(circle at bottom center, rgba(232,197,71,0.12), transparent 70%)' }} />
+
+        {/* Corner brackets */}
+        <div className="absolute top-4 right-4 w-6 h-6 opacity-0 group-hover:opacity-40 transition-all duration-500 translate-x-1 -translate-y-1 group-hover:translate-x-0 group-hover:translate-y-0">
+          <div className="absolute top-0 right-0 w-full h-[1px] bg-[#E8C547]" />
+          <div className="absolute top-0 right-0 h-full w-[1px] bg-[#E8C547]" />
+        </div>
+        <div className="absolute bottom-14 left-4 w-6 h-6 opacity-0 group-hover:opacity-40 transition-all duration-500 -translate-x-1 translate-y-1 group-hover:translate-x-0 group-hover:translate-y-0">
+          <div className="absolute bottom-0 left-0 w-full h-[1px] bg-[#E8C547]" />
+          <div className="absolute bottom-0 left-0 h-full w-[1px] bg-[#E8C547]" />
+        </div>
         
+        {/* Category tag */}
         <div className="absolute top-4 left-4">
-          <Badge className="bg-white/90 backdrop-blur-md text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/50 border-none px-3 py-1">
-             {product.category?.name || "Series"}
-          </Badge>
+          <span className="inline-block px-2.5 py-1 rounded-full border backdrop-blur-md text-[9px] font-semibold uppercase tracking-[0.16em]"
+            style={{ backgroundColor: 'rgba(232,197,71,0.1)', borderColor: 'rgba(232,197,71,0.25)', color: '#E8C547' }}
+          >
+            {product.category?.name || "Series"}
+          </span>
         </div>
 
         {product.stock === 0 && (
           <div className="absolute top-4 right-4">
-            <Badge className="bg-red-500/90 backdrop-blur-md text-[9px] font-bold uppercase tracking-widest text-white border-none px-3 py-1">
+            <Badge className="bg-red-500/80 backdrop-blur-md text-[9px] font-bold uppercase tracking-widest text-white border-none px-3 py-1">
                Out of Stock
             </Badge>
           </div>
         )}
 
-        {/* Quick Add Overlay */}
-        <div className="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+        {/* Bottom card content */}
+        <div className="absolute bottom-0 inset-x-0 p-5 z-10">
+          <h3 className="text-[15px] font-bold leading-tight mb-1" style={{ fontFamily: 'var(--font-cormorant), serif', color: '#eff8ee' }}>
+            {product.name}
+          </h3>
+          <span className="text-[13px] font-semibold tabular-nums" style={{ color: '#E8C547' }}>
+            ${product.price}
+          </span>
+        </div>
+
+        {/* Quick Add — slides up on hover */}
+        <div className="absolute inset-x-4 bottom-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 z-20">
            <button 
              disabled={product.stock === 0}
              onClick={(e) => {
@@ -72,36 +101,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                }));
              }}
              className={cn(
-               "w-full h-10 rounded-full flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest shadow-xl transition-all",
+               "w-full h-10 rounded-full flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95",
                product.stock === 0 
-                 ? "bg-neutral-200 text-black/20 cursor-not-allowed" 
-                 : "bg-[#062D1B] text-white hover:bg-black active:scale-[0.98]"
+                 ? "bg-[#eff8ee]/10 text-[#eff8ee]/30 cursor-not-allowed" 
+                 : "bg-[#E8C547] text-[#082f1d] hover:shadow-[0_4px_20px_rgba(232,197,71,0.3)]"
              )}
            >
               {product.stock === 0 ? "Unavailable" : <><Plus className="size-3" /> Add to Cart</>}
            </button>
         </div>
       </Link>
-
-      <div className="flex flex-col flex-1 px-1">
-        <div className="flex justify-between items-baseline gap-4 mb-2">
-           <h3 className="text-sm font-semibold tracking-tight text-[#062D1B]">
-              {product.name}
-           </h3>
-           <span className="text-sm font-medium text-[#062D1B]/40 tabular-nums">${product.price}</span>
-        </div>
-        
-        <p className="text-[12px] text-[#062D1B]/40 font-normal leading-relaxed line-clamp-1 mb-4">
-          {product.description || "Micro-processed botanical extract for rhythmic balance."}
-        </p>
-
-        <Link 
-          href={`/products/${product.slug}`}
-          className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#062D1B]/20 group-hover:text-[#062D1B] transition-colors decoration-dotted underline-offset-4 hover:underline"
-        >
-          View Collection
-        </Link>
-      </div>
     </div>
   );
 };
