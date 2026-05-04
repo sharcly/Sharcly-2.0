@@ -48,6 +48,9 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isAbout = pathname === "/about";
+  const isWholesale = pathname === "/wholesale";
+  const isDarkPage = isHome || isAbout || isWholesale;
   const { user, logout } = useAuth();
   
   const dispatch = useDispatch();
@@ -73,7 +76,7 @@ export function Navbar() {
             "h-16 px-6 rounded-2xl flex items-center justify-between transition-all duration-500",
             scrolled 
               ? "bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg shadow-black/5" 
-              : isHome
+              : isDarkPage
                 ? "bg-white/5 backdrop-blur-md border border-white/10"
                 : "bg-white/50 backdrop-blur-md border border-gray-200/50"
           )}
@@ -83,7 +86,7 @@ export function Navbar() {
             <div className="size-8 rounded-lg bg-[#062D1B] flex items-center justify-center text-white font-black text-xs group-hover:scale-110 transition-transform">S</div>
             <span className={cn(
               "text-[11px] font-bold uppercase tracking-[0.35em] transition-colors",
-              !scrolled && isHome ? "text-white" : "text-[#062D1B]"
+              !scrolled && isDarkPage ? "text-white" : "text-[#062D1B]"
             )}>
               Sharcly
             </span>
@@ -97,7 +100,7 @@ export function Navbar() {
                 href={link.href}
                 className={cn(
                   "nav-link transition-colors text-[10.5px] font-bold uppercase tracking-[0.18em]",
-                  !scrolled && isHome 
+                  !scrolled && isDarkPage 
                     ? "text-white/60 hover:text-white" 
                     : "text-[#062D1B]/60 hover:text-[#062D1B]"
                 )}
@@ -116,7 +119,7 @@ export function Navbar() {
                     "p-2 rounded-full transition-all duration-300",
                     searchOpen 
                       ? "bg-black text-white" 
-                      : !scrolled && isHome
+                      : !scrolled && isDarkPage
                         ? "hover:bg-white/10 text-white/60 hover:text-white"
                         : "hover:bg-neutral-50 text-[#062D1B]/40 hover:text-[#062D1B]"
                   )}
@@ -130,7 +133,7 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                    <button className={cn(
                      "px-2 py-1.5 rounded-full transition-colors flex items-center gap-1",
-                     !scrolled && isHome
+                     !scrolled && isDarkPage
                        ? "hover:bg-white/10 text-white/60 hover:text-white"
                        : "hover:bg-neutral-50 text-[#062D1B]/40 hover:text-[#062D1B]"
                    )}>
@@ -191,7 +194,7 @@ export function Navbar() {
                onClick={() => dispatch(toggleCart(true))}
                className={cn(
                  "p-2 rounded-full transition-all flex items-center gap-2 group relative",
-                 !scrolled && isHome
+                 !scrolled && isDarkPage
                    ? "hover:bg-white/10 text-white hover:text-white"
                    : "hover:bg-neutral-50 text-[#062D1B]"
                )}
@@ -201,7 +204,7 @@ export function Navbar() {
                    {totalItems > 0 && (
                      <div className={cn(
                        "absolute -top-1.5 -right-1.5 size-3.5 text-white text-[8px] font-bold rounded-full flex items-center justify-center animate-in zoom-in duration-300",
-                       !scrolled && isHome ? "bg-amber-500" : "bg-[#062D1B]"
+                       !scrolled && isDarkPage ? "bg-amber-500" : "bg-[#062D1B]"
                      )}>
                         {totalItems}
                      </div>
@@ -216,7 +219,7 @@ export function Navbar() {
                    <SheetTrigger asChild>
                       <button className={cn(
                         "p-2 rounded-full transition-colors",
-                        !scrolled && isHome
+                         !scrolled && isDarkPage
                           ? "hover:bg-white/10 text-white"
                           : "hover:bg-neutral-50 text-[#062D1B]"
                       )}>
