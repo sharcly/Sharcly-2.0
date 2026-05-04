@@ -18,7 +18,6 @@ const formattedCustomerReviews: Testimonial[] = [
   { name: "Sophie W.", role: "Customer", company: "San Diego, CA", message: "The branding is beautiful but the results are better. The THCP blend is perfect for weekend hiking trips. Truly elevated.", rating: 5, featured: true }
 ];
 
-// Global cache to persist across re-renders and component mounts
 // This ensures the API is only called once per session
 let testimonialsCache: Testimonial[] | null = null;
 let isFetchingTestimonials = false;
@@ -132,7 +131,7 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
   }, [testimonials, featuredOnly, limit]);
 
   return (
-    <section 
+    <section
       className="bg-[#f0f9f0] px-6 md:px-12 overflow-hidden flex flex-col justify-center items-center"
       style={{ minHeight: 'calc(100vh - 72px)', padding: '32px 24px' }}
     >

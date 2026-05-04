@@ -296,8 +296,8 @@ export default function DashboardTestimonialsPage() {
       {/* Testimonial Management Modal */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[80vw] md:max-w-[700px] rounded-[2rem] max-h-[88vh] flex flex-col p-0 overflow-hidden border-none shadow-sharcly bg-white">
-          <div className="flex flex-col h-full">
-            <DialogHeader className="p-8 pb-4 space-y-4">
+          <div className="flex flex-col h-[700px] max-h-[80vh] overflow-hidden">
+            <DialogHeader className="p-8 pb-4 space-y-4 shrink-0">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                    <div className="flex items-center gap-2.5">
@@ -316,16 +316,12 @@ export default function DashboardTestimonialsPage() {
               <Separator className="bg-black/[0.03]" />
             </DialogHeader>
 
-            <ScrollArea className="flex-1 px-8">
-              <div className="pb-10 pt-2">
-                <TestimonialForm 
-                  initialData={editingTestimonial} 
-                  onSubmit={handleFormSubmit}
-                  isLoading={isSubmitting}
-                  onCancel={() => setIsFormOpen(false)}
-                />
-              </div>
-            </ScrollArea>
+            <TestimonialForm 
+              initialData={editingTestimonial} 
+              onSubmit={handleFormSubmit}
+              isLoading={isSubmitting}
+              onCancel={() => setIsFormOpen(false)}
+            />
           </div>
         </DialogContent>
       </Dialog>
