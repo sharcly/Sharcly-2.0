@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingBag, ArrowRight } from "lucide-react";
+import { ShoppingBag, ArrowRight, MapPin, CreditCard } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
 import { apiClient } from "@/lib/api-client";
 import Link from "next/link";
@@ -29,78 +29,114 @@ export default function AccountPage() {
   if (!user) return null;
 
   return (
-    <div className="space-y-12 max-w-4xl">
+    <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <section className="space-y-4">
-        <h2 className="text-4xl font-bold tracking-tight text-[#062D1B]">
-          Hello, {user.name?.split(' ')[0] || 'Member'}
+        <h2 className="text-5xl md:text-6xl font-serif italic text-[#eff8ee]">
+          Welcome back, <span className="text-[#EBB56B]">{user.name?.split(' ')[0] || 'Member'}</span>
         </h2>
-
+        <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-[#eff8ee]/40">Your Private Collection & Orders</p>
       </section>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-10">
         {/* Recent Orders Card */}
-        {/* Recent Orders Card */}
-
-        <div className="border border-gray-100 rounded-2xl p-8 bg-white shadow-sm flex flex-col justify-between min-h-[300px]">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold">Recent Orders</h3>
-            {loading ? (
-              <div className="space-y-3">
-                {[...Array(2)].map((_, i) => (
-                  <div key={i} className="h-12 bg-gray-50 rounded-lg animate-pulse" />
-                ))}
+        <div className="group relative">
+          <div className="absolute inset-0 bg-[#EBB56B] rounded-[2.5rem] rotate-1 group-hover:rotate-0 transition-transform duration-500 opacity-5" />
+          <div className="relative border border-white/5 rounded-[2.5rem] p-10 bg-[#0d2518] shadow-2xl hover:shadow-[#EBB56B]/5 transition-all duration-500 flex flex-col justify-between min-h-[350px]">
+            <div className="space-y-8">
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-serif italic text-[#eff8ee]">Recent Orders</h3>
+                <ShoppingBag className="size-5 text-[#EBB56B]" />
               </div>
-            ) : recentOrders.length > 0 ? (
-              <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="flex justify-between items-center text-sm border-b border-gray-50 pb-3">
-                    <div>
-                      <p className="font-bold">#{order.display_id || order.id.slice(-8).toUpperCase()}</p>
-                      <p className="text-gray-400 text-xs">{new Date(order.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <span className="font-bold text-[#062D1B]">${Number(order.totalAmount)}</span>
-                  </div>
-                ))}
+              
+              {loading ? (
+                <div className="space-y-4">
+                  {[...Array(2)].map((_, i) => (
+                    <div key={i} className="h-16 bg-white/5 rounded-2xl animate-pulse" />
+                  ))}
+                </div>
+              ) : recentOrders.length > 0 ? (
+                <div className="space-y-4">
+                  {recentOrders.map((order) => (
+                    <Link href={`/account/orders/${order.id}`} key={order.id} className="flex justify-between items-center p-4 rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/5 transition-all">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[#eff8ee]">#{order.id.slice(-8).toUpperCase()}</p>
+                        <p className="text-[#eff8ee]/30 text-[10px] font-bold mt-0.5">{new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-sm text-[#eff8ee]">${Number(order.totalAmount).toFixed(2)}</p>
+                        <p className="text-[8px] font-black uppercase tracking-widest text-emerald-400">{order.status}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-12 text-center space-y-4">
+                   <div className="size-12 rounded-full bg-white/5 flex items-center justify-center mx-auto opacity-20"><ShoppingBag className="size-5" /></div>
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-[#eff8ee]/30">No recent orders found</p>
+                </div>
+              )}
+            </div>
+            
+            <Link href="/account/orders" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#eff8ee] group/btn pt-8">
+              <span>{recentOrders.length > 0 ? "Browse History" : "Start Shopping"}</span>
+              <div className="size-8 rounded-full bg-[#EBB56B] flex items-center justify-center text-[#040e07] group-hover/btn:translate-x-1 transition-transform">
+                <ArrowRight className="size-3.5" />
               </div>
-            ) : (
-              <p className="text-gray-500 text-sm">You haven't placed any orders yet.</p>
-            )}
+            </Link>
           </div>
-          <Link href="/account/orders" className="inline-flex items-center gap-2 text-sm font-bold text-[#062D1B] hover:gap-3 transition-all group pt-6">
-            {recentOrders.length > 0 ? "View all orders" : "Start shopping"} <ArrowRight className="size-4" />
-          </Link>
         </div>
 
-        {/* Account Details Card */}
-        <div className="border border-gray-100 rounded-2xl p-8 bg-white shadow-sm flex flex-col justify-between min-h-[300px]">
-          <div className="space-y-6">
-            <h3 className="text-xl font-bold">Account Details</h3>
-            <div className="space-y-1">
-              <p className="font-bold">{user.name}</p>
-              <p className="text-gray-500 text-sm">{user.email}</p>
-            </div>
+        {/* Profile Card */}
+        <div className="group relative">
+          <div className="absolute inset-0 bg-[#EBB56B] rounded-[2.5rem] -rotate-1 group-hover:rotate-0 transition-transform duration-500 opacity-5" />
+          <div className="relative border border-white/5 rounded-[2.5rem] p-10 bg-[#0d2518] shadow-2xl hover:shadow-[#EBB56B]/5 transition-all duration-500 flex flex-col justify-between min-h-[350px]">
+             <div className="space-y-8">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-2xl font-serif italic text-[#eff8ee]">Identity</h3>
+                  <div className="size-10 rounded-full bg-[#EBB56B] flex items-center justify-center text-[#040e07] text-xs font-bold uppercase">{user.name?.charAt(0)}</div>
+                </div>
+                
+                <div className="space-y-6">
+                   <div className="space-y-1">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-[#eff8ee]/30">Display Name</p>
+                      <p className="text-xl font-bold tracking-tight text-[#eff8ee]">{user.name}</p>
+                   </div>
+                   <div className="space-y-1">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-[#eff8ee]/30">Email Address</p>
+                      <p className="text-sm font-medium text-[#eff8ee]/60 italic">{user.email}</p>
+                   </div>
+                   <div className="pt-4 flex gap-2">
+                      <div className="px-4 py-1.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-[8px] font-black uppercase tracking-widest text-emerald-400">Verified Member</div>
+                      <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[8px] font-black uppercase tracking-widest text-[#eff8ee]/40">Active since {new Date(user.createdAt).getFullYear()}</div>
+                   </div>
+                </div>
+             </div>
+
+             <Link href="/account/profile" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#eff8ee] group/btn pt-8">
+              <span>Personalize Profile</span>
+              <div className="size-8 rounded-full bg-[#EBB56B] flex items-center justify-center text-[#040e07] group-hover/btn:translate-x-1 transition-transform">
+                <ArrowRight className="size-3.5" />
+              </div>
+            </Link>
           </div>
-          <Link href="/account/profile" className="inline-flex items-center gap-2 text-sm font-bold text-[#062D1B] hover:gap-3 transition-all">
-            Edit profile <ArrowRight className="size-4" />
-          </Link>
         </div>
       </div>
 
-      {/* Quick Links Section */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8 border-t border-gray-100">
-        <Link href="/account/orders" className="group p-6 rounded-xl border border-gray-100 hover:border-[#062D1B] hover:bg-gray-50 transition-all">
-          <h4 className="font-bold mb-2">Order History</h4>
-          <p className="text-xs text-gray-400">Review your past purchases and track deliveries.</p>
-        </Link>
-        <Link href="/account/addresses" className="group p-6 rounded-xl border border-gray-100 hover:border-[#062D1B] hover:bg-gray-50 transition-all">
-          <h4 className="font-bold mb-2">Shipping Addresses</h4>
-          <h4 className="font-bold mb-2">Shipping Addresses</h4>
-          <p className="text-xs text-gray-400">Add or edit your delivery locations.</p>
-        </Link>
-        <Link href="/account/payments" className="group p-6 rounded-xl border border-gray-100 hover:border-[#062D1B] hover:bg-gray-50 transition-all">
-          <h4 className="font-bold mb-2">Payment Methods</h4>
-          <p className="text-xs text-gray-400">Securely manage your cards and payments.</p>
-        </Link>
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-16 border-t border-white/5">
+        {[
+          { title: "Order History", desc: "Review your past purchases and track deliveries.", href: "/account/orders", icon: ShoppingBag },
+          { title: "Shipping Hub", desc: "Add or edit your premium delivery locations.", href: "/account/addresses", icon: MapPin }
+        ].map((link) => (
+          <Link key={link.href} href={link.href} className="group p-8 rounded-[2rem] border border-white/5 hover:border-[#EBB56B]/50 bg-[#0d2518]/50 hover:bg-[#0d2518] hover:shadow-2xl hover:shadow-[#EBB56B]/5 transition-all duration-500 space-y-4">
+             <div className="size-12 rounded-2xl bg-white/5 flex items-center justify-center text-[#EBB56B] group-hover:bg-[#EBB56B] group-hover:text-[#040e07] transition-colors duration-500">
+                <link.icon className="size-5" />
+             </div>
+             <div>
+                <h4 className="text-lg font-serif italic text-[#eff8ee]">{link.title}</h4>
+                <p className="text-[10px] font-medium text-[#eff8ee]/40 leading-relaxed mt-1">{link.desc}</p>
+             </div>
+          </Link>
+        ))}
       </section>
     </div>
   );
