@@ -112,7 +112,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
                 </Sheet>
                 <div className="h-6 w-px bg-black/[0.05] md:hidden" />
                 <Activity className="size-5 text-black" />
-                <span className="font-heading text-lg md:text-xl font-bold tracking-tight text-black truncate">{title || 'Manager'}</span>
+                <span className="font-heading text-lg md:text-xl font-bold tracking-tight text-black truncate">{title || user.role}</span>
              </div>
           </div>
 
@@ -146,7 +146,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
                 <button type="button" className="flex items-center gap-3 group cursor-pointer hover:bg-black/[0.02] p-1.5 rounded-xl transition-all border-none bg-transparent outline-none ring-0">
                   <div className="text-right hidden xl:block">
                     <p className="text-sm font-semibold text-black">{user.name}</p>
-                    <p className="text-[10px] text-black/30 font-medium uppercase tracking-wider text-right">Manager</p>
+                    <p className="text-[10px] text-black/30 font-medium uppercase tracking-wider text-right">{user.role}</p>
                   </div>
                   <div className="size-9 rounded-lg bg-blue-500 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
                       {user.name?.[0]}

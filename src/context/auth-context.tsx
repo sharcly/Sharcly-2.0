@@ -5,18 +5,20 @@ import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api-client";
 import Cookies from "js-cookie";
 
-export type Role = "admin" | "manager" | "content_manager" | "user";
+export type Role = "admin" | "super_admin" | "manager" | "content_manager" | "user";
 
 type User = {
   id: string;
   email: string;
   name: string;
   role: Role;
+  permissions: string[];
+  accessToken?: string; // Optional: stored in localStorage as fallback
 };
 
 type AuthContextType = {
   user: User | null;
-  login: (accessToken: string, refreshToken: string, user: { id: string; email: string; name: string; role: any }) => void;
+  login: (accessToken: string, refreshToken: string, user: { id: string; email: string; name: string; role: any; permissions?: string[] }) => void;
   logout: () => void;
   isLoading: boolean;
 };
@@ -34,9 +36,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const storedUser = localStorage.getItem("user");
         
-        // On mount, we always check /auth/me to verify the session
-        // (HttpOnly cookie is the source of truth)
-
         if (storedUser) {
           setUser(JSON.parse(storedUser));
         }
@@ -55,14 +54,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             email: backendUser.email,
             name: backendUser.name,
             role: roleSlug as Role,
+            permissions: response.data.permissions || backendUser.permissions || [],
+            accessToken: response.data.accessToken || (JSON.parse(storedUser || '{}').accessToken)
           };
           setUser(verifiedUser);
           localStorage.setItem("user", JSON.stringify(verifiedUser));
           Cookies.set("role", verifiedUser.role, { expires: 1, path: "/" });
         }
       } catch (error) {
-        // Only clear if we actually had a session that is now invalid
-        // If session is invalid, clear local user state
         setUser(null);
         localStorage.removeItem("user");
         Cookies.remove("role", { path: "/" });
@@ -77,7 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = (
     newAccessToken: string,
     newRefreshToken: string,
-    backendUser: { id: string; email: string; name: string; role: any }
+    backendUser: { id: string; email: string; name: string; role: any; permissions?: string[] }
   ) => {
     const roleSlug =
       typeof backendUser.role === "string"
@@ -89,21 +88,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email: backendUser.email,
       name: backendUser.name,
       role: roleSlug as Role,
+      permissions: backendUser.permissions || [],
+      accessToken: newAccessToken,
     };
-
+    
     setUser(newUser);
-
-    // Keep user in localStorage for fast UI hydration only
     localStorage.setItem("user", JSON.stringify(newUser));
-
-    // Role cookie for Next.js middleware routing
     Cookies.set("role", newUser.role, { expires: 1, path: "/" });
 
-    // Redirect based on role
-    if (["admin", "manager", "content_manager"].includes(newUser.role)) {
-      router.push("/dashboard");
-    } else {
+    if (newUser.role === "user") {
       router.push("/account");
+    } else {
+      router.push("/dashboard");
     }
   };
 

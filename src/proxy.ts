@@ -79,7 +79,7 @@ export async function proxy(request: NextRequest) {
       console.warn(`[Middleware] Access denied for role: ${role} to path: ${pathname}`);
       
       let redirectUrl = "/login";
-      if (role === "admin" || role === "manager") redirectUrl = "/dashboard";
+      if (role === "admin" || role === "super_admin" || role === "manager") redirectUrl = "/dashboard";
       else if (role === "content_manager") redirectUrl = "/dashboard/blogs";
       else if (role === "user") redirectUrl = "/account/orders";
 

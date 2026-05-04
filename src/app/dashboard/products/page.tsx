@@ -55,11 +55,11 @@ import {
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { getImageUrl } from "@/lib/image-utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import ProductDrawer from "@/components/admin/ProductDrawer";
 
 export default function DashboardProductsPage() {
@@ -259,17 +259,11 @@ export default function DashboardProductsPage() {
                       <TableRow key={p.id} className="border-black/5 hover:bg-neutral-50/50 transition-all group">
                         <TableCell className="pl-8 py-6">
                           <div className="size-16 rounded-2xl bg-neutral-100 border border-black/5 overflow-hidden shadow-sm group-hover:scale-110 transition-transform duration-500">
-                            {p.imageUrls?.[0] || p.images?.[0] ? (
-                              <img 
-                                src={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api"}/images/${p.imageUrls?.[0] ? p.imageUrls[0].split("/").pop() : p.images[0].id}`} 
-                                className="size-full object-cover" 
-                                alt={p.name}
-                              />
-                            ) : (
-                              <div className="size-full flex items-center justify-center bg-neutral-50">
-                                <Package className="size-8 text-neutral-200" />
-                              </div>
-                            )}
+                            <img 
+                              src={getImageUrl(p.imageUrls?.[0] || p.images?.[0])} 
+                              className="size-full object-cover" 
+                              alt={p.name}
+                            />
                           </div>
                         </TableCell>
                         <TableCell className="py-6">
