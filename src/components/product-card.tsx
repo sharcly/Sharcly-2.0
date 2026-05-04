@@ -57,8 +57,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         
         {/* Category tag */}
         <div className="absolute top-4 left-4">
-          <span className="inline-block px-2.5 py-1 rounded-full border backdrop-blur-md text-[9px] font-semibold uppercase tracking-[0.16em]"
-            style={{ backgroundColor: 'rgba(232,197,71,0.1)', borderColor: 'rgba(232,197,71,0.25)', color: '#E8C547' }}
+          <span className="inline-flex items-center px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.2em]"
+            style={{ 
+              backgroundColor: '#E8C547', 
+              color: '#040e07', 
+              borderRadius: '2px',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+            }}
           >
             {product.category?.name || "Series"}
           </span>
@@ -73,7 +78,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
 
         {/* Bottom card content */}
-        <div className="absolute bottom-0 inset-x-0 p-5 z-10">
+        <div className="absolute bottom-0 inset-x-0 p-5 z-10 transition-transform duration-300 group-hover:-translate-y-12">
           <h3 className="text-[15px] font-bold leading-tight mb-1" style={{ fontFamily: 'var(--font-cormorant), serif', color: '#eff8ee' }}>
             {product.name}
           </h3>

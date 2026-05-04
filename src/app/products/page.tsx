@@ -26,14 +26,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSeo } from "@/hooks/use-seo";
 
-const FALLBACK_PRODUCTS = [
-  { id: "f1", name: "Chill Series Gummies", slug: "chill-series-gummies", price: 45, description: "Advanced relaxation formula for slow evenings and deep rest.", category: { name: "Chill Series" }, images: ["https://i.postimg.cc/T3qHks4z/Sharcly-Chill-Collection.jpg"] },
-  { id: "f2", name: "Lift Series Vapes", slug: "lift-series-vapes", price: 65, description: "Precision energy boost for focused creative sessions.", category: { name: "Lift Series" }, images: ["https://i.postimg.cc/9F7Kz7H4/Sharcly-Lift-Series.jpg"] },
-  { id: "f3", name: "Sleep Series Tincture", slug: "sleep-series-tincture", price: 55, description: "Natural sleep induction system with targeted terpene profile.", category: { name: "Sleep Series" }, images: ["https://i.postimg.cc/vHgY9D41/Daytime-Clarity.jpg"] },
-  { id: "f4", name: "Balance Series Softgels", slug: "balance-series-softgels", price: 60, description: "Daily reset for consistent internal rhythm and clarity.", category: { name: "Balance Series" }, images: ["https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg"] },
-  { id: "f5", name: "Chill Series Oil", slug: "chill-series-oil", price: 75, description: "Full-spectrum relaxation delivered with botanical precision.", category: { name: "Chill Series" }, images: ["https://i.postimg.cc/T3qHks4z/Sharcly-Chill-Collection.jpg"] },
-  { id: "f6", name: "Lift Series Gummies", slug: "lift-series-gummies", price: 40, description: "Fast-acting energy hits for the modern rhythm.", category: { name: "Lift Series" }, images: ["https://i.postimg.cc/9F7Kz7H4/Sharcly-Lift-Series.jpg"] }
-];
 
 const SERIES_TABS = [
   { id: "all", name: "All" },
@@ -67,7 +59,6 @@ function ProductsContent() {
   const [selectedSeries, setSelectedSeries] = useState(seriesParam || "all");
   const [sortOrder, setSortOrder] = useState("newest");
   const [sortOpen, setSortOpen] = useState(false);
-  const [gridCols, setGridCols] = useState<2 | 3>(3);
 
   useSeo("products");
 
@@ -83,7 +74,7 @@ function ProductsContent() {
       params.append("sort", sortOrder);
       const response = await apiClient.get(`/products?${params.toString()}`);
       const fetched = response.data.products || [];
-      let final = fetched.length > 0 ? fetched : FALLBACK_PRODUCTS;
+      let final = fetched;
       if (selectedSeries !== "all") {
         final = final.filter((p: any) => 
           p.category?.name?.toLowerCase().includes(selectedSeries) ||
@@ -92,9 +83,7 @@ function ProductsContent() {
       }
       setProducts(final);
     } catch (error: any) {
-      setProducts(FALLBACK_PRODUCTS.filter((p: any) => 
-        selectedSeries === "all" || p.category.name.toLowerCase().includes(selectedSeries)
-      ));
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -113,8 +102,8 @@ function ProductsContent() {
 
       <div className="pt-28" />
 
-      {/* ═══ STICKY TAB BAR ═══ */}
-      <div className="sticky top-[64px] z-30 backdrop-blur-2xl" style={{ backgroundColor: 'rgba(4,14,7,0.85)', borderBottom: '1px solid rgba(239,248,238,0.06)' }}>
+      {/* ═══ STICKY TAB BAR (MOBILE ONLY) ═══ */}
+      <div className="lg:hidden sticky top-[64px] z-30 backdrop-blur-2xl" style={{ backgroundColor: 'rgba(4,14,7,0.85)', borderBottom: '1px solid rgba(239,248,238,0.06)' }}>
         <div className="container mx-auto px-6 md:px-12">
           <div className="flex items-center justify-between gap-4 py-3">
             {/* Series Tabs */}
@@ -244,81 +233,168 @@ function ProductsContent() {
         </div>
       </div>
 
-      {/* ═══ ACTIVE FILTER CHIPS ═══ */}
-      {(selectedSeries !== "all" || search) && (
-        <div className="container mx-auto px-6 md:px-12 pt-5">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] font-bold uppercase tracking-widest mr-1" style={{ color: 'rgba(239,248,238,0.8)' }}>Active:</span>
-            {selectedSeries !== "all" && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                onClick={() => setSelectedSeries("all")}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide transition-colors"
-                style={{ backgroundColor: 'rgba(232,197,71,0.15)', color: '#E8C547', border: '1px solid rgba(232,197,71,0.25)' }}
-              >
-                {SERIES_TABS.find(t => t.id === selectedSeries)?.name} Series
-                <X className="size-3" />
-              </motion.button>
-            )}
-            {search && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                onClick={() => setSearch("")}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide transition-colors"
-                style={{ backgroundColor: 'rgba(239,248,238,0.08)', color: 'rgba(239,248,238,0.6)' }}
-              >
-                &ldquo;{search}&rdquo; <X className="size-3" />
-              </motion.button>
-            )}
-            <button onClick={() => { setSearch(""); setSelectedSeries("all"); }} className="text-[10px] font-bold transition-colors ml-2 underline underline-offset-2" style={{ color: 'rgba(239,248,238,0.8)' }}>
-              Clear all
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ═══ PRODUCT GRID ═══ */}
-      <main className="container mx-auto px-6 md:px-12 py-10 md:py-14">
-        <AnimatePresence mode="popLayout">
-          {loading ? (
-            <div className={cn("grid gap-6 md:gap-8", gridCols === 3 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2")}>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <motion.div key={`skel-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }} className="animate-pulse">
-                  <div className="aspect-[4/5] rounded-[20px]" style={{ background: 'linear-gradient(to bottom, rgba(239,248,238,0.03), rgba(239,248,238,0.06))' }} />
-                </motion.div>
-              ))}
-            </div>
-          ) : products.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-32 flex flex-col items-center text-center">
-              <div className="size-16 rounded-2xl flex items-center justify-center mb-5 rotate-6" style={{ backgroundColor: 'rgba(239,248,238,0.05)' }}>
-                <Search className="size-7 -rotate-6" style={{ color: 'rgba(239,248,238,0.1)' }} />
+      <div className="container mx-auto px-6 md:px-12 py-10 md:py-14 flex flex-col lg:flex-row gap-12 lg:gap-16">
+        
+        {/* ═══ LEFT SIDEBAR (DESKTOP) ═══ */}
+        <aside className="hidden lg:block w-64 shrink-0">
+          <div className="sticky top-32 space-y-12">
+            
+            {/* Search */}
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(239,248,238,0.5)' }}>Search</h3>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4" style={{ color: 'rgba(239,248,238,0.6)' }} />
+                <input 
+                  placeholder="Find products..."
+                  className="w-full h-12 pl-12 pr-4 rounded-xl transition-all text-sm font-semibold outline-none border"
+                  style={{ backgroundColor: 'rgba(239,248,238,0.03)', borderColor: 'rgba(239,248,238,0.08)', color: '#eff8ee', }}
+                  onFocus={(e) => { e.target.style.borderColor = 'rgba(232,197,71,0.3)'; e.target.style.backgroundColor = 'rgba(239,248,238,0.06)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = 'rgba(239,248,238,0.08)'; e.target.style.backgroundColor = 'rgba(239,248,238,0.03)'; }}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                {search && (
+                  <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 size-5 rounded-full flex items-center justify-center transition-colors hover:bg-[#eff8ee]/20" style={{ backgroundColor: 'rgba(239,248,238,0.1)' }}>
+                    <X className="size-3 text-[#eff8ee]" />
+                  </button>
+                )}
               </div>
-              <h3 className="text-lg font-black tracking-tight mb-1.5" style={{ color: '#eff8ee' }}>Nothing here.</h3>
-              <p className="text-[12px] mb-6 max-w-xs font-medium" style={{ color: 'rgba(239,248,238,0.8)' }}>No products match your current filters.</p>
-              <button onClick={() => { setSearch(""); setSelectedSeries("all"); }} className="px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all" style={{ backgroundColor: '#E8C547', color: '#082f1d' }}>
-                Reset Filters
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div layout className={cn("grid gap-6 md:gap-8", gridCols === 3 ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2")}>
-              {products.map((product, idx) => (
-                <motion.div
-                  key={product.id}
-                  layout
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.97 }}
-                  transition={{ duration: 0.45, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+            </div>
+
+            {/* Series / Categories */}
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(239,248,238,0.5)' }}>Collections</h3>
+              <div className="flex flex-col gap-1.5">
+                {SERIES_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setSelectedSeries(tab.id)}
+                    className={cn(
+                      "relative px-4 py-3 text-xs font-bold tracking-wide transition-all duration-300 rounded-xl text-left flex items-center justify-between group",
+                      selectedSeries === tab.id 
+                        ? "text-[#E8C547]" 
+                        : "text-[#eff8ee]/70 hover:text-[#eff8ee] hover:bg-[#eff8ee]/5"
+                    )}
+                  >
+                    <span className="relative z-10">{tab.name}</span>
+                    {selectedSeries === tab.id && (
+                      <motion.div
+                        layoutId="activeSidebarTab"
+                        className="absolute inset-0 rounded-xl -z-10"
+                        style={{ backgroundColor: 'rgba(232,197,71,0.08)', border: '1px solid rgba(232,197,71,0.15)' }}
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    {selectedSeries === tab.id && (
+                      <div className="size-1.5 rounded-full bg-[#E8C547] shadow-[0_0_8px_rgba(232,197,71,0.8)] relative z-10" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sort Options */}
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(239,248,238,0.5)' }}>Sort By</h3>
+              <div className="flex flex-col gap-1.5">
+                {SORT_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => setSortOrder(opt.id)}
+                    className={cn(
+                      "px-4 py-2.5 text-xs font-semibold transition-all duration-300 rounded-lg text-left flex items-center gap-3",
+                      sortOrder === opt.id 
+                        ? "text-[#eff8ee] bg-[#eff8ee]/10" 
+                        : "text-[#eff8ee]/50 hover:text-[#eff8ee]/90 hover:bg-[#eff8ee]/5"
+                    )}
+                  >
+                    <div className={cn("size-3 rounded-full border flex items-center justify-center", sortOrder === opt.id ? "border-[#eff8ee]" : "border-[#eff8ee]/30")}>
+                      {sortOrder === opt.id && <div className="size-1.5 rounded-full bg-[#eff8ee]" />}
+                    </div>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </aside>
+
+        {/* ═══ MAIN CONTENT ═══ */}
+        <main className="flex-1 min-w-0">
+          {/* ═══ ACTIVE FILTER CHIPS ═══ */}
+          {(selectedSeries !== "all" || search) && (
+            <div className="mb-8 flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] font-bold uppercase tracking-widest mr-1" style={{ color: 'rgba(239,248,238,0.8)' }}>Active Filters:</span>
+              {selectedSeries !== "all" && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  onClick={() => setSelectedSeries("all")}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wide transition-colors"
+                  style={{ backgroundColor: 'rgba(232,197,71,0.15)', color: '#E8C547', border: '1px solid rgba(232,197,71,0.25)' }}
                 >
-                  <ProductCard product={product} />
-                </motion.div>
-              ))}
-            </motion.div>
+                  {SERIES_TABS.find(t => t.id === selectedSeries)?.name} Series
+                  <X className="size-3" />
+                </motion.button>
+              )}
+              {search && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  onClick={() => setSearch("")}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide transition-colors"
+                  style={{ backgroundColor: 'rgba(239,248,238,0.08)', color: 'rgba(239,248,238,0.8)' }}
+                >
+                  &ldquo;{search}&rdquo; <X className="size-3" />
+                </motion.button>
+              )}
+              <button onClick={() => { setSearch(""); setSelectedSeries("all"); }} className="text-[10px] font-bold transition-colors ml-2 underline underline-offset-4" style={{ color: 'rgba(239,248,238,0.5)' }}>
+                Clear all
+              </button>
+            </div>
           )}
-        </AnimatePresence>
-      </main>
+
+          {/* ═══ PRODUCT GRID ═══ */}
+          <AnimatePresence mode="popLayout">
+            {loading ? (
+              <div className="grid gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <motion.div key={`skel-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }} className="animate-pulse">
+                    <div className="aspect-[4/5] rounded-[20px]" style={{ background: 'linear-gradient(to bottom, rgba(239,248,238,0.03), rgba(239,248,238,0.06))' }} />
+                  </motion.div>
+                ))}
+              </div>
+            ) : products.length === 0 ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-32 flex flex-col items-center text-center">
+                <div className="size-16 rounded-2xl flex items-center justify-center mb-5 rotate-6" style={{ backgroundColor: 'rgba(239,248,238,0.05)' }}>
+                  <Search className="size-7 -rotate-6" style={{ color: 'rgba(239,248,238,0.1)' }} />
+                </div>
+                <h3 className="text-lg font-black tracking-tight mb-1.5" style={{ color: '#eff8ee' }}>Nothing here.</h3>
+                <p className="text-[12px] mb-6 max-w-xs font-medium" style={{ color: 'rgba(239,248,238,0.8)' }}>No products match your current filters.</p>
+                <button onClick={() => { setSearch(""); setSelectedSeries("all"); }} className="px-6 py-3 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all" style={{ backgroundColor: '#E8C547', color: '#082f1d' }}>
+                  Reset Filters
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div layout className="grid gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {products.map((product, idx) => (
+                  <motion.div
+                    key={product.id}
+                    layout
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.45, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <ProductCard product={product} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
+      </div>
 
       <Footer />
     </div>
