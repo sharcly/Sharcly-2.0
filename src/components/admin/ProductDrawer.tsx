@@ -216,7 +216,7 @@ export default function ProductDrawer({
    const handleCreateCategory = async () => {
       if (!newCatName) return;
       try {
-         const res = await apiClient.post("/admin/categories", { name: newCatName });
+         const res = await apiClient.post("/products/categories", { name: newCatName });
          toast.success("Category created successfully");
          updateForm({ categoryId: res.data.category.id });
          setIsCreatingCategory(false);
@@ -290,6 +290,7 @@ export default function ProductDrawer({
                            >
                               {form.isAuthenticated ? <Check size={16} /> : <X size={16} />}
                            </button>
+                        </div>
                         </div>
                      </FormSection>
 

@@ -12,6 +12,7 @@ import GlobalSeoIntegrator from "@/components/global-seo-integrator";
 import { CartDrawer } from "@/components/cart-drawer";
 import { WelcomePopup } from "@/components/welcome-popup";
 import { AgeVerification } from "@/components/age-verification";
+import AgeGateModal from "@/components/age-gate-modal";
 
 const inter = Inter({
   subsets: ["latin"],
