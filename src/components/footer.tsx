@@ -255,22 +255,6 @@ export function Footer() {
         </motion.div>
       </div>
 
-      {/* Floating Exclusive Button */}
-      <motion.button
-        initial={{ opacity: 0, x: 100 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 1.5, duration: 0.8 }}
-        whileHover={{ scale: 1.05 }}
-        className="fixed bottom-8 right-8 z-50 group"
-      >
-        <div className="absolute inset-0 bg-green-500/20 blur-xl rounded-full group-hover:bg-green-500/30 transition-all duration-500 animate-pulse" />
-        <div className="relative flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl">
-          <div className="size-2 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-sm font-semibold tracking-wide text-white whitespace-nowrap">Exclusive Offers</span>
-          <Sparkles className="size-4 text-green-400" />
-        </div>
-      </motion.button>
-
       {/* Bottom Corner Accent */}
       <div className="absolute bottom-0 right-0 size-96 bg-green-500/5 blur-[120px] rounded-full -translate-x-1/4 translate-y-1/4 pointer-events-none" />
     </footer>

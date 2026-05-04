@@ -147,7 +147,7 @@ export default function RoleDrawer({
                     <div className="size-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center shadow-sm">
                        <Shield className="h-5 w-5" />
                     </div>
-                    <h2 className="text-2xl font-black tracking-tight text-primary">
+                    <h2 className="text-xl font-black tracking-tight text-primary">
                       {initialData ? "Edit Role" : "Create New Role"}
                     </h2>
                  </div>
@@ -169,7 +169,7 @@ export default function RoleDrawer({
                 <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40 pl-1">Role Name</Label>
                 <Input 
                   placeholder="e.g. Manager" 
-                  className="rounded-2xl h-14 border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/10 transition-all text-sm font-bold shadow-sm"
+                  className="rounded-xl h-12 border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/10 transition-all text-sm font-bold shadow-sm"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   required
@@ -179,7 +179,7 @@ export default function RoleDrawer({
                 <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40 pl-1">Role Slug (Unique)</Label>
                 <Input 
                   placeholder="e.g. manager" 
-                  className="rounded-2xl h-14 border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/10 transition-all font-mono text-[10px] uppercase tracking-widest shadow-sm"
+                  className="rounded-xl h-12 border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/10 transition-all font-mono text-[10px] uppercase tracking-widest shadow-sm"
                   value={formData.slug}
                   onChange={(e) => setFormData({...formData, slug: e.target.value})}
                   required
@@ -190,7 +190,7 @@ export default function RoleDrawer({
                 <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40 pl-1">Description</Label>
                 <Input 
                   placeholder="What can this role do?" 
-                  className="rounded-2xl h-14 border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/10 transition-all text-sm shadow-sm"
+                  className="rounded-xl h-12 border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/10 transition-all text-sm shadow-sm"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                 />
@@ -251,7 +251,7 @@ export default function RoleDrawer({
                             togglePermission(perm.id);
                           }}
                           className={cn(
-                            "group p-6 rounded-[2rem] border transition-all cursor-pointer flex items-center gap-6 relative overflow-hidden",
+                            "group p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-6 relative overflow-hidden",
                             formData.permissionIds.includes(perm.id) 
                               ? "bg-primary text-white border-primary shadow-xl shadow-primary/20" 
                               : "bg-white border-gray-100 hover:bg-gray-50"
@@ -287,10 +287,10 @@ export default function RoleDrawer({
           {/* FOOTER */}
           <div className="p-8 pt-6 bg-white border-t border-gray-100 sticky bottom-0 z-30">
             <div className="flex flex-col sm:flex-row gap-4 w-full">
-              <Button type="button" variant="ghost" onClick={onClose} className="h-14 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] text-gray-400 hover:text-gray-900 px-8 transition-all">Cancel</Button>
+              <Button type="button" variant="ghost" onClick={onClose} className="h-12 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] text-gray-400 hover:text-gray-900 px-8 transition-all">Cancel</Button>
               <Button 
                 onClick={() => onSave(formData)}
-                className="flex-1 h-14 rounded-2xl bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20 font-black text-[12px] uppercase tracking-[0.3em] gap-3 group transition-all"
+                className="flex-1 h-12 rounded-xl bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20 font-black text-[12px] uppercase tracking-[0.3em] gap-3 group transition-all"
               >
                 {initialData ? "Update Role" : "Confirm & Save"} <ChevronRight className="h-5 w-5 group-hover:translate-x-2 transition-transform duration-300" />
               </Button>

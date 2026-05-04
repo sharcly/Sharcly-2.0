@@ -91,12 +91,29 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Call the refresh endpoint to rotate HttpOnly cookies
-        await axios.post(
+        // FALLBACK: Get refresh token from localStorage if cookies are blocked
+        let refreshToken = null;
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          try {
+            refreshToken = JSON.parse(storedUser).refreshToken;
+          } catch (e) {}
+        }
+
+        // Call the refresh endpoint
+        const response = await axios.post(
           `${API_URL}/auth/refresh-token`,
-          {}, // Body is empty because backend reads refresh_token from cookie
+          { refreshToken }, // Send token in body as fallback for environments where cookies fail
           { withCredentials: true }
         );
+
+        // If backend returned new tokens in body, update localStorage
+        if (response.data.success && response.data.accessToken && storedUser) {
+          const user = JSON.parse(storedUser);
+          user.accessToken = response.data.accessToken;
+          user.refreshToken = response.data.refreshToken;
+          localStorage.setItem("user", JSON.stringify(user));
+        }
 
         // Resolve all queued requests
         processQueue(null);

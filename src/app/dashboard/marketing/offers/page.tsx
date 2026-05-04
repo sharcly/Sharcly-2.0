@@ -1,27 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Edit2, Gift, Save, X, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Trash2, Edit2, Gift, ToggleLeft, ToggleRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
-import { motion } from "framer-motion";
+import OfferDrawer from "@/components/admin/OfferDrawer";
 
 export default function WelcomeOffersPage() {
   const [offers, setOffers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    discount: "",
-    isActive: true
-  });
 
   useEffect(() => {
     fetchOffers();
@@ -38,38 +29,49 @@ export default function WelcomeOffersPage() {
     }
   };
 
-  const handleOpenModal = (offer: any = null) => {
-    if (offer) {
-      setEditingOffer(offer);
-      setFormData({
-        title: offer.title,
-        description: offer.description,
-        discount: offer.discount.toString(),
-        isActive: offer.isActive
-      });
-    } else {
-      setEditingOffer(null);
-      setFormData({
-        title: "",
-        description: "",
-        discount: "",
-        isActive: true
-      });
-    }
-    setIsModalOpen(true);
+  const handleOpenDrawer = (offer: any = null) => {
+    setEditingOffer(offer);
+    setIsDrawerOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (formData: any) => {
     try {
+      const data = new FormData();
+      
+      // Append basic fields
+      data.append("title", formData.title);
+      data.append("subtitle", formData.subtitle || "");
+      data.append("description", formData.description);
+      data.append("discount", formData.discount);
+      data.append("discountType", formData.discountType);
+      data.append("step2Title", formData.step2Title || "");
+      data.append("step2Text", formData.step2Text || "");
+      data.append("footerText", formData.footerText || "");
+      data.append("isActive", String(formData.isActive));
+      
+      // Append complex fields
+      data.append("options", JSON.stringify(formData.options));
+      
+      // Append file if present
+      if (formData.imageFile) {
+        data.append("image", formData.imageFile);
+      } else if (formData.image) {
+        // If no new file but existing image path
+        data.append("image", formData.image);
+      }
+
       if (editingOffer) {
-        await apiClient.put(`/marketing/offers/${editingOffer.id}`, formData);
+        await apiClient.put(`/marketing/offers/${editingOffer.id}`, data, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         toast.success("Offer updated successfully");
       } else {
-        await apiClient.post("/marketing/offers", formData);
+        await apiClient.post("/marketing/offers", data, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
         toast.success("Offer created successfully");
       }
-      setIsModalOpen(false);
+      setIsDrawerOpen(false);
       fetchOffers();
     } catch (error) {
       toast.error("Failed to save offer");
@@ -106,7 +108,7 @@ export default function WelcomeOffersPage() {
           <p className="text-sm text-neutral-500 font-medium">Manage the offers displayed in the visitor welcome popup.</p>
         </div>
         <Button 
-          onClick={() => handleOpenModal()}
+          onClick={() => handleOpenDrawer()}
           className="h-11 px-6 rounded-xl premium-gradient font-bold shadow-lg gap-2 border-none"
         >
           <Plus className="size-4" /> Create Offer
@@ -123,7 +125,7 @@ export default function WelcomeOffersPage() {
                 </div>
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => handleOpenModal(offer)}
+                    onClick={() => handleOpenDrawer(offer)}
                     className="size-8 rounded-lg bg-neutral-50 flex items-center justify-center text-neutral-400 hover:text-neutral-900 transition-colors"
                   >
                     <Edit2 size={14} />
@@ -139,13 +141,16 @@ export default function WelcomeOffersPage() {
 
               <div className="space-y-1">
                 <h3 className="font-bold text-neutral-900">{offer.title}</h3>
-                <p className="text-xs text-neutral-400 leading-relaxed">{offer.description}</p>
+                <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">{offer.subtitle || 'No Subtitle'}</p>
+                <p className="text-xs text-neutral-400 leading-relaxed line-clamp-2">{offer.description}</p>
               </div>
 
               <div className="pt-2 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl font-black text-emerald-600">{offer.discount}%</span>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300">Discount</span>
+                  <span className="text-xl font-black text-emerald-600">
+                    {offer.discountType === "FIXED" ? "$" : ""}{offer.discount}{offer.discountType === "PERCENTAGE" ? "%" : ""}
+                  </span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-neutral-300">Off</span>
                 </div>
                 <button 
                   onClick={() => toggleStatus(offer)}
@@ -172,92 +177,12 @@ export default function WelcomeOffersPage() {
         )}
       </div>
 
-      {/* Offer Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden"
-          >
-            <div className="p-8 border-b border-neutral-50 flex justify-between items-center bg-neutral-50/50">
-              <h3 className="text-xl font-bold italic serif">{editingOffer ? 'Edit Offer' : 'New Offer'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-neutral-400 hover:text-neutral-900 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">Offer Title</Label>
-                  <Input 
-                    placeholder="e.g. 15% Welcome Gift"
-                    value={formData.title}
-                    onChange={e => setFormData({...formData, title: e.target.value})}
-                    required
-                    className="h-12 rounded-xl border-neutral-100 bg-neutral-50/50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">Description</Label>
-                  <Textarea 
-                    placeholder="Briefly describe what the user gets"
-                    value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
-                    required
-                    className="rounded-xl border-neutral-100 bg-neutral-50/50 min-h-[100px]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">Discount Percentage (%)</Label>
-                  <Input 
-                    type="number"
-                    placeholder="15"
-                    value={formData.discount}
-                    onChange={e => setFormData({...formData, discount: e.target.value})}
-                    required
-                    className="h-12 rounded-xl border-neutral-100 bg-neutral-50/50"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest">Active Status</Label>
-                  <button 
-                    type="button"
-                    onClick={() => setFormData({...formData, isActive: !formData.isActive})}
-                  >
-                    {formData.isActive ? (
-                      <ToggleRight className="text-emerald-500" size={32} />
-                    ) : (
-                      <ToggleLeft className="text-neutral-200" size={32} />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-4 flex gap-3">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 h-12 rounded-xl border-neutral-100"
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  type="submit" 
-                  className="flex-1 h-12 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white font-bold border-none"
-                >
-                  <Save className="size-4 mr-2" /> {editingOffer ? 'Update' : 'Save Offer'}
-                </Button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <OfferDrawer 
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onSave={handleSave}
+        initialData={editingOffer}
+      />
     </div>
   );
 }
