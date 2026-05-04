@@ -13,7 +13,8 @@ type User = {
   name: string;
   role: Role;
   permissions: string[];
-  accessToken?: string; // Optional: stored in localStorage as fallback
+  accessToken?: string;
+  refreshToken?: string; // Fallback for environments where cookies are blocked
 };
 
 type AuthContextType = {
@@ -55,7 +56,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             name: backendUser.name,
             role: roleSlug as Role,
             permissions: response.data.permissions || backendUser.permissions || [],
-            accessToken: response.data.accessToken || (JSON.parse(storedUser || '{}').accessToken)
+            accessToken: response.data.accessToken || (JSON.parse(storedUser || '{}').accessToken),
+            refreshToken: response.data.refreshToken || (JSON.parse(storedUser || '{}').refreshToken)
           };
           setUser(verifiedUser);
           localStorage.setItem("user", JSON.stringify(verifiedUser));
@@ -90,6 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       role: roleSlug as Role,
       permissions: backendUser.permissions || [],
       accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
     };
     
     setUser(newUser);
