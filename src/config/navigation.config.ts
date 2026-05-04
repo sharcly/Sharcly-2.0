@@ -174,6 +174,13 @@ export const navigationConfig: NavItem[] = [
     requiredPermission: "claims.view",
     category: "Marketing"
   },
+  {
+    label: "Newsletter Subscribers",
+    href: "/dashboard/marketing/subscribers",
+    icon: Mail,
+    allowedRoles: ["admin", "super_admin", "manager"],
+    category: "Marketing"
+  },
 
   // CUSTOMER ACCOUNT
   {
