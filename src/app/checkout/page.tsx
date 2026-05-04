@@ -202,15 +202,12 @@ function CheckoutContent() {
 
     setIsProcessing(true);
     try {
-      if (formData.paymentMethod === 'online') {
-         await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-
       const shippingStr = `${formData.shipping.address}, ${formData.shipping.city}, ${formData.shipping.state} ${formData.shipping.zipCode}, ${formData.shipping.country}`;
       const billingStr = formData.sameAsShipping 
         ? shippingStr 
         : `${formData.billing.address}, ${formData.billing.city}, ${formData.billing.state} ${formData.billing.zipCode}, ${formData.billing.country}`;
 
+      // 1. Create order and get clientSecret
       const response = await apiClient.post("/orders", {
         email: formData.email,
         items: cartItems.map(i => ({ productId: i.id, quantity: i.quantity })),
@@ -223,8 +220,35 @@ function CheckoutContent() {
       });
 
       if (response.data.success) {
+        const { order, clientSecret } = response.data;
+
+        // 2. If online payment, confirm with Stripe
+        if (formData.paymentMethod === 'online' && clientSecret) {
+          const cardElement = elements!.getElement(CardNumberElement);
+          
+          const { error, paymentIntent } = await stripe!.confirmCardPayment(clientSecret, {
+            payment_method: {
+              card: cardElement!,
+              billing_details: {
+                name: formData.cardHolderName,
+                email: formData.email,
+              },
+            },
+          });
+
+          if (error) {
+            setIsProcessing(false);
+            return toast.error(error.message || "Payment failed");
+          }
+
+          if (paymentIntent.status !== 'succeeded') {
+            setIsProcessing(false);
+            return toast.error("Payment not completed");
+          }
+        }
+
         setLastOrder({
-          id: response.data.order?.id,
+          id: order?.id,
           date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
           items: [...cartItems],
           subtotal,
