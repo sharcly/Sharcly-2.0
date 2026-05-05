@@ -260,36 +260,37 @@ export default function ProductDrawer({
 
                      <FormSection title="Core Information" id="basic">
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
-                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                           <Field label="Product Name" required>
-                              <input
-                                 value={form.name}
-                                 onChange={e => updateForm({ name: e.target.value })}
-                                 placeholder="Product name..."
-                                 className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm" 
-                              />
-                           </Field>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                           <Field label="SKU / Ident">
-                              <input value={form.sku || ""} onChange={e => updateForm({ sku: e.target.value })} placeholder="SKU-..." className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
-                           </Field>
-                           <Field label="Base Price ($)" required>
-                              <input type="number" value={form.price} onChange={e => updateForm({ price: e.target.value })} placeholder="0.00" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
-                           </Field>
-                           <Field label="Stock Status">
-                              <input type="number" value={form.stock} onChange={e => updateForm({ stock: e.target.value })} placeholder="0" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
-                           </Field>
-                        </div>
-                        <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                           <ShieldCheck className="h-5 w-5 text-emerald-600" />
-                           <span className="text-xs font-bold text-emerald-800 uppercase tracking-widest">Mark as Authenticated</span>
-                           <button
-                              onClick={() => updateForm({ isAuthenticated: !form.isAuthenticated })}
-                              className={cn("ml-auto size-10 rounded-lg flex items-center justify-center transition-all", form.isAuthenticated ? "bg-emerald-600 text-white" : "bg-neutral-200 text-neutral-400")}
-                           >
-                              {form.isAuthenticated ? <Check size={16} /> : <X size={16} />}
-                           </button>
+                           <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                              <Field label="Product Name" required>
+                                 <input
+                                    value={form.name}
+                                    onChange={e => updateForm({ name: e.target.value })}
+                                    placeholder="Product name..."
+                                    className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm" 
+                                 />
+                              </Field>
+                           </div>
+                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                              <Field label="SKU / Ident">
+                                 <input value={form.sku || ""} onChange={e => updateForm({ sku: e.target.value })} placeholder="SKU-..." className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
+                              </Field>
+                              <Field label="Base Price ($)" required>
+                                 <input type="number" value={form.price} onChange={e => updateForm({ price: e.target.value })} placeholder="0.00" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
+                              </Field>
+                              <Field label="Stock Status">
+                                 <input type="number" value={form.stock} onChange={e => updateForm({ stock: e.target.value })} placeholder="0" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
+                              </Field>
+                           </div>
+                           <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                              <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                              <span className="text-xs font-bold text-emerald-800 uppercase tracking-widest">Mark as Authenticated</span>
+                              <button
+                                 onClick={() => updateForm({ isAuthenticated: !form.isAuthenticated })}
+                                 className={cn("ml-auto size-10 rounded-lg flex items-center justify-center transition-all", form.isAuthenticated ? "bg-emerald-600 text-white" : "bg-neutral-200 text-neutral-400")}
+                              >
+                                 {form.isAuthenticated ? <Check size={16} /> : <X size={16} />}
+                              </button>
+                           </div>
                         </div>
                      </FormSection>
 

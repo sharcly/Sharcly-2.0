@@ -119,12 +119,15 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
           <div className="flex items-center gap-8 shrink-0">
             {/* Search Bar */}
             <div 
-              className="hidden md:flex items-center gap-3 px-4 h-10 rounded-lg bg-black/[0.03] border border-transparent text-black/40 cursor-pointer hover:bg-black/[0.05] transition-colors group" 
+              className="hidden md:flex items-center gap-3 px-4 h-10 rounded-lg bg-black/[0.03] border border-black/5 text-black/40 cursor-pointer hover:bg-black/[0.06] transition-all group w-[280px]" 
               onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
             >
-              <Search className="h-4 w-4 group-hover:text-black transition-colors" />
-              <span className="text-xs font-medium min-w-[140px]">Search...</span>
-              <kbd className="bg-white rounded px-1.5 py-0.5 text-[10px] font-medium border border-black/5 opacity-60 text-black">⌘K</kbd>
+              <Search className="h-4 w-4 group-hover:text-emerald-600 transition-colors" />
+              <span className="text-xs font-medium flex-1">Search for anything...</span>
+              <div className="flex items-center gap-1 opacity-60">
+                <kbd className="bg-white rounded px-1.5 py-0.5 text-[10px] font-bold border border-black/5 text-black">⌘</kbd>
+                <kbd className="bg-white rounded px-1.5 py-0.5 text-[10px] font-bold border border-black/5 text-black">K</kbd>
+              </div>
             </div>
             
             <div className="flex items-center gap-3">

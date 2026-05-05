@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 import { 
   Loader2, 
   Save, 
@@ -25,7 +26,8 @@ import {
   Terminal,
   Activity,
   Eye,
-  EyeOff
+  EyeOff,
+  Truck
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -46,12 +48,22 @@ const PAGES = [
   { id: "faqs", label: "FAQs Support", path: "/faqs" },
   { id: "privacy", label: "Privacy Policy", path: "/privacy" },
   { id: "terms", label: "Terms of Service", path: "/terms" },
+  { id: "shipping", label: "Shipping & Returns", path: "/shipping" },
+  { id: "cookies", label: "Cookie Policy", path: "/cookies" },
 ];
 
-export default function ContentManagementPage() {
+function ContentManagementContent() {
+  const searchParams = useSearchParams();
   const [activePage, setActivePage] = useState("home");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const pageParam = searchParams.get("p");
+    if (pageParam && PAGES.some(p => p.id === pageParam)) {
+      setActivePage(pageParam);
+    }
+  }, [searchParams]);
   
   // Content and SEO data
   const [cmsContent, setCmsContent] = useState<any>({});
@@ -349,6 +361,123 @@ export default function ContentManagementPage() {
                          </div>
                       </CardContent>
                     </Card>
+                  ) : activePage === "shipping" ? (
+                    <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden lg:col-span-2">
+                      <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
+                         <CardTitle className="text-2xl font-black tracking-tight text-primary">Logistics & Policy Blocks</CardTitle>
+                         <CardDescription className="text-primary/40 font-medium">Manage the detailed information blocks on the shipping page.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+                         {/* Shipping Policy */}
+                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 01: Shipping Policy</p>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
+                               <Input 
+                                 value={cmsContent.shipping?.title || ""} 
+                                 onChange={(e) => handleCmsUpdate("shipping", "title", e.target.value)}
+                                 className="h-12 bg-white border-none rounded-xl font-bold"
+                               />
+                            </div>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Policy Content</Label>
+                               <Textarea 
+                                 value={cmsContent.shipping?.description || ""} 
+                                 onChange={(e) => handleCmsUpdate("shipping", "description", e.target.value)}
+                                 className="min-h-[100px] bg-white border-none rounded-xl"
+                               />
+                            </div>
+                         </div>
+
+                         {/* Returns & Refunds */}
+                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 02: Returns & Refunds</p>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
+                               <Input 
+                                 value={cmsContent.returns?.title || ""} 
+                                 onChange={(e) => handleCmsUpdate("returns", "title", e.target.value)}
+                                 className="h-12 bg-white border-none rounded-xl font-bold"
+                               />
+                            </div>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Return Guidelines</Label>
+                               <Textarea 
+                                 value={cmsContent.returns?.description || ""} 
+                                 onChange={(e) => handleCmsUpdate("returns", "description", e.target.value)}
+                                 className="min-h-[100px] bg-white border-none rounded-xl"
+                               />
+                            </div>
+                         </div>
+
+                         {/* Tracking Info */}
+                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 03: Tracking</p>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
+                               <Input 
+                                 value={cmsContent.tracking?.title || ""} 
+                                 onChange={(e) => handleCmsUpdate("tracking", "title", e.target.value)}
+                                 className="h-12 bg-white border-none rounded-xl font-bold"
+                               />
+                            </div>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Tracking Description</Label>
+                               <Textarea 
+                                 value={cmsContent.tracking?.description || ""} 
+                                 onChange={(e) => handleCmsUpdate("tracking", "description", e.target.value)}
+                                 className="min-h-[100px] bg-white border-none rounded-xl"
+                               />
+                            </div>
+                         </div>
+
+                         {/* Guarantee */}
+                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 04: Quality Guarantee</p>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
+                               <Input 
+                                 value={cmsContent.guarantee?.title || ""} 
+                                 onChange={(e) => handleCmsUpdate("guarantee", "title", e.target.value)}
+                                 className="h-12 bg-white border-none rounded-xl font-bold"
+                               />
+                            </div>
+                            <div className="space-y-4">
+                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Guarantee Content</Label>
+                               <Textarea 
+                                 value={cmsContent.guarantee?.description || ""} 
+                                 onChange={(e) => handleCmsUpdate("guarantee", "description", e.target.value)}
+                                 className="min-h-[100px] bg-white border-none rounded-xl"
+                               />
+                            </div>
+                         </div>
+                      </CardContent>
+                    </Card>
+                  ) : activePage === "privacy" || activePage === "terms" || activePage === "cookies" ? (
+                    <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden lg:col-span-2">
+                      <CardHeader className="bg-primary/5 border-b border-black/5 p-10">
+                         <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
+                            <ShieldCheck className="h-7 w-7 text-primary" />
+                         </div>
+                         <CardTitle className="text-2xl font-black tracking-tight text-primary">
+                           {activePage === "privacy" ? "Privacy Protocol" : activePage === "terms" ? "Legal Framework" : "Cookie Consent"}
+                         </CardTitle>
+                         <CardDescription className="text-primary/40 font-medium">
+                           Architect the legal narrative for your digital authority.
+                         </CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-10 space-y-10">
+                         <div className="space-y-4">
+                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Main Policy Content</Label>
+                            <Textarea 
+                              value={cmsContent.legal?.body || ""} 
+                              onChange={(e) => handleCmsUpdate("legal", "body", e.target.value)}
+                              placeholder="Paste your legal text here... You can use line breaks for structure."
+                              className="min-h-[600px] rounded-[2rem] bg-sage/5 border-none font-medium text-base px-10 py-10 focus:bg-white transition-all text-primary/70 leading-relaxed"
+                            />
+                         </div>
+                      </CardContent>
+                    </Card>
                   ) : (
                     <div className="flex flex-col items-center justify-center p-20 bg-white/40 border border-dashed border-black/10 rounded-[3rem] text-center">
                        <Terminal className="size-20 text-primary/5 mb-8" />
@@ -606,5 +735,20 @@ export default function ContentManagementPage() {
         </AnimatePresence>
       </Tabs>
     </div>
+  );
+}
+
+import { Suspense } from "react";
+
+export default function ContentManagementPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center py-60">
+        <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Loading Experience Manager...</p>
+      </div>
+    }>
+      <ContentManagementContent />
+    </Suspense>
   );
 }

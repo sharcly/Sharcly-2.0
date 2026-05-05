@@ -1,11 +1,50 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { motion } from "framer-motion";
 import { Truck, RotateCcw, ShieldCheck, Globe, Sparkles } from "lucide-react";
+import { apiClient } from "@/lib/api-client";
 
 export default function ShippingPage() {
+  const [cmsContent, setCmsContent] = useState<any>({
+    hero: {
+      title: "SHIPPING & RETURNS.",
+      tagline: "Seamless logistics designed for your convenience. We ensure your wellness essentials reach you with speed and care."
+    },
+    shipping: {
+      title: "Shipping Policy",
+      description: "We provide complimentary standard shipping on all orders over $75 within the continental United States."
+    },
+    tracking: {
+      title: "Tracking",
+      description: "Once your order has been dispatched, you will receive a tracking link via email. Please allow up to 24 hours for the tracking information to update."
+    },
+    returns: {
+      title: "Returns & Refunds",
+      description: "We offer a 30-day satisfaction guarantee. If you are not completely satisfied with your purchase, you may return the product for a full refund or exchange."
+    },
+    guarantee: {
+      title: "Quality Guarantee",
+      description: "Every Sharcly product is triple-tested for quality. If you receive a damaged or defective item, please contact our support team immediately for a complimentary replacement."
+    }
+  });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await apiClient.get("/cms/shipping");
+        if (response.data.success && response.data.content) {
+          setCmsContent(response.data.content);
+        }
+      } catch (error) {
+        console.error("Failed to fetch shipping content:", error);
+      }
+    };
+    fetchContent();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-[#0d2719] selection:bg-[#0d2719] selection:text-white antialiased">
       <Navbar />
@@ -27,10 +66,9 @@ export default function ShippingPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-6xl lg:text-9xl font-black tracking-tighter leading-[0.8] mb-12"
+              className="text-6xl lg:text-8xl font-black tracking-tighter leading-[1.1] mb-12 uppercase"
             >
-              SHIPPING <br />
-              <span className="italic font-serif opacity-30">& RETURNS.</span>
+              {cmsContent.hero?.title}
             </motion.h1>
             
             <motion.p 
@@ -39,7 +77,7 @@ export default function ShippingPage() {
               transition={{ delay: 0.3 }}
               className="text-xl lg:text-2xl text-[#0d2719]/50 font-medium max-w-2xl leading-relaxed"
             >
-              Seamless logistics designed for your convenience. We ensure your wellness essentials reach you with speed and care.
+              {cmsContent.hero?.tagline}
             </motion.p>
           </div>
         </section>
@@ -57,10 +95,10 @@ export default function ShippingPage() {
                 <div className="size-14 rounded-2xl bg-[#0d2719] text-white flex items-center justify-center">
                   <Truck className="size-7" />
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter italic">Shipping Policy</h2>
+                <h2 className="text-3xl font-bold tracking-tighter italic">{cmsContent.shipping?.title}</h2>
               </div>
               <div className="space-y-6 text-[#0d2719]/70 font-medium leading-relaxed">
-                <p>We provide complimentary standard shipping on all orders over $75 within the continental United States.</p>
+                <p>{cmsContent.shipping?.description}</p>
                 <div className="p-8 rounded-3xl bg-[#f0f9f0] border border-[#0d2719]/5 space-y-4">
                   <div className="flex justify-between border-b border-[#0d2719]/10 pb-4">
                     <span>Standard Shipping (3-5 Days)</span>
@@ -83,10 +121,10 @@ export default function ShippingPage() {
                 <div className="size-14 rounded-2xl bg-[#0d2719] text-white flex items-center justify-center">
                   <Globe className="size-7" />
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter italic">Tracking</h2>
+                <h2 className="text-3xl font-bold tracking-tighter italic">{cmsContent.tracking?.title}</h2>
               </div>
               <p className="text-[#0d2719]/70 font-medium leading-relaxed">
-                Once your order has been dispatched, you will receive a tracking link via email. Please allow up to 24 hours for the tracking information to update.
+                {cmsContent.tracking?.description}
               </p>
             </div>
           </motion.div>
@@ -102,10 +140,10 @@ export default function ShippingPage() {
                 <div className="size-14 rounded-2xl bg-[#0d2719] text-white flex items-center justify-center">
                   <RotateCcw className="size-7" />
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter italic">Returns & Refunds</h2>
+                <h2 className="text-3xl font-bold tracking-tighter italic">{cmsContent.returns?.title}</h2>
               </div>
               <div className="space-y-6 text-[#0d2719]/70 font-medium leading-relaxed">
-                <p>We offer a 30-day satisfaction guarantee. If you are not completely satisfied with your purchase, you may return the product for a full refund or exchange.</p>
+                <p>{cmsContent.returns?.description}</p>
                 <ul className="space-y-4 list-disc pl-6 opacity-80">
                   <li>Items must be returned within 30 days of delivery.</li>
                   <li>Product should be at least 50% full for a refund.</li>
@@ -120,10 +158,10 @@ export default function ShippingPage() {
                 <div className="size-14 rounded-2xl bg-[#0d2719] text-white flex items-center justify-center">
                   <ShieldCheck className="size-7" />
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter italic">Quality Guarantee</h2>
+                <h2 className="text-3xl font-bold tracking-tighter italic">{cmsContent.guarantee?.title}</h2>
               </div>
               <p className="text-[#0d2719]/70 font-medium leading-relaxed">
-                Every Sharcly product is triple-tested for quality. If you receive a damaged or defective item, please contact our support team immediately for a complimentary replacement.
+                {cmsContent.guarantee?.description}
               </p>
             </div>
           </motion.div>
