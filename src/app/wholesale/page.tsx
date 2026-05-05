@@ -153,23 +153,22 @@ export default function WholesalePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-6"
+                className="flex flex-col sm:flex-row items-center justify-center gap-4"
               >
-                <Button 
-                  size="lg" 
-                  className="h-16 px-12 bg-[#E8C547] hover:bg-[#E8C547]/90 text-[#082f1d] font-bold text-sm uppercase tracking-widest rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-xl shadow-black/20"
+                <button 
+                  className="h-14 px-10 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95 hover:shadow-[0_4px_30px_rgba(232,197,71,0.25)] inline-flex items-center gap-2"
+                  style={{ backgroundColor: '#E8C547', color: '#040e07' }}
                   onClick={() => document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                  Apply Now <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="h-16 px-12 border-2 border-white/10 text-white hover:bg-white/5 font-bold text-sm uppercase tracking-widest rounded-2xl transition-all"
+                  Apply Now <ArrowRight className="size-3.5" />
+                </button>
+                <button 
+                  className="h-14 px-10 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all hover:bg-white/5"
+                  style={{ color: '#eff8ee', border: '1px solid rgba(239,248,238,0.12)' }}
                   onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   View Pricing
-                </Button>
+                </button>
               </motion.div>
             </div>
           </div>

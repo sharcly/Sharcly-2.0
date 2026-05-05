@@ -65,16 +65,51 @@ import { HeroSection } from "@/components/hero-section";
 export default function Home() {
    useSeo("home");
 
+   const [cmsContent, setCmsContent] = useState<any>(null);
+
+   useEffect(() => {
+     const fetchContent = async () => {
+       try {
+         const res = await apiClient.get("/cms/home");
+         if (res.data && res.data.content) {
+            setCmsContent(res.data.content);
+         }
+       } catch (err) {
+         console.error("Failed to fetch home cms content", err);
+       }
+     };
+     fetchContent();
+   }, []);
+
+   let heroDynamicData = null;
+   let seriesDynamicData = null;
+
+   if (cmsContent?.hero?.json_data) {
+     try {
+       heroDynamicData = JSON.parse(cmsContent.hero.json_data);
+     } catch (e) {
+       console.error("Failed to parse hero json_data", e);
+     }
+   }
+
+   if (cmsContent?.series?.json_data) {
+     try {
+       seriesDynamicData = JSON.parse(cmsContent.series.json_data);
+     } catch (e) {
+       console.error("Failed to parse series json_data", e);
+     }
+   }
+
    return (
       <div className="min-h-screen bg-white text-[#062D1B] flex flex-col font-sans antialiased selection:bg-[#062D1B] selection:text-white">
          <AnnouncementBar />
          <Navbar />
 
          <main className="flex-1">
-            <HeroSection />
+            <HeroSection dynamicData={heroDynamicData} />
 
             {/* Shop By Series - Premium Luxury Grid */}
-            <ShopBySeries />
+            <ShopBySeries dynamicData={seriesDynamicData} />
 
 
             {/* Modular Info Section */}

@@ -25,7 +25,10 @@ import {
   Terminal,
   Activity,
   Eye,
-  EyeOff
+  EyeOff,
+  Plus,
+  Trash2,
+  LayoutGrid
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -48,6 +51,109 @@ const PAGES = [
   { id: "terms", label: "Terms of Service", path: "/terms" },
 ];
 
+const DEFAULT_HERO_JSON = JSON.stringify({
+  announcement: {
+    text: "21+ · Farm Bill Compliant · Free Shipping $50+"
+  },
+  kicker: "Premium Hemp-Derived Wellness",
+  headline: {
+    line1: "Balance is Where",
+    highlight: "Better Living",
+    line2: "Begins."
+  },
+  subheadline: "Clean, lab-verified hemp-derived products — crafted for people who take their wellness as seriously as their ambitions.",
+  cta: {
+    primary: {
+      label: "Explore Products",
+      link: "/products"
+    },
+    secondary: {
+      label: "Our Story",
+      link: "/about"
+    }
+  },
+  media: {
+    videoUrl: "/assets/main-hero.mp4",
+    label: "Sharcly · Premium Hemp Collection"
+  },
+  badges: [
+    {
+      type: "coa",
+      title: "Lab Verified",
+      description: "COA available for every batch"
+    },
+    {
+      type: "reviews",
+      rating: 4.9,
+      totalReviews: 2400
+    }
+  ],
+  series: ["Chill", "Lift", "Balance", "Sleep", "Vape"],
+  marquee: [
+    "Better Sleep",
+    "Lab Verified",
+    "Plant-Based",
+    "Clean Sourced",
+    "Balanced Living",
+    "Unwind Naturally",
+    "Daily Reset",
+    "Farm Bill Compliant",
+    "USDA Organic",
+    "COA Every Batch"
+  ]
+}, null, 2);
+
+const DEFAULT_SERIES_JSON = JSON.stringify([
+  {
+    label: "Chill Series",
+    tag: "Delta-8",
+    description: "Dial it down, stay in control.",
+    imageUrl: "https://i.postimg.cc/9QhwmspG/delta-8-lifestyle.jpg",
+    to: "/products?series=chill",
+    number: "01"
+  },
+  {
+    label: "Lift Series",
+    tag: "Delta-9",
+    description: "Lock in with zero noise.",
+    imageUrl: "https://i.postimg.cc/gcLxvGth/Delta-9-THC-30-MG-Lifestyle.jpg",
+    to: "/products?series=lift",
+    number: "02"
+  },
+  {
+    label: "Balance Series",
+    tag: "CBD",
+    description: "Stay steady, all day.",
+    imageUrl: "https://i.postimg.cc/FF6KRw9Z/CBD-Gummies-50-MG-Grapes-Lifestyle.jpg",
+    to: "/products?series=balance",
+    number: "03"
+  },
+  {
+    label: "Entourage Series",
+    tag: "Full Spectrum",
+    description: "Whole plant, full effect.",
+    imageUrl: "https://i.postimg.cc/jdQdX2HN/Full-Spectrum-Lifestyle.jpg",
+    to: "/products?series=full-spectrum",
+    number: "04"
+  },
+  {
+    label: "Sleep Series",
+    tag: "CBN · Delta-9",
+    description: "Power down and drift easy.",
+    imageUrl: "https://i.postimg.cc/Ls0s1Wt4/Dream-Lifestyle.jpg",
+    to: "/products?series=sleep",
+    number: "05"
+  },
+  {
+    label: "Vape Series",
+    tag: "Vape",
+    description: "Fast hits with a clean feel.",
+    imageUrl: "https://i.postimg.cc/43wfTSLb/Chill-Vape.jpg",
+    to: "/products?series=vapes",
+    number: "06"
+  }
+], null, 2);
+
 export default function ContentManagementPage() {
   const [activePage, setActivePage] = useState("home");
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +161,29 @@ export default function ContentManagementPage() {
   
   // Content and SEO data
   const [cmsContent, setCmsContent] = useState<any>({});
+  
+  // Helpers for JSON-based CMS content
+  const getHeroJson = () => {
+    try { return JSON.parse(cmsContent.hero?.json_data || DEFAULT_HERO_JSON); }
+    catch { return JSON.parse(DEFAULT_HERO_JSON); }
+  };
+
+  const updateHeroJson = (updater: (data: any) => void) => {
+    const data = getHeroJson();
+    updater(data);
+    handleCmsUpdate("hero", "json_data", JSON.stringify(data, null, 2));
+  };
+
+  const getSeriesJson = () => {
+    try { return JSON.parse(cmsContent.series?.json_data || DEFAULT_SERIES_JSON); }
+    catch { return JSON.parse(DEFAULT_SERIES_JSON); }
+  };
+
+  const updateSeriesJson = (updater: (data: any[]) => void) => {
+    const data = getSeriesJson();
+    updater(data);
+    handleCmsUpdate("series", "json_data", JSON.stringify(data, null, 2));
+  };
   const [seoData, setSeoData] = useState<any>({
     title: "",
     description: "",
@@ -88,7 +217,20 @@ export default function ContentManagementPage() {
       ]);
 
       setCmsContent(cmsRes.data.content || {});
-      setGlobalSeo(globalRes.data.settings || globalSeo);
+      const gSeo = globalRes.data.settings;
+      if (gSeo && Object.keys(gSeo).length > 0) {
+        setGlobalSeo({
+          siteName: gSeo.siteName || "Sharcly",
+          siteDescription: gSeo.siteDescription || "",
+          googleAnalyticsId: gSeo.googleAnalyticsId || "",
+          facebookPixelId: gSeo.facebookPixelId || "",
+          klaviyoPublicKey: gSeo.klaviyoPublicKey || "",
+          klaviyoPrivateKey: gSeo.klaviyoPrivateKey || "",
+          googleSiteVerification: gSeo.googleSiteVerification || "",
+          robotsTxt: gSeo.robotsTxt || "User-agent: *\nAllow: /",
+          sitemapUrl: gSeo.sitemapUrl || "/sitemap.xml"
+        });
+      }
       
       const seo = seoRes.data.seo;
       if (seo) {
@@ -162,7 +304,7 @@ export default function ContentManagementPage() {
 
       // Save CMS, SEO, and Global
       await Promise.all([
-        apiClient.patch("/cms", { page: activePage, updates: cmsUpdates }),
+        apiClient.post("/cms/update", { page: activePage, updates: cmsUpdates }),
         apiClient.put("/seo", { ...seoData, pageSlug: activePage }),
         apiClient.put("/seo/global/settings", globalSeo)
       ]);
@@ -252,6 +394,7 @@ export default function ContentManagementPage() {
               <TabsContent value="content" className="space-y-10 focus-visible:outline-none">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                   {/* Hero Settings */}
+                  {activePage !== "home" && (
                   <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
                     <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
                        <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
@@ -287,44 +430,360 @@ export default function ContentManagementPage() {
                        </div>
                     </CardContent>
                   </Card>
+                  )}
 
                   {/* Page Specific Logic */}
                   {activePage === "home" ? (
-                    <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
-                      <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
-                         <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
-                            <ListRestart className="h-7 w-7 text-primary" />
-                         </div>
-                         <CardTitle className="text-2xl font-black tracking-tight text-primary">Rhythm & Logic</CardTitle>
-                         <CardDescription className="text-primary/40 font-medium">The narrative flow of your digital flagship.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="p-10 space-y-10">
-                         <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Philosophy Header</Label>
-                            <Input 
-                              value={cmsContent.philosophy?.title || ""} 
-                              onChange={(e) => handleCmsUpdate("philosophy", "title", e.target.value)}
-                              className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-black text-xl px-8 focus:bg-white"
-                            />
-                         </div>
-                         <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Philosophy Copy</Label>
-                            <Textarea 
-                              value={cmsContent.philosophy?.description || ""} 
-                              onChange={(e) => handleCmsUpdate("philosophy", "description", e.target.value)}
-                              className="min-h-[140px] rounded-[1.5rem] bg-sage/5 border-none font-medium text-base px-8 py-6 focus:bg-white transition-all"
-                            />
-                         </div>
-                         <div className="bg-primary p-10 rounded-[2rem] space-y-6">
-                            <Label className="text-[9px] font-black uppercase tracking-[0.5em] text-white/40">B2B Strategy Header</Label>
-                            <Input 
-                              value={cmsContent.partners?.cta_title || ""} 
-                              onChange={(e) => handleCmsUpdate("partners", "cta_title", e.target.value)}
-                              className="bg-white/10 border-white/10 h-14 rounded-xl text-white font-bold px-6 focus:bg-white/20"
-                            />
-                         </div>
-                      </CardContent>
-                    </Card>
+                    <div className="space-y-10 lg:col-span-2">
+                      {/* Interactive Hero Form */}
+                      <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
+                        <CardHeader className="bg-sage/5 border-b border-black/5 p-10 flex flex-row items-center justify-between">
+                           <div>
+                             <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
+                                <ImageIcon className="h-7 w-7 text-primary" />
+                             </div>
+                             <CardTitle className="text-2xl font-black tracking-tight text-primary">Hero Configuration</CardTitle>
+                             <CardDescription className="text-primary/40 font-medium">Manage the copy, buttons, and media of your homepage hero.</CardDescription>
+                           </div>
+                           <button 
+                             type="button" 
+                             onClick={() => handleCmsUpdate("hero", "json_data", DEFAULT_HERO_JSON)}
+                             className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/40 hover:text-primary transition-colors mt-auto"
+                           >
+                             Reset to Defaults
+                           </button>
+                        </CardHeader>
+                        <CardContent className="p-10 space-y-8">
+                           {(() => {
+                             const heroData = getHeroJson();
+                             return (
+                               <>
+                                 <div className="grid grid-cols-2 gap-8">
+                                   <div className="space-y-4">
+                                      <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Announcement Pill</Label>
+                                      <Input 
+                                        value={heroData.announcement?.text || ""} 
+                                        onChange={(e) => updateHeroJson(d => { d.announcement = d.announcement || {}; d.announcement.text = e.target.value; })}
+                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                      />
+                                   </div>
+                                   <div className="space-y-4">
+                                      <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Kicker</Label>
+                                      <Input 
+                                        value={heroData.kicker || ""} 
+                                        onChange={(e) => updateHeroJson(d => { d.kicker = e.target.value; })}
+                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                      />
+                                   </div>
+                                 </div>
+                                 
+                                 <div className="space-y-4 pt-4 border-t border-black/5">
+                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Headline</Label>
+                                    <div className="grid grid-cols-3 gap-4">
+                                      <Input 
+                                        placeholder="Line 1"
+                                        value={heroData.headline?.line1 || ""} 
+                                        onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.line1 = e.target.value; })}
+                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                      />
+                                      <Input 
+                                        placeholder="Highlighted Word"
+                                        value={heroData.headline?.highlight || ""} 
+                                        onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.highlight = e.target.value; })}
+                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8 text-[#E8C547]"
+                                      />
+                                      <Input 
+                                        placeholder="Line 2"
+                                        value={heroData.headline?.line2 || ""} 
+                                        onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.line2 = e.target.value; })}
+                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                      />
+                                    </div>
+                                 </div>
+
+                                 <div className="space-y-4 pt-4 border-t border-black/5">
+                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Subheadline</Label>
+                                    <Textarea 
+                                      value={heroData.subheadline || ""} 
+                                      onChange={(e) => updateHeroJson(d => { d.subheadline = e.target.value; })}
+                                      className="min-h-[120px] rounded-[1.5rem] bg-sage/5 border-none font-medium px-8 py-6"
+                                    />
+                                 </div>
+
+                                 <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Primary CTA Label</Label>
+                                       <Input 
+                                         value={heroData.cta?.primary?.label || ""} 
+                                         onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.primary = d.cta.primary || {}; d.cta.primary.label = e.target.value; })}
+                                         className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                       />
+                                    </div>
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Primary CTA Link</Label>
+                                       <Input 
+                                         value={heroData.cta?.primary?.link || ""} 
+                                         onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.primary = d.cta.primary || {}; d.cta.primary.link = e.target.value; })}
+                                         className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                       />
+                                    </div>
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Secondary CTA Label</Label>
+                                       <Input 
+                                         value={heroData.cta?.secondary?.label || ""} 
+                                         onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.secondary = d.cta.secondary || {}; d.cta.secondary.label = e.target.value; })}
+                                         className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                       />
+                                    </div>
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Secondary CTA Link</Label>
+                                       <Input 
+                                         value={heroData.cta?.secondary?.link || ""} 
+                                         onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.secondary = d.cta.secondary || {}; d.cta.secondary.link = e.target.value; })}
+                                         className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                       />
+                                    </div>
+                                 </div>
+
+                                 <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Media URL (Video or Image)</Label>
+                                       <Input 
+                                         value={heroData.media?.videoUrl || heroData.media?.imageUrl || ""} 
+                                         onChange={(e) => updateHeroJson(d => { d.media = d.media || {}; d.media.videoUrl = e.target.value; delete d.media.imageUrl; })}
+                                         className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8 italic"
+                                       />
+                                    </div>
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Media Overlay Label</Label>
+                                       <Input 
+                                         value={heroData.media?.label || ""} 
+                                         onChange={(e) => updateHeroJson(d => { d.media = d.media || {}; d.media.label = e.target.value; })}
+                                         className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                         placeholder="e.g. Sharcly · Premium Hemp"
+                                       />
+                                    </div>
+                                 </div>
+
+                                 <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Marquee Ticker (Comma Separated)</Label>
+                                       <Textarea 
+                                         value={(heroData.marquee || []).join(", ")} 
+                                         onChange={(e) => updateHeroJson(d => { d.marquee = e.target.value.split(",").map(s => s.trim()).filter(Boolean); })}
+                                         className="min-h-[100px] rounded-[1.5rem] bg-sage/5 border-none font-medium px-8 py-6"
+                                         placeholder="Better Sleep, Lab Verified, Plant-Based..."
+                                       />
+                                    </div>
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Hero Series Tags (Comma Separated)</Label>
+                                       <Textarea 
+                                         value={(heroData.series || []).join(", ")} 
+                                         onChange={(e) => updateHeroJson(d => { d.series = e.target.value.split(",").map(s => s.trim()).filter(Boolean); })}
+                                         className="min-h-[100px] rounded-[1.5rem] bg-sage/5 border-none font-medium px-8 py-6"
+                                         placeholder="Chill, Lift, Balance, Sleep, Vape"
+                                       />
+                                    </div>
+                                 </div>
+
+                                 <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">COA Badge</Label>
+                                       <div className="grid grid-cols-2 gap-4">
+                                         <Input 
+                                           value={heroData.badges?.find((b: any) => b.type === "coa")?.title || ""} 
+                                           onChange={(e) => updateHeroJson(d => { 
+                                             d.badges = d.badges || [];
+                                             let b = d.badges.find((x: any) => x.type === "coa");
+                                             if (!b) { b = { type: "coa" }; d.badges.push(b); }
+                                             b.title = e.target.value;
+                                           })}
+                                           className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                           placeholder="e.g. Lab Verified"
+                                         />
+                                         <Input 
+                                           value={heroData.badges?.find((b: any) => b.type === "coa")?.description || ""} 
+                                           onChange={(e) => updateHeroJson(d => { 
+                                             d.badges = d.badges || [];
+                                             let b = d.badges.find((x: any) => x.type === "coa");
+                                             if (!b) { b = { type: "coa" }; d.badges.push(b); }
+                                             b.description = e.target.value;
+                                           })}
+                                           className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                           placeholder="e.g. COA available for every batch"
+                                         />
+                                       </div>
+                                    </div>
+                                    <div className="space-y-4">
+                                       <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Reviews Badge</Label>
+                                       <div className="grid grid-cols-2 gap-4">
+                                         <Input 
+                                           type="number"
+                                           step="0.1"
+                                           value={heroData.badges?.find((b: any) => b.type === "reviews")?.rating || ""} 
+                                           onChange={(e) => updateHeroJson(d => { 
+                                             d.badges = d.badges || [];
+                                             let b = d.badges.find((x: any) => x.type === "reviews");
+                                             if (!b) { b = { type: "reviews" }; d.badges.push(b); }
+                                             b.rating = parseFloat(e.target.value) || 0;
+                                           })}
+                                           className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                           placeholder="e.g. 4.9"
+                                         />
+                                         <Input 
+                                           type="number"
+                                           value={heroData.badges?.find((b: any) => b.type === "reviews")?.totalReviews || ""} 
+                                           onChange={(e) => updateHeroJson(d => { 
+                                             d.badges = d.badges || [];
+                                             let b = d.badges.find((x: any) => x.type === "reviews");
+                                             if (!b) { b = { type: "reviews" }; d.badges.push(b); }
+                                             b.totalReviews = parseInt(e.target.value) || 0;
+                                           })}
+                                           className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
+                                           placeholder="e.g. 2400"
+                                         />
+                                       </div>
+                                    </div>
+                                 </div>
+                               </>
+                             );
+                           })()}
+                        </CardContent>
+                      </Card>
+
+                      {/* Interactive Series Form */}
+                      <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
+                        <CardHeader className="bg-sage/5 border-b border-black/5 p-10 flex flex-row items-center justify-between">
+                           <div>
+                             <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
+                                <LayoutGrid className="h-7 w-7 text-primary" />
+                             </div>
+                             <CardTitle className="text-2xl font-black tracking-tight text-primary">Curated Collections</CardTitle>
+                             <CardDescription className="text-primary/40 font-medium">Manage the 'Shop by Series' cards on the home page.</CardDescription>
+                           </div>
+                           <div className="flex flex-col gap-4 items-end">
+                             <Button
+                               type="button"
+                               onClick={() => updateSeriesJson(d => {
+                                 d.push({
+                                   label: "New Series",
+                                   tag: "New",
+                                   description: "Description here.",
+                                   imageUrl: "",
+                                   to: "/products",
+                                   number: `0${d.length + 1}`
+                                 });
+                               })}
+                               className="rounded-full h-12 px-6 bg-primary text-white hover:bg-primary/90"
+                             >
+                               <Plus className="w-4 h-4 mr-2" /> Add Series
+                             </Button>
+                             <button 
+                               type="button" 
+                               onClick={() => handleCmsUpdate("series", "json_data", DEFAULT_SERIES_JSON)}
+                               className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/40 hover:text-primary transition-colors"
+                             >
+                               Reset to Defaults
+                             </button>
+                           </div>
+                        </CardHeader>
+                        <CardContent className="p-10 space-y-6">
+                           {(() => {
+                             const seriesData = getSeriesJson();
+                             return seriesData.map((item: any, index: number) => (
+                               <div key={index} className="p-8 rounded-[2rem] bg-sage/5 border border-black/5 relative group transition-all hover:border-black/10">
+                                 <button
+                                   type="button"
+                                   onClick={() => updateSeriesJson(d => { d.splice(index, 1); })}
+                                   className="absolute top-6 right-6 p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                 >
+                                   <Trash2 className="w-5 h-5" />
+                                 </button>
+                                 
+                                 <div className="grid grid-cols-2 gap-6 pr-12">
+                                   <div className="space-y-3">
+                                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Label</Label>
+                                      <Input 
+                                        value={item.label || ""} 
+                                        onChange={(e) => updateSeriesJson(d => { d[index].label = e.target.value; })}
+                                        className="h-12 rounded-xl bg-white border-none font-bold px-6"
+                                      />
+                                   </div>
+                                   <div className="space-y-3">
+                                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Tag</Label>
+                                      <Input 
+                                        value={item.tag || ""} 
+                                        onChange={(e) => updateSeriesJson(d => { d[index].tag = e.target.value; })}
+                                        className="h-12 rounded-xl bg-white border-none font-bold px-6"
+                                      />
+                                   </div>
+                                   <div className="space-y-3 col-span-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Description</Label>
+                                      <Input 
+                                        value={item.description || ""} 
+                                        onChange={(e) => updateSeriesJson(d => { d[index].description = e.target.value; })}
+                                        className="h-12 rounded-xl bg-white border-none font-medium px-6"
+                                      />
+                                   </div>
+                                   <div className="space-y-3">
+                                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Image URL</Label>
+                                      <Input 
+                                        value={item.imageUrl || ""} 
+                                        onChange={(e) => updateSeriesJson(d => { d[index].imageUrl = e.target.value; })}
+                                        className="h-12 rounded-xl bg-white border-none font-mono text-xs px-6"
+                                      />
+                                   </div>
+                                   <div className="space-y-3">
+                                      <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Link To</Label>
+                                      <Input 
+                                        value={item.to || ""} 
+                                        onChange={(e) => updateSeriesJson(d => { d[index].to = e.target.value; })}
+                                        className="h-12 rounded-xl bg-white border-none font-mono text-xs px-6"
+                                      />
+                                   </div>
+                                 </div>
+                               </div>
+                             ));
+                           })()}
+                        </CardContent>
+                      </Card>
+
+                      <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
+                        <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
+                           <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
+                              <ListRestart className="h-7 w-7 text-primary" />
+                           </div>
+                           <CardTitle className="text-2xl font-black tracking-tight text-primary">Rhythm & Narrative</CardTitle>
+                           <CardDescription className="text-primary/40 font-medium">The philosophical flow of your digital flagship.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-10 space-y-8">
+                           <div className="space-y-4">
+                              <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Philosophy Header</Label>
+                              <Input 
+                                value={cmsContent.philosophy?.title || ""} 
+                                onChange={(e) => handleCmsUpdate("philosophy", "title", e.target.value)}
+                                className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-black text-xl px-8 focus:bg-white"
+                              />
+                           </div>
+                           <div className="space-y-4">
+                              <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Philosophy Copy</Label>
+                              <Textarea 
+                                value={cmsContent.philosophy?.description || ""} 
+                                onChange={(e) => handleCmsUpdate("philosophy", "description", e.target.value)}
+                                className="min-h-[140px] rounded-[1.5rem] bg-sage/5 border-none font-medium text-base px-8 py-6 focus:bg-white transition-all"
+                              />
+                           </div>
+                           <div className="bg-primary p-8 rounded-[2rem] space-y-6">
+                              <Label className="text-[9px] font-black uppercase tracking-[0.5em] text-white/40">B2B Strategy Header</Label>
+                              <Input 
+                                value={cmsContent.partners?.cta_title || ""} 
+                                onChange={(e) => handleCmsUpdate("partners", "cta_title", e.target.value)}
+                                className="bg-white/10 border-white/10 h-14 rounded-xl text-white font-bold px-6 focus:bg-white/20"
+                              />
+                           </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   ) : activePage === "about" ? (
                     <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
                       <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
