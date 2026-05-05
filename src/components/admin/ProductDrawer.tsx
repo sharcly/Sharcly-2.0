@@ -259,14 +259,14 @@ export default function ProductDrawer({
                   <div className="max-w-3xl mx-auto space-y-24 pb-20">
 
                      <FormSection title="Core Information" id="basic">
-                        <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
+                        {/* <div className="grid grid-cols-1 md:grid-cols-1 gap-8"> */}
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                            <Field label="Product Name" required>
                               <input
                                  value={form.name}
                                  onChange={e => updateForm({ name: e.target.value })}
                                  placeholder="Product name..."
-                                 className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm" 
+                                 className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm"
                               />
                            </Field>
                         </div>
@@ -424,7 +424,7 @@ export default function ProductDrawer({
                                  value={form.description}
                                  onChange={e => updateForm({ description: e.target.value })}
                                  placeholder="Primary product description..."
-                                 className="w-full min-h-[100px] p-5 bg-white border border-neutral-200 rounded-xl outline-none font-medium leading-relaxed text-sm" 
+                                 className="w-full min-h-[100px] p-5 bg-white border border-neutral-200 rounded-xl outline-none font-medium leading-relaxed text-sm"
                               />
                            </Field>
 
