@@ -129,7 +129,14 @@ export default function ProductDetailsPage() {
                 {/* Top actions */}
                 <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
                   {product.category?.name && (
-                    <span className="px-2.5 py-1 rounded-full backdrop-blur-md text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ backgroundColor: 'rgba(232,197,71,0.1)', border: '1px solid rgba(232,197,71,0.25)', color: '#E8C547' }}>
+                    <span className="inline-flex items-center px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.2em]"
+                      style={{ 
+                        backgroundColor: '#E8C547', 
+                        color: '#040e07', 
+                        borderRadius: '2px',
+                        boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                      }}
+                    >
                       {product.category.name}
                     </span>
                   )}
