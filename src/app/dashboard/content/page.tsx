@@ -27,7 +27,8 @@ import {
   Activity,
   Eye,
   EyeOff,
-  Truck
+  Truck,
+  ShieldCheck
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -188,30 +189,23 @@ function ContentManagementContent() {
   };
 
   return (
-    <div className="space-y-10 max-w-7xl mx-auto pb-40">
-      {/* Dynamic Header */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-10 bg-white/40 backdrop-blur-3xl p-10 rounded-[3rem] border border-black/5 shadow-organic selection:bg-primary/10">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <Badge variant="outline" className="px-5 py-1.5 rounded-full bg-primary/5 text-primary border-none font-black text-[10px] uppercase tracking-[0.3em] italic">Live Digital Nexus</Badge>
-            <div className="flex -space-x-2">
-               {[1,2,3].map(i => <div key={i} className="size-6 rounded-full border-2 border-white bg-sage/40" />)}
-            </div>
-          </div>
-          <h1 className="text-5xl font-heading font-black tracking-tighter text-primary leading-none">Experience Manager</h1>
-          <p className="text-primary/40 font-medium text-lg">Architect site narrative and global technical authority.</p>
+    <div className="space-y-8 max-w-[1600px] mx-auto pb-40">
+      {/* Sleek Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-black/5 pb-8">
+        <div className="space-y-1.5">
+           <h1 className="text-3xl font-bold tracking-tight text-[#062D1B]">Experience Manager</h1>
+           <p className="text-xs font-medium text-black/40">Architect site narrative and global technical authority.</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-end gap-6 w-full lg:w-auto">
-          <div className="space-y-3 w-full sm:w-80">
-            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2 block italic">Target Page Context</Label>
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+          <div className="flex flex-col gap-1.5 w-full sm:w-64">
             <Select value={activePage} onValueChange={setActivePage}>
-              <SelectTrigger className="h-16 rounded-[1.5rem] bg-white border-black/5 shadow-organic font-black text-primary px-8">
+              <SelectTrigger className="h-10 rounded-lg bg-black/[0.03] border-black/5 font-bold text-black px-4">
                 <SelectValue placeholder="Select Page" />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border-black/5 shadow-2xl">
+              <SelectContent className="rounded-xl border-black/5 shadow-xl">
                 {PAGES.map((page) => (
-                  <SelectItem key={page.id} value={page.id} className="font-bold py-4 px-6 focus:bg-primary/5 cursor-pointer">
+                  <SelectItem key={page.id} value={page.id} className="font-bold py-2 px-4 focus:bg-[#062D1B]/5 cursor-pointer text-xs">
                     {page.label}
                   </SelectItem>
                 ))}
@@ -221,24 +215,24 @@ function ContentManagementContent() {
           <Button 
             disabled={isSaving || isLoading} 
             onClick={saveAll}
-            className="h-16 px-12 font-black uppercase tracking-[0.3em] text-[10px] rounded-[1.5rem] shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
+            className="h-10 px-8 font-bold uppercase tracking-wider text-[10px] rounded-lg bg-[#062D1B] text-white hover:bg-[#084228] transition-all shadow-sm w-full sm:w-auto"
           >
-            {isSaving ? <Loader2 className="mr-4 h-5 w-5 animate-spin" /> : <Save className="mr-4 h-5 w-5" />}
+            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Sync System
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="content" className="w-full">
-        <div className="flex items-center justify-between mb-12 bg-white/20 p-2 rounded-[2.5rem] border border-black/5">
-            <TabsList className="h-20 bg-transparent rounded-3xl p-0 gap-2 w-full lg:w-auto">
-              <TabsTrigger value="content" className="flex-1 lg:flex-none rounded-[1.5rem] h-16 px-12 font-black uppercase text-[10px] tracking-[0.3em] data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-organic transition-all">
+        <div className="flex items-center justify-between mb-8 bg-black/[0.02] p-1 rounded-xl border border-black/5">
+            <TabsList className="h-12 bg-transparent rounded-lg p-0 gap-1 w-full lg:w-auto">
+              <TabsTrigger value="content" className="flex-1 lg:flex-none rounded-lg h-10 px-8 font-bold uppercase text-[9px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#062D1B] data-[state=active]:shadow-sm transition-all text-black/40">
                 Experience
               </TabsTrigger>
-              <TabsTrigger value="seo" className="flex-1 lg:flex-none rounded-[1.5rem] h-16 px-12 font-black uppercase text-[10px] tracking-[0.3em] data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-organic transition-all">
+              <TabsTrigger value="seo" className="flex-1 lg:flex-none rounded-lg h-10 px-8 font-bold uppercase text-[9px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#062D1B] data-[state=active]:shadow-sm transition-all text-black/40">
                 Visibility
               </TabsTrigger>
-              <TabsTrigger value="global" className="flex-1 lg:flex-none rounded-[1.5rem] h-16 px-12 font-black uppercase text-[10px] tracking-[0.3em] data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-organic transition-all">
+              <TabsTrigger value="global" className="flex-1 lg:flex-none rounded-lg h-10 px-8 font-bold uppercase text-[9px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#062D1B] data-[state=active]:shadow-sm transition-all text-black/40">
                 Global Admin
               </TabsTrigger>
             </TabsList>
@@ -248,53 +242,50 @@ function ContentManagementContent() {
           {isLoading ? (
             <motion.div 
               key="loading"
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="flex flex-col items-center justify-center py-60 bg-white/30 backdrop-blur-md rounded-[4rem] border border-dashed border-black/10"
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center py-60 bg-white border border-black/5 rounded-2xl shadow-sm"
             >
-              <div className="relative">
-                <Loader2 className="h-20 w-20 text-primary/10 animate-spin" />
-                <Settings2 className="absolute inset-0 h-10 w-10 text-primary m-auto animate-pulse" />
-              </div>
-              <p className="text-primary/20 font-black uppercase tracking-[0.5em] text-[10px] mt-12 animate-pulse">Initializing Synthesis...</p>
+              <Loader2 className="h-10 w-10 text-[#062D1B]/20 animate-spin" />
+              <p className="text-[#062D1B]/20 font-bold uppercase tracking-[0.3em] text-[9px] mt-6">Initializing Synthesis...</p>
             </motion.div>
           ) : (
             <div className="space-y-12">
               <TabsContent value="content" className="space-y-10 focus-visible:outline-none">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                   {/* Hero Settings */}
-                  <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
-                    <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
-                       <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
-                          <ImageIcon className="h-7 w-7 text-primary" />
+                  <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden">
+                    <CardHeader className="bg-black/[0.01] border-b border-black/5 p-8">
+                       <div className="size-12 rounded-xl bg-[#F0FDF4] flex items-center justify-center mb-4 text-[#062D1B]">
+                          <ImageIcon className="h-5 w-5" />
                        </div>
-                       <CardTitle className="text-2xl font-black tracking-tight text-primary">Hero Architecture</CardTitle>
-                       <CardDescription className="text-primary/40 font-medium">Coordinate the central visual for {activePage}.</CardDescription>
+                       <CardTitle className="text-lg font-bold text-black">Hero Architecture</CardTitle>
+                       <CardDescription className="text-black/40 text-xs font-medium">Coordinate the central visual for {activePage}.</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-10 space-y-10">
-                       <div className="space-y-4">
-                          <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Executive Heading</Label>
+                    <CardContent className="p-8 space-y-6">
+                       <div className="space-y-2">
+                          <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Executive Heading</Label>
                           <Input 
                             value={cmsContent.hero?.title || ""} 
                             onChange={(e) => handleCmsUpdate("hero", "title", e.target.value)}
-                            className="h-20 rounded-[1.5rem] bg-sage/5 border-none font-black text-2xl px-8 focus:bg-white focus:ring-8 focus:ring-primary/5 transition-all text-primary"
+                            className="h-12 rounded-lg bg-black/[0.03] border-none font-bold text-lg px-6 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black"
                           />
                        </div>
-                       <div className="space-y-4">
-                          <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Contextual Narrative</Label>
+                       <div className="space-y-2">
+                          <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Contextual Narrative</Label>
                           <Textarea 
                             value={cmsContent.hero?.tagline || ""} 
                             onChange={(e) => handleCmsUpdate("hero", "tagline", e.target.value)}
-                            className="min-h-[180px] rounded-[1.5rem] bg-sage/5 border-none font-medium text-lg px-8 py-8 focus:bg-white transition-all text-primary/60 leading-relaxed overflow-hidden"
+                            className="min-h-[140px] rounded-lg bg-black/[0.03] border-none font-medium text-sm px-6 py-4 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black/60 leading-relaxed"
                           />
                        </div>
-                       <div className="space-y-4">
-                          <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Asset Pointer (URL)</Label>
+                       <div className="space-y-2">
+                          <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Asset Pointer (URL)</Label>
                           <Input 
                             value={cmsContent.hero?.bg_image || ""} 
                             onChange={(e) => handleCmsUpdate("hero", "bg_image", e.target.value)}
-                            className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8 italic text-primary/40 focus:bg-white transition-all"
+                            className="h-10 rounded-lg bg-black/[0.03] border-none font-medium px-4 italic text-black/40"
                           />
                        </div>
                     </CardContent>
@@ -302,187 +293,145 @@ function ContentManagementContent() {
 
                   {/* Page Specific Logic */}
                   {activePage === "home" ? (
-                    <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
-                      <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
-                         <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
-                            <ListRestart className="h-7 w-7 text-primary" />
+                    <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden">
+                      <CardHeader className="bg-black/[0.01] border-b border-black/5 p-8">
+                         <div className="size-12 rounded-xl bg-[#F0FDF4] flex items-center justify-center mb-4 text-[#062D1B]">
+                            <ListRestart className="h-5 w-5" />
                          </div>
-                         <CardTitle className="text-2xl font-black tracking-tight text-primary">Rhythm & Logic</CardTitle>
-                         <CardDescription className="text-primary/40 font-medium">The narrative flow of your digital flagship.</CardDescription>
+                         <CardTitle className="text-lg font-bold text-black">Rhythm & Logic</CardTitle>
+                         <CardDescription className="text-black/40 text-xs font-medium">The narrative flow of your digital flagship.</CardDescription>
                       </CardHeader>
-                      <CardContent className="p-10 space-y-10">
-                         <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Philosophy Header</Label>
+                      <CardContent className="p-8 space-y-6">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Philosophy Header</Label>
                             <Input 
                               value={cmsContent.philosophy?.title || ""} 
                               onChange={(e) => handleCmsUpdate("philosophy", "title", e.target.value)}
-                              className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-black text-xl px-8 focus:bg-white"
+                              className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-sm px-4 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black"
                             />
                          </div>
-                         <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Philosophy Copy</Label>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Philosophy Copy</Label>
                             <Textarea 
                               value={cmsContent.philosophy?.description || ""} 
                               onChange={(e) => handleCmsUpdate("philosophy", "description", e.target.value)}
-                              className="min-h-[140px] rounded-[1.5rem] bg-sage/5 border-none font-medium text-base px-8 py-6 focus:bg-white transition-all"
+                              className="min-h-[120px] rounded-lg bg-black/[0.03] border-none font-medium text-xs px-4 py-3 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black/60"
                             />
                          </div>
-                         <div className="bg-primary p-10 rounded-[2rem] space-y-6">
-                            <Label className="text-[9px] font-black uppercase tracking-[0.5em] text-white/40">B2B Strategy Header</Label>
+                         <div className="bg-[#062D1B] p-6 rounded-xl space-y-4">
+                            <Label className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40">B2B Strategy Header</Label>
                             <Input 
                               value={cmsContent.partners?.cta_title || ""} 
                               onChange={(e) => handleCmsUpdate("partners", "cta_title", e.target.value)}
-                              className="bg-white/10 border-white/10 h-14 rounded-xl text-white font-bold px-6 focus:bg-white/20"
+                              className="bg-white/10 border-white/10 h-10 rounded-lg text-white font-bold px-4 text-xs focus:bg-white/20 border-none"
                             />
                          </div>
                       </CardContent>
                     </Card>
                   ) : activePage === "about" ? (
-                    <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
-                      <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
-                         <CardTitle className="text-2xl font-black tracking-tight text-primary">Mission & Values</CardTitle>
+                    <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden">
+                      <CardHeader className="bg-black/[0.01] border-b border-black/5 p-8">
+                         <CardTitle className="text-lg font-bold text-black">Mission & Values</CardTitle>
                       </CardHeader>
-                      <CardContent className="p-10 space-y-8">
-                         <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Mission Title</Label>
+                      <CardContent className="p-8 space-y-6">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Mission Title</Label>
                             <Input 
                               value={cmsContent.mission?.title || ""} 
                               onChange={(e) => handleCmsUpdate("mission", "title", e.target.value)}
-                              className="h-14 bg-sage/5 border-none rounded-xl font-bold px-6"
+                              className="h-10 bg-black/[0.03] border-none rounded-lg font-bold px-4 text-sm"
                             />
                          </div>
-                         <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Mission Description</Label>
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Mission Description</Label>
                             <Textarea 
                               value={cmsContent.mission?.description || ""} 
                               onChange={(e) => handleCmsUpdate("mission", "description", e.target.value)}
-                              className="min-h-[120px] bg-sage/5 border-none rounded-xl px-6 py-4"
+                              className="min-h-[100px] bg-black/[0.03] border-none rounded-lg px-4 py-3 text-xs"
                             />
                          </div>
                       </CardContent>
                     </Card>
                   ) : activePage === "shipping" ? (
-                    <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden lg:col-span-2">
-                      <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
-                         <CardTitle className="text-2xl font-black tracking-tight text-primary">Logistics & Policy Blocks</CardTitle>
-                         <CardDescription className="text-primary/40 font-medium">Manage the detailed information blocks on the shipping page.</CardDescription>
+                    <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden lg:col-span-2">
+                      <CardHeader className="bg-black/[0.01] border-b border-black/5 p-8">
+                         <CardTitle className="text-lg font-bold text-black">Logistics & Policy Blocks</CardTitle>
+                         <CardDescription className="text-black/40 text-xs font-medium">Manage the detailed information blocks on the shipping page.</CardDescription>
                       </CardHeader>
-                      <CardContent className="p-10 grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <CardContent className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                          {/* Shipping Policy */}
-                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 01: Shipping Policy</p>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
+                         <div className="space-y-4 p-6 bg-black/[0.01] rounded-xl border border-black/5">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]">Block 01: Shipping Policy</p>
+                            <div className="space-y-2">
+                               <Label className="text-[9px] font-bold uppercase tracking-widest text-black/20">Section Title</Label>
                                <Input 
                                  value={cmsContent.shipping?.title || ""} 
                                  onChange={(e) => handleCmsUpdate("shipping", "title", e.target.value)}
-                                 className="h-12 bg-white border-none rounded-xl font-bold"
+                                 className="h-10 bg-white border-black/5 rounded-lg font-bold text-xs"
                                />
                             </div>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Policy Content</Label>
+                            <div className="space-y-2">
+                               <Label className="text-[9px] font-bold uppercase tracking-widest text-black/20">Policy Content</Label>
                                <Textarea 
                                  value={cmsContent.shipping?.description || ""} 
                                  onChange={(e) => handleCmsUpdate("shipping", "description", e.target.value)}
-                                 className="min-h-[100px] bg-white border-none rounded-xl"
+                                 className="min-h-[80px] bg-white border-black/5 rounded-lg text-xs"
                                />
                             </div>
                          </div>
 
                          {/* Returns & Refunds */}
-                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 02: Returns & Refunds</p>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
+                         <div className="space-y-4 p-6 bg-black/[0.01] rounded-xl border border-black/5">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]">Block 02: Returns & Refunds</p>
+                            <div className="space-y-2">
+                               <Label className="text-[9px] font-bold uppercase tracking-widest text-black/20">Section Title</Label>
                                <Input 
                                  value={cmsContent.returns?.title || ""} 
                                  onChange={(e) => handleCmsUpdate("returns", "title", e.target.value)}
-                                 className="h-12 bg-white border-none rounded-xl font-bold"
+                                 className="h-10 bg-white border-black/5 rounded-lg font-bold text-xs"
                                />
                             </div>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Return Guidelines</Label>
+                            <div className="space-y-2">
+                               <Label className="text-[9px] font-bold uppercase tracking-widest text-black/20">Return Guidelines</Label>
                                <Textarea 
                                  value={cmsContent.returns?.description || ""} 
                                  onChange={(e) => handleCmsUpdate("returns", "description", e.target.value)}
-                                 className="min-h-[100px] bg-white border-none rounded-xl"
-                               />
-                            </div>
-                         </div>
-
-                         {/* Tracking Info */}
-                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 03: Tracking</p>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
-                               <Input 
-                                 value={cmsContent.tracking?.title || ""} 
-                                 onChange={(e) => handleCmsUpdate("tracking", "title", e.target.value)}
-                                 className="h-12 bg-white border-none rounded-xl font-bold"
-                               />
-                            </div>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Tracking Description</Label>
-                               <Textarea 
-                                 value={cmsContent.tracking?.description || ""} 
-                                 onChange={(e) => handleCmsUpdate("tracking", "description", e.target.value)}
-                                 className="min-h-[100px] bg-white border-none rounded-xl"
-                               />
-                            </div>
-                         </div>
-
-                         {/* Guarantee */}
-                         <div className="space-y-6 p-8 bg-neutral-50 rounded-[2rem]">
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 italic">Block 04: Quality Guarantee</p>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Section Title</Label>
-                               <Input 
-                                 value={cmsContent.guarantee?.title || ""} 
-                                 onChange={(e) => handleCmsUpdate("guarantee", "title", e.target.value)}
-                                 className="h-12 bg-white border-none rounded-xl font-bold"
-                               />
-                            </div>
-                            <div className="space-y-4">
-                               <Label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-1">Guarantee Content</Label>
-                               <Textarea 
-                                 value={cmsContent.guarantee?.description || ""} 
-                                 onChange={(e) => handleCmsUpdate("guarantee", "description", e.target.value)}
-                                 className="min-h-[100px] bg-white border-none rounded-xl"
+                                 className="min-h-[80px] bg-white border-black/5 rounded-lg text-xs"
                                />
                             </div>
                          </div>
                       </CardContent>
                     </Card>
                   ) : activePage === "privacy" || activePage === "terms" || activePage === "cookies" ? (
-                    <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden lg:col-span-2">
-                      <CardHeader className="bg-primary/5 border-b border-black/5 p-10">
-                         <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
-                            <ShieldCheck className="h-7 w-7 text-primary" />
+                    <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden lg:col-span-2">
+                      <CardHeader className="bg-black/[0.01] border-b border-black/5 p-8">
+                         <div className="size-12 rounded-xl bg-[#F0FDF4] flex items-center justify-center mb-4 text-[#062D1B]">
+                            <ShieldCheck className="h-5 w-5" />
                          </div>
-                         <CardTitle className="text-2xl font-black tracking-tight text-primary">
+                         <CardTitle className="text-lg font-bold text-black">
                            {activePage === "privacy" ? "Privacy Protocol" : activePage === "terms" ? "Legal Framework" : "Cookie Consent"}
                          </CardTitle>
-                         <CardDescription className="text-primary/40 font-medium">
+                         <CardDescription className="text-black/40 text-xs font-medium">
                            Architect the legal narrative for your digital authority.
                          </CardDescription>
                       </CardHeader>
-                      <CardContent className="p-10 space-y-10">
-                         <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Main Policy Content</Label>
+                      <CardContent className="p-8">
+                         <div className="space-y-2">
+                            <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Main Policy Content</Label>
                             <Textarea 
                               value={cmsContent.legal?.body || ""} 
                               onChange={(e) => handleCmsUpdate("legal", "body", e.target.value)}
-                              placeholder="Paste your legal text here... You can use line breaks for structure."
-                              className="min-h-[600px] rounded-[2rem] bg-sage/5 border-none font-medium text-base px-10 py-10 focus:bg-white transition-all text-primary/70 leading-relaxed"
+                              placeholder="Paste your legal text here..."
+                              className="min-h-[500px] rounded-lg bg-black/[0.03] border-none font-medium text-xs px-6 py-6 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black/70 leading-relaxed"
                             />
                          </div>
                       </CardContent>
                     </Card>
                   ) : (
-                    <div className="flex flex-col items-center justify-center p-20 bg-white/40 border border-dashed border-black/10 rounded-[3rem] text-center">
-                       <Terminal className="size-20 text-primary/5 mb-8" />
-                       <h3 className="text-3xl font-heading font-black text-primary/10 tracking-tighter">Schema Module <br />Deactivated</h3>
-                       <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/10 mt-6 leading-loose px-10">Advanced interface configuration <br/>pending for {activePage}</p>
+                    <div className="flex flex-col items-center justify-center p-20 bg-white/40 border border-dashed border-black/10 rounded-2xl text-center">
+                       <Terminal className="size-20 text-[#062D1B]/5 mb-8" />
+                       <h3 className="text-xl font-bold text-black/20">Schema Module <br />Deactivated</h3>
+                       <p className="text-[10px] font-bold uppercase tracking-widest text-black/10 mt-6 leading-loose px-10">Advanced interface configuration <br/>pending for {activePage}</p>
                     </div>
                   )}
                 </div>
@@ -491,132 +440,130 @@ function ContentManagementContent() {
               <TabsContent value="seo" className="space-y-12 focus-visible:outline-none">
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     <div className="lg:col-span-2 space-y-10">
-                       <Card className="rounded-[3rem] border-none shadow-organic bg-white/90 overflow-hidden">
-                          <CardHeader className="bg-primary/5 p-10">
-                             <div className="flex items-center justify-between">
-                                <CardTitle className="text-2xl font-black tracking-tight text-primary">Search Blueprint</CardTitle>
-                                <Badge className="bg-emerald-500/10 text-emerald-600 border-none font-black text-[9px] px-4 py-1.5 uppercase tracking-widest">Active Indexing</Badge>
-                             </div>
-                          </CardHeader>
-                          <CardContent className="p-10 space-y-10">
-                             <div className="space-y-4">
-                                <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">Meta Title Protocol</Label>
-                                <div className="relative">
-                                   <Input 
-                                     value={seoData.title} 
-                                     onChange={(e) => handleSeoUpdate("title", e.target.value)}
-                                     className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-black text-xl px-8 pr-16 focus:bg-white text-primary"
-                                   />
-                                   <div className="absolute right-6 top-1/2 -translate-y-1/2 text-primary/40 font-mono text-xs">{seoData.title.length}/60</div>
-                                </div>
-                             </div>
-                             <div className="space-y-4">
-                                <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">Meta Narrative (Description)</Label>
-                                <div className="relative">
-                                  <Textarea 
-                                    value={seoData.description} 
-                                    onChange={(e) => handleSeoUpdate("description", e.target.value)}
-                                    className="min-h-[140px] rounded-[1.5rem] bg-sage/5 border-none font-medium text-base px-8 py-8 focus:bg-white transition-all text-primary/60 leading-relaxed"
-                                  />
-                                  <div className="absolute right-6 bottom-6 text-primary/40 font-mono text-xs text-right">{seoData.description.length}/160</div>
-                                </div>
-                             </div>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                   <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Robots Intelligence</Label>
-                                   <Select value={seoData.robots} onValueChange={(v) => handleSeoUpdate("robots", v)}>
-                                      <SelectTrigger className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-black text-primary px-8">
-                                         <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent className="rounded-2xl border-black/5">
-                                         <SelectItem value="index, follow" className="font-bold">Index, Follow</SelectItem>
-                                         <SelectItem value="noindex, follow" className="font-bold">No Index, Follow</SelectItem>
-                                      </SelectContent>
-                                   </Select>
-                                </div>
-                                <div className="space-y-4">
-                                   <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Canonical Authority</Label>
-                                   <Input 
-                                      value={seoData.canonicalUrl} 
-                                      onChange={(e) => handleSeoUpdate("canonicalUrl", e.target.value)}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none px-8 italic text-primary font-medium"
-                                      placeholder="https://scarly.com/..."
-                                   />
-                                </div>
-                             </div>
-                          </CardContent>
-                       </Card>
-
-                       <Card className="rounded-[3rem] border-none shadow-organic bg-white/90 overflow-hidden">
-                          <CardHeader className="bg-primary p-10 text-white">
-                             <CardTitle className="text-2xl font-black tracking-tight">OpenGraph Graphing</CardTitle>
-                             <CardDescription className="text-white/40 font-medium">Social visibility overrides for {activePage}.</CardDescription>
-                          </CardHeader>
-                          <CardContent className="p-10 space-y-8">
-                             <div className="space-y-4">
-                                <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">Social Edge Title</Label>
-                                <Input 
-                                  value={seoData.ogTitle} 
-                                  onChange={(e) => handleSeoUpdate("ogTitle", e.target.value)}
-                                  className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-black text-xl px-8"
-                                />
-                             </div>
-                             <div className="space-y-4">
-                                <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">Graph Asset URL (OG Image)</Label>
-                                <Input 
-                                  value={seoData.ogImage} 
-                                  onChange={(e) => handleSeoUpdate("ogImage", e.target.value)}
-                                  className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-medium px-8 italic text-primary/40"
-                                />
-                             </div>
-                             <div className="space-y-4 pt-6 border-t border-black/5">
-                                <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">JSON-LD Structured Logic</Label>
-                                <div className="relative">
-                                   <Code2 className="absolute top-6 left-6 h-5 w-5 text-primary/20" />
+                        <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden">
+                           <CardHeader className="bg-black/[0.01] border-b border-black/5 p-8">
+                              <div className="flex items-center justify-between">
+                                 <CardTitle className="text-sm font-bold text-black">Search Blueprint</CardTitle>
+                                 <Badge className="bg-emerald-50 text-emerald-700 border-none font-bold text-[8px] px-2 py-0.5 uppercase tracking-widest">Active Indexing</Badge>
+                              </div>
+                           </CardHeader>
+                           <CardContent className="p-8 space-y-6">
+                              <div className="space-y-2">
+                                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Meta Title Protocol</Label>
+                                 <div className="relative">
+                                    <Input 
+                                      value={seoData.title} 
+                                      onChange={(e) => handleSeoUpdate("title", e.target.value)}
+                                      className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-sm px-4 pr-12 focus:ring-2 focus:ring-[#062D1B]/10 text-black"
+                                    />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-black/20 font-mono text-[9px]">{seoData.title.length}/60</div>
+                                 </div>
+                              </div>
+                              <div className="space-y-2">
+                                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Meta Narrative</Label>
+                                 <div className="relative">
                                    <Textarea 
-                                     value={seoData.structuredData} 
-                                     onChange={(e) => handleSeoUpdate("structuredData", e.target.value)}
-                                     className="min-h-[250px] pl-16 rounded-[1.5rem] bg-black/[0.02] border-none font-mono text-xs p-8 text-primary/80 focus:bg-white"
-                                     placeholder='{"@context": "https://schema.org", "@type": "Store"...}'
+                                     value={seoData.description} 
+                                     onChange={(e) => handleSeoUpdate("description", e.target.value)}
+                                     className="min-h-[100px] rounded-lg bg-black/[0.03] border-none font-medium text-xs px-4 py-3 focus:ring-2 focus:ring-[#062D1B]/10 text-black/60 leading-relaxed"
                                    />
-                                </div>
-                             </div>
-                          </CardContent>
-                       </Card>
+                                   <div className="absolute right-4 bottom-3 text-black/20 font-mono text-[9px]">{seoData.description.length}/160</div>
+                                 </div>
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                 <div className="space-y-2">
+                                    <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Robots</Label>
+                                    <Select value={seoData.robots} onValueChange={(v) => handleSeoUpdate("robots", v)}>
+                                       <SelectTrigger className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-black px-4 text-xs">
+                                          <SelectValue />
+                                       </SelectTrigger>
+                                       <SelectContent className="rounded-lg border-black/5">
+                                          <SelectItem value="index, follow" className="text-xs">Index, Follow</SelectItem>
+                                          <SelectItem value="noindex, follow" className="text-xs">No Index, Follow</SelectItem>
+                                       </SelectContent>
+                                    </Select>
+                                 </div>
+                                 <div className="space-y-2">
+                                    <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Canonical</Label>
+                                    <Input 
+                                       value={seoData.canonicalUrl} 
+                                       onChange={(e) => handleSeoUpdate("canonicalUrl", e.target.value)}
+                                       className="h-10 rounded-lg bg-black/[0.03] border-none px-4 text-xs text-black font-medium"
+                                       placeholder="https://sharcly.com/..."
+                                    />
+                                 </div>
+                              </div>
+                           </CardContent>
+                        </Card>
+
+                        <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden">
+                           <CardHeader className="bg-[#062D1B] p-8 text-white">
+                              <CardTitle className="text-sm font-bold tracking-tight">OpenGraph Logic</CardTitle>
+                              <CardDescription className="text-white/40 text-[11px] font-medium">Social visibility overrides for {activePage}.</CardDescription>
+                           </CardHeader>
+                           <CardContent className="p-8 space-y-6">
+                              <div className="space-y-2">
+                                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Social Title</Label>
+                                 <Input 
+                                   value={seoData.ogTitle} 
+                                   onChange={(e) => handleSeoUpdate("ogTitle", e.target.value)}
+                                   className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-sm px-4"
+                                 />
+                              </div>
+                              <div className="space-y-2">
+                                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">OG Image URL</Label>
+                                 <Input 
+                                   value={seoData.ogImage} 
+                                   onChange={(e) => handleSeoUpdate("ogImage", e.target.value)}
+                                   className="h-10 rounded-lg bg-black/[0.03] border-none font-medium px-4 text-xs italic text-black/40"
+                                 />
+                              </div>
+                              <div className="space-y-2 pt-4 border-t border-black/5">
+                                 <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Structured Logic (JSON-LD)</Label>
+                                 <div className="relative">
+                                    <Textarea 
+                                      value={seoData.structuredData} 
+                                      onChange={(e) => handleSeoUpdate("structuredData", e.target.value)}
+                                      className="min-h-[180px] rounded-lg bg-black/[0.03] border-none font-mono text-[10px] p-4 text-black/80 focus:bg-white"
+                                      placeholder='{"@context": "https://schema.org"}'
+                                    />
+                                 </div>
+                              </div>
+                           </CardContent>
+                        </Card>
                     </div>
 
                     {/* Live Search Preview Sticky */}
                     <div className="space-y-10">
                        <div className="sticky top-10 space-y-10">
-                          <Card className="rounded-[3rem] border-none shadow-2xl bg-emerald-950 text-white overflow-hidden border border-white/5">
-                             <CardHeader className="bg-white/5 p-10 flex flex-row items-center gap-4">
-                                <Globe className="h-6 w-6 text-accent" />
-                                <CardTitle className="text-xl">Search Nexus Live</CardTitle>
-                             </CardHeader>
-                             <CardContent className="p-10 space-y-12">
-                                <div className="space-y-4">
-                                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent/60 italic">Google Mobile Simulator</p>
-                                   <div className="bg-white p-8 rounded-[2rem] shadow-organic">
-                                      <p className="text-[10px] text-primary/40 mb-2 truncate">scarly.com {activePage !== 'home' ? `› ${activePage}` : ''}</p>
-                                      <h3 className="text-[#1a0dab] text-xl font-medium mb-2 leading-tight line-clamp-2 hover:underline cursor-pointer">{seoData.title || "Sharcly | Premium Wellness Essentials"}</h3>
-                                      <p className="text-[#4d5156] text-xs leading-relaxed line-clamp-3 italic opacity-70">
-                                         {seoData.description || "Sharcly is your premium destination for high-quality wellness products and essentials. Built for those who value performance and quality."}
-                                      </p>
-                                   </div>
-                                </div>
-                                <div className="space-y-4 pt-8 border-t border-white/10">
-                                   <div className="flex justify-between items-center bg-white/5 p-5 rounded-2xl">
-                                      <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Technical Health</span>
-                                      <span className="text-xs font-black text-emerald-400">OPTIMAL</span>
-                                   </div>
-                                   <div className="flex justify-between items-center bg-white/5 p-5 rounded-2xl">
-                                      <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Graph Coverage</span>
-                                      <span className="text-xs font-black text-amber-400">92%</span>
-                                   </div>
-                                </div>
-                                <p className="text-[9px] text-white/20 font-medium italic text-center">Crawler algorithms favor concise, relevant metadata with specific keyword clusters.</p>
-                             </CardContent>
-                          </Card>
+                           <Card className="rounded-2xl border-black/5 shadow-xl bg-[#062D1B] text-white overflow-hidden border border-white/5">
+                              <CardHeader className="bg-white/5 p-8 flex flex-row items-center gap-3">
+                                 <Globe className="h-5 w-5 text-[#F0FDF4]" />
+                                 <CardTitle className="text-lg font-bold">Search Preview</CardTitle>
+                              </CardHeader>
+                              <CardContent className="p-8 space-y-8">
+                                 <div className="space-y-3">
+                                    <p className="text-[9px] font-bold uppercase tracking-widest text-white/40 italic">Mobile Simulator</p>
+                                    <div className="bg-white p-6 rounded-xl shadow-lg">
+                                       <p className="text-[9px] text-black/40 mb-1 truncate">sharcly.com {activePage !== 'home' ? `› ${activePage}` : ''}</p>
+                                       <h3 className="text-[#1a0dab] text-lg font-medium mb-1 leading-tight line-clamp-2 hover:underline cursor-pointer">{seoData.title || "Sharcly | Wellness"}</h3>
+                                       <p className="text-[#4d5156] text-[11px] leading-relaxed line-clamp-3 italic opacity-70">
+                                          {seoData.description || "Sharcly is your premium destination for high-quality wellness products."}
+                                       </p>
+                                    </div>
+                                 </div>
+                                 <div className="space-y-3 pt-6 border-t border-white/10">
+                                    <div className="flex justify-between items-center bg-white/5 p-4 rounded-lg">
+                                       <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Technical Health</span>
+                                       <span className="text-[10px] font-bold text-emerald-400">OPTIMAL</span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-white/5 p-4 rounded-lg">
+                                       <span className="text-[9px] font-bold uppercase tracking-widest text-white/40">Graph Coverage</span>
+                                       <span className="text-[10px] font-bold text-amber-400">92%</span>
+                                    </div>
+                                 </div>
+                              </CardContent>
+                           </Card>
                        </div>
                     </div>
                  </div>
@@ -624,103 +571,101 @@ function ContentManagementContent() {
 
               <TabsContent value="global" className="space-y-10 focus-visible:outline-none">
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <Card className="rounded-[3.5rem] border-none shadow-organic bg-white overflow-hidden">
-                       <CardHeader className="bg-primary/5 p-12 border-b border-black/5">
-                          <Settings2 className="h-10 w-10 text-primary mb-6" />
-                          <CardTitle className="text-3xl font-black tracking-tight text-primary leading-none mb-3">Global Technical</CardTitle>
-                          <CardDescription className="text-primary/40 font-medium">Coordinate site-wide analytics and crawling authority.</CardDescription>
+                    <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden">
+                       <CardHeader className="bg-black/[0.01] p-8 border-b border-black/5">
+                          <Settings2 className="h-6 w-6 text-[#062D1B] mb-4" />
+                          <CardTitle className="text-lg font-bold text-black leading-none">Global Technical</CardTitle>
+                          <CardDescription className="text-black/40 text-xs font-medium">Coordinate site-wide analytics and crawling authority.</CardDescription>
                        </CardHeader>
-                       <CardContent className="p-12 space-y-10">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                             <div className="space-y-4">
-                                <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Site Authority Name</Label>
+                       <CardContent className="p-8 space-y-8">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                             <div className="space-y-2">
+                                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Site Name</Label>
                                 <Input 
                                   value={globalSeo.siteName} 
                                   onChange={(e) => setGlobalSeo({...globalSeo, siteName: e.target.value})}
-                                  className="h-16 rounded-2xl bg-sage/5 border-none font-black text-xl px-8"
+                                  className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-sm px-4"
                                 />
                              </div>
-                             <div className="space-y-4">
-                                <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Discovery Sitemap URL</Label>
+                             <div className="space-y-2">
+                                <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Sitemap URL</Label>
                                 <Input 
                                   value={globalSeo.sitemapUrl} 
                                   onChange={(e) => setGlobalSeo({...globalSeo, sitemapUrl: e.target.value})}
-                                  className="h-16 rounded-2xl bg-sage/5 border-none font-bold px-8"
+                                  className="h-10 rounded-lg bg-black/[0.03] border-none font-medium px-4 text-xs"
                                 />
                              </div>
                           </div>
-                          <div className="space-y-4">
-                             <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Crawler Directives (Robots.txt)</Label>
+                          <div className="space-y-2">
+                             <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Robots.txt</Label>
                              <Textarea 
                                value={globalSeo.robotsTxt} 
                                onChange={(e) => setGlobalSeo({...globalSeo, robotsTxt: e.target.value})}
-                               className="min-h-[220px] rounded-[2rem] bg-black/[0.03] border-none font-mono text-sm p-10 text-primary/70"
+                               className="min-h-[160px] rounded-lg bg-black/[0.03] border-none font-mono text-xs p-6 text-black/70"
                              />
                           </div>
                        </CardContent>
                     </Card>
 
-                    <Card className="rounded-[3.5rem] border-none shadow-organic bg-white overflow-hidden">
-                       <CardHeader className="bg-accent p-12 text-white">
-                          <Activity className="h-10 w-10 mb-6" />
-                          <CardTitle className="text-3xl font-black tracking-tight leading-none mb-3">Audit & Analytics</CardTitle>
-                          <CardDescription className="text-white/40 font-medium">Injection points for tracking pixels and verification codes.</CardDescription>
+                    <Card className="rounded-2xl border-black/5 shadow-sharcly bg-white overflow-hidden">
+                       <CardHeader className="bg-[#062D1B] p-8 text-white">
+                          <Activity className="h-6 w-6 mb-4" />
+                          <CardTitle className="text-lg font-bold leading-none">Audit & Analytics</CardTitle>
+                          <CardDescription className="text-white/40 text-xs font-medium">Injection points for tracking pixels and verification codes.</CardDescription>
                        </CardHeader>
-                       <CardContent className="p-12 space-y-10">
-                          <div className="space-y-4">
-                             <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">Google Analytics 4 ID</Label>
+                       <CardContent className="p-8 space-y-8">
+                          <div className="space-y-2">
+                             <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Google Analytics 4 ID</Label>
                              <Input 
                                value={globalSeo.googleAnalyticsId} 
                                onChange={(e) => setGlobalSeo({...globalSeo, googleAnalyticsId: e.target.value})}
-                               className="h-16 rounded-2xl bg-sage/5 border-none font-black text-xl px-8"
+                               className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-sm px-4"
                                placeholder="G-XXXXXXXXXX"
                              />
                           </div>
-                          <div className="space-y-4">
-                             <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">Facebook Meta Pixel ID</Label>
+                          <div className="space-y-2">
+                             <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Facebook Pixel ID</Label>
                              <Input 
                                value={globalSeo.facebookPixelId} 
                                onChange={(e) => setGlobalSeo({...globalSeo, facebookPixelId: e.target.value})}
-                               className="h-16 rounded-2xl bg-sage/5 border-none font-black text-xl px-8"
+                               className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-sm px-4"
                              />
                           </div>
-                          <div className="space-y-4">
-                             <Label className="text-[10px] font-black uppercase tracking-[0.5em] text-primary/30 ml-2">Google Site Verification</Label>
+                          <div className="space-y-2">
+                             <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Site Verification</Label>
                              <Input 
                                value={globalSeo.googleSiteVerification} 
                                onChange={(e) => setGlobalSeo({...globalSeo, googleSiteVerification: e.target.value})}
-                               className="h-16 rounded-2xl bg-sage/5 border-none px-8 font-medium italic"
+                               className="h-10 rounded-lg bg-black/[0.03] border-none px-4 text-xs italic"
                              />
                           </div>
 
-                          <div className="pt-10 border-t border-black/5 space-y-8">
-                             <p className="text-sm font-black uppercase tracking-[0.3em] text-primary underline decoration-emerald-500 decoration-4 underline-offset-8">Klaviyo Marketing Engine</p>
-                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                   <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Public API Key (Site ID)</Label>
+                          <div className="pt-8 border-t border-black/5 space-y-6">
+                             <p className="text-xs font-bold uppercase tracking-widest text-[#062D1B]">Klaviyo Marketing Engine</p>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                   <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Public API Key</Label>
                                    <Input 
                                      value={globalSeo.klaviyoPublicKey} 
                                      onChange={(e) => setGlobalSeo({...globalSeo, klaviyoPublicKey: e.target.value})}
-                                     className="h-14 rounded-xl bg-primary/5 border-none px-6 font-bold"
-                                     placeholder="e.g. ABCDEF"
+                                     className="h-10 rounded-lg bg-black/[0.03] border-none px-4 font-bold text-xs"
                                    />
                                 </div>
-                                <div className="space-y-4">
-                                   <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Private API Key</Label>
+                                <div className="space-y-2">
+                                   <Label className="text-[10px] font-bold uppercase tracking-widest text-black/30">Private API Key</Label>
                                    <div className="relative">
                                      <Input 
                                        type={showKlaviyoKey ? "text" : "password"}
                                        value={globalSeo.klaviyoPrivateKey} 
                                        onChange={(e) => setGlobalSeo({...globalSeo, klaviyoPrivateKey: e.target.value})}
-                                       className="h-14 rounded-xl bg-primary/5 border-none px-6 pr-12 font-bold"
-                                       placeholder="pk_..."
+                                       className="h-10 rounded-lg bg-black/[0.03] border-none px-4 pr-10 font-bold text-xs"
                                      />
                                      <button
                                        type="button"
                                        onClick={() => setShowKlaviyoKey(!showKlaviyoKey)}
-                                       className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary transition-colors"
+                                       className="absolute right-3 top-1/2 -translate-y-1/2 text-black/20 hover:text-black transition-colors"
                                      >
-                                       {showKlaviyoKey ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                                       {showKlaviyoKey ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
                                      </button>
                                    </div>
                                 </div>
