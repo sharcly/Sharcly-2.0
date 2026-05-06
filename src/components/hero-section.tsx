@@ -28,7 +28,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as any },
   },
 };
 
@@ -204,7 +204,7 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.7, delay: 0.9, ease: [0.22, 1, 0.36, 1] as any }}
             className="absolute -left-4 lg:-left-12 bottom-12 w-[210px] p-[14px_18px] rounded-[16px] bg-[#082f1d]/85 backdrop-blur-[20px] border border-[#E8C547]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-4"
           >
             <div className="w-10 h-10 rounded-xl bg-[#E8C547]/10 flex items-center justify-center flex-shrink-0">
@@ -220,7 +220,7 @@ export function HeroSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.05, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.7, delay: 1.05, ease: [0.22, 1, 0.36, 1] as any }}
             className="absolute -right-4 lg:-right-10 top-12 w-[130px] p-[16px] rounded-[16px] bg-[#082f1d]/85 backdrop-blur-[20px] border border-[#E8C547]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col items-center text-center"
           >
             <span className="font-cormorant text-2xl font-bold text-[#eff8ee] mb-1 leading-none">4.9</span>

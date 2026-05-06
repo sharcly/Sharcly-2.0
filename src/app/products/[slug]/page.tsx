@@ -176,7 +176,7 @@ export default function ProductDetailsPage() {
                     <button key={i} onClick={() => setActiveImage(i)}
                       className={cn("relative size-14 md:size-16 rounded-xl overflow-hidden shrink-0 transition-all duration-300",
                         activeImage === i ? "ring-[2.5px] ring-[#E8C547] ring-offset-[3px] opacity-100" : "opacity-40 hover:opacity-70"
-                      )} style={activeImage === i ? { ringOffsetColor: '#040e07' } : {}}>
+                      )}>
                       <img src={src} className="absolute inset-0 w-full h-full object-cover" alt={`View ${i + 1}`} />
                     </button>
                   ))}

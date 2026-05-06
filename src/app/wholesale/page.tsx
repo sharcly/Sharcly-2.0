@@ -116,7 +116,7 @@ export default function WholesalePage() {
     initial: { opacity: 0, y: 20 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any }
   };
 
   return (
@@ -152,7 +152,7 @@ export default function WholesalePage() {
               <motion.h1 
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as any, delay: 0.2 }}
                 className="text-5xl md:text-7xl font-black leading-[1.1] tracking-tighter mb-8"
               >
                 {pageContent.heroTitle}

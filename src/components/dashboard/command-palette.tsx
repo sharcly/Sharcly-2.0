@@ -20,6 +20,7 @@ import { navigationConfig } from "@/config/navigation.config";
 import { useAuth } from "@/context/auth-context";
 import { apiClient } from "@/lib/api-client";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
