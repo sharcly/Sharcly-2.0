@@ -39,8 +39,9 @@ import { MiniSearch } from "@/components/mini-search";
 const NAV_LINKS = [
   { name: "New Arrivals", href: "/products?status=new" },
   { name: "The Series", href: "/products" },
+  { name: "Wholesale", href: "/wholesale" },
   { name: "About", href: "/about" },
-  { name: "Journal", href: "/blogs" },
+  { name: "Blog", href: "/blogs" },
 ];
 
 export function Navbar() {

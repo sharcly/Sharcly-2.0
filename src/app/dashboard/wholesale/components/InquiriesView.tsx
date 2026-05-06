@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Mail, Phone, Calendar, MessageSquare, MoreHorizontal } from "lucide-react";
+import { Search, Mail, Phone, Calendar, MessageSquare, MoreHorizontal, ExternalLink, Building2, User } from "lucide-react";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -22,6 +22,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function InquiriesView() {
   const [inquiries, setInquiries] = useState<any[]>([]);
@@ -52,114 +54,158 @@ export function InquiriesView() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Search Bar */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#0d2719]/30" />
-        <Input 
-          placeholder="Search by name, email or business..." 
-          className="h-12 pl-12 bg-white border-[#0d2719]/5 rounded-2xl focus:ring-2 focus:ring-[#0d2719]/10 transition-all shadow-sm"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative w-full max-w-lg">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <Input 
+            placeholder="Search by business, contact, or email..." 
+            className="h-14 pl-12 bg-white border-none rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus-visible:ring-emerald-500/20 transition-all font-medium"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="flex items-center gap-2">
+            <Badge variant="outline" className="h-10 px-4 rounded-xl border-neutral-200 text-neutral-500 font-bold uppercase tracking-widest text-[9px]">
+                {filteredInquiries.length} Inquiries Total
+            </Badge>
+        </div>
       </div>
 
-      <div className="bg-white rounded-[2rem] border border-[#0d2719]/5 overflow-hidden shadow-sm">
+      <div className="bg-white rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-100 overflow-hidden">
         <Table>
-          <TableHeader className="bg-[#0d2719]/5">
-            <TableRow className="border-b-[#0d2719]/5 hover:bg-transparent">
-              <TableHead className="font-black uppercase tracking-widest text-[10px] text-[#0d2719]/60 px-8 py-6">Business</TableHead>
-              <TableHead className="font-black uppercase tracking-widest text-[10px] text-[#0d2719]/60">Contact</TableHead>
-              <TableHead className="font-black uppercase tracking-widest text-[10px] text-[#0d2719]/60">Type</TableHead>
-              <TableHead className="font-black uppercase tracking-widest text-[10px] text-[#0d2719]/60">Est. Volume</TableHead>
-              <TableHead className="font-black uppercase tracking-widest text-[10px] text-[#0d2719]/60">Date</TableHead>
-              <TableHead className="font-black uppercase tracking-widest text-[10px] text-[#0d2719]/60 text-right pr-8">Actions</TableHead>
+          <TableHeader className="bg-neutral-50/50">
+            <TableRow className="border-b-neutral-100 hover:bg-transparent">
+              <TableHead className="font-black uppercase tracking-[0.15em] text-[10px] text-neutral-400 px-8 py-6">Business Name</TableHead>
+              <TableHead className="font-black uppercase tracking-[0.15em] text-[10px] text-neutral-400">Primary Contact</TableHead>
+              <TableHead className="font-black uppercase tracking-[0.15em] text-[10px] text-neutral-400">Business Type</TableHead>
+              <TableHead className="font-black uppercase tracking-[0.15em] text-[10px] text-neutral-400">Estimated Volume</TableHead>
+              <TableHead className="font-black uppercase tracking-[0.15em] text-[10px] text-neutral-400">Date Received</TableHead>
+              <TableHead className="font-black uppercase tracking-[0.15em] text-[10px] text-neutral-400 text-right pr-8">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               [1, 2, 3, 4, 5].map((i) => (
-                <TableRow key={i} className="border-b-[#0d2719]/5">
-                  <TableCell className="px-8 py-6"><Skeleton className="h-4 w-32" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell className="text-right pr-8"><Skeleton className="h-8 w-8 ml-auto rounded-lg" /></TableCell>
+                <TableRow key={i} className="border-b-neutral-50">
+                  <TableCell className="px-8 py-6"><Skeleton className="h-5 w-48 rounded-lg" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-32 rounded-lg" /></TableCell>
+                  <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-16 rounded-lg" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-24 rounded-lg" /></TableCell>
+                  <TableCell className="text-right pr-8"><Skeleton className="h-10 w-10 ml-auto rounded-xl" /></TableCell>
                 </TableRow>
               ))
             ) : filteredInquiries.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-[400px] text-center">
-                  <div className="flex flex-col items-center justify-center space-y-4 opacity-30">
-                    <MessageSquare className="w-12 h-12" />
-                    <p className="font-serif text-xl">No inquiries found</p>
+                <TableCell colSpan={6} className="h-[450px] text-center">
+                  <div className="flex flex-col items-center justify-center space-y-4 opacity-20">
+                    <div className="size-20 rounded-[2rem] bg-neutral-100 flex items-center justify-center">
+                        <MessageSquare className="w-10 h-10" />
+                    </div>
+                    <p className="font-black uppercase tracking-[0.2em] text-xs">No inquiries found</p>
                   </div>
                 </TableCell>
               </TableRow>
             ) : (
               filteredInquiries.map((inquiry) => (
-                <TableRow key={inquiry.id} className="border-b-[#0d2719]/5 hover:bg-[#f0f9f0]/50 transition-colors">
-                  <TableCell className="px-8 py-6 font-serif text-[#0d2719] text-lg">{inquiry.businessName}</TableCell>
+                <TableRow key={inquiry.id} className="border-b-neutral-50 hover:bg-neutral-50/50 transition-colors group">
+                  <TableCell className="px-8 py-6">
+                    <div className="flex items-center gap-4">
+                        <div className="size-10 rounded-2xl bg-neutral-100 flex items-center justify-center text-xs font-black text-neutral-400 uppercase">
+                            {inquiry.businessName.charAt(0)}
+                        </div>
+                        <div>
+                            <p className="font-black text-neutral-900 text-base">{inquiry.businessName}</p>
+                            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-0.5">Company</p>
+                        </div>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      <p className="font-bold text-sm text-[#0d2719]">{inquiry.contactName}</p>
-                      <div className="flex items-center gap-4 text-[10px] font-medium text-black/40">
-                        <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {inquiry.email}</span>
-                        <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {inquiry.phone}</span>
+                      <p className="font-bold text-sm text-neutral-800 flex items-center gap-2">
+                        {inquiry.contactName}
+                      </p>
+                      <div className="flex flex-col gap-0.5 text-[10px] font-bold text-neutral-400 uppercase tracking-tighter">
+                        <span className="flex items-center gap-1.5"><Mail className="w-3 h-3 opacity-50" /> {inquiry.email}</span>
+                        <span className="flex items-center gap-1.5"><Phone className="w-3 h-3 opacity-50" /> {inquiry.phone}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center px-3 py-1 bg-[#0d2719]/5 rounded-full text-[10px] font-black uppercase tracking-widest text-[#0d2719]">
+                    <Badge variant="outline" className="px-3 py-1 bg-emerald-50 text-emerald-700 border-none rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm">
                       {inquiry.businessType}
-                    </span>
+                    </Badge>
                   </TableCell>
-                  <TableCell className="font-bold text-[#0d2719]/60">{inquiry.estimatedVolume || "N/A"}</TableCell>
-                  <TableCell className="text-black/40 text-[10px] font-black uppercase tracking-widest">
+                  <TableCell className="font-black text-neutral-900 text-xs">{inquiry.estimatedVolume || "N/A"}</TableCell>
+                  <TableCell className="text-neutral-400 text-[10px] font-black uppercase tracking-widest">
                     {format(new Date(inquiry.createdAt), "MMM dd, yyyy")}
                   </TableCell>
                   <TableCell className="text-right pr-8">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-[#0d2719] hover:text-white transition-all">
-                          <MoreHorizontal className="w-5 h-5" />
+                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-neutral-900 hover:text-white transition-all">
+                          <ExternalLink className="w-4 h-4" />
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-2xl rounded-[2.5rem] border-none p-10 bg-[#f0f9f0] shadow-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-3xl font-serif text-[#0d2719] mb-6">Inquiry Details</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-8">
-                          <div className="grid grid-cols-2 gap-8">
-                            <div className="space-y-2">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Business</p>
-                              <p className="font-serif text-xl text-[#0d2719]">{inquiry.businessName}</p>
+                      <DialogContent className="max-w-2xl rounded-[2.5rem] border-none p-0 bg-white shadow-2xl overflow-hidden">
+                        <div className="bg-emerald-600 p-8 text-white relative">
+                            <div className="flex items-center gap-3 mb-2">
+                                <Building2 className="size-6 text-emerald-200" />
+                                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-100/60">Partner Details</p>
                             </div>
-                            <div className="space-y-2">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Contact</p>
-                              <p className="font-bold text-lg text-[#0d2719]">{inquiry.contactName}</p>
+                            <h2 className="text-3xl font-black tracking-tight">{inquiry.businessName}</h2>
+                        </div>
+                        <div className="p-10 space-y-10">
+                          <div className="grid grid-cols-2 gap-10">
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-2 text-neutral-400">
+                                <User className="size-3.5" />
+                                <p className="text-[10px] font-black uppercase tracking-widest">Contact Person</p>
+                              </div>
+                              <p className="font-black text-xl text-neutral-900">{inquiry.contactName}</p>
                             </div>
-                            <div className="space-y-2">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Email</p>
-                              <p className="font-medium text-[#0d2719]">{inquiry.email}</p>
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-2 text-neutral-400">
+                                <Calendar className="size-3.5" />
+                                <p className="text-[10px] font-black uppercase tracking-widest">Date Sent</p>
+                              </div>
+                              <p className="font-black text-xl text-neutral-900">{format(new Date(inquiry.createdAt), "MMMM dd, yyyy")}</p>
                             </div>
-                            <div className="space-y-2">
-                              <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Phone</p>
-                              <p className="font-medium text-[#0d2719]">{inquiry.phone}</p>
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-2 text-neutral-400">
+                                <Mail className="size-3.5" />
+                                <p className="text-[10px] font-black uppercase tracking-widest">Email Address</p>
+                              </div>
+                              <p className="font-bold text-neutral-900">{inquiry.email}</p>
+                            </div>
+                            <div className="space-y-1.5">
+                              <div className="flex items-center gap-2 text-neutral-400">
+                                <Phone className="size-3.5" />
+                                <p className="text-[10px] font-black uppercase tracking-widest">Phone Number</p>
+                              </div>
+                              <p className="font-bold text-neutral-900">{inquiry.phone}</p>
                             </div>
                           </div>
                           
-                          <div className="space-y-3 pt-6 border-t border-[#0d2719]/5">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-black/30">Message</p>
-                            <p className="text-sm font-medium leading-relaxed text-[#0d2719]/80 bg-white p-6 rounded-2xl italic">
-                              "{inquiry.message || "No message provided."}"
-                            </p>
+                          <div className="space-y-4 pt-8 border-t border-neutral-100">
+                            <div className="flex items-center gap-2 text-neutral-400">
+                                <MessageSquare className="size-3.5" />
+                                <p className="text-[10px] font-black uppercase tracking-widest">Message from Partner</p>
+                            </div>
+                            <div className="text-sm font-medium leading-relaxed text-neutral-600 bg-neutral-50 p-8 rounded-[2rem] border border-neutral-100 italic relative">
+                              <div className="absolute -top-3 left-8 size-6 bg-white border border-neutral-100 rounded-lg flex items-center justify-center font-serif text-emerald-600 text-xl font-black">"</div>
+                              {inquiry.message || "No message provided."}
+                            </div>
                           </div>
 
-                          <div className="flex justify-end gap-4 pt-6">
-                            <Button className="h-12 px-8 bg-[#0d2719] text-white rounded-xl font-bold uppercase tracking-widest text-[10px]">
-                              Reply to Partner
+                          <div className="flex justify-end gap-3 pt-4">
+                            <Button variant="ghost" className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] text-neutral-400 hover:text-neutral-900 transition-all">
+                              Close
+                            </Button>
+                            <Button className="h-14 px-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-emerald-600/20 transition-all active:scale-95">
+                              Reply to Inquiry
                             </Button>
                           </div>
                         </div>

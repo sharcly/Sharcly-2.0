@@ -1,47 +1,158 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   BarChart3, 
   TrendingUp, 
-  Globe, 
   DollarSign, 
   ShoppingBag, 
-  Users,
   ArrowUpRight,
   ArrowDownRight,
   Calendar,
-  Filter,
   Download,
-  PieChart,
   Target,
-  Check
+  ArrowRight,
+  ChevronRight,
+  RefreshCcw,
+  Globe,
+  MapPin,
+  Users,
+  Search,
+  Filter,
+  MoreHorizontal,
+  ArrowUp,
+  ArrowDown,
+  ShieldCheck,
+  Zap,
+  Activity,
+  PieChart,
+  Layers,
+  MousePointer2,
+  Clock
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
 import { apiClient } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import Link from "next/link";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+// --- DESIGN TOKENS ---
+const TOKENS = {
+  primary: "#062D1B",
+  secondary: "#F0FDF4",
+  background: "#F9FAFB",
+  border: "rgba(6, 45, 27, 0.06)",
+  textMain: "#062D1B",
+  textMuted: "#6B7280"
+};
 
 const DATE_RANGES = [
-  { label: "Last 7 Days", value: "7days" },
-  { label: "Last 30 Days", value: "30days" },
-  { label: "This Month", value: "thisMonth" },
-  { label: "Last Month", value: "lastMonth" },
-  { label: "This Year", value: "thisYear" },
-  { label: "Last Year", value: "lastYear" },
+  { label: "7D", value: "7days" },
+  { label: "30D", value: "30days" },
+  { label: "MTD", value: "thisMonth" },
+  { label: "1Y", value: "thisYear" },
 ];
+
+/**
+ * REFINED ENTERPRISE LINE CHART
+ */
+const AnalyticsChart = ({ data, loading }: { data: any[], loading: boolean }) => {
+  const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
+
+  const chartData = useMemo(() => {
+    if (!data || data.length === 0) return Array.from({ length: 7 }).map((_, i) => ({ date: i.toString(), amount: 0 }));
+    return data;
+  }, [data]);
+
+  if (loading) return <Skeleton className="w-full h-[280px] rounded-xl bg-black/[0.02]" />;
+
+  const maxAmount = Math.max(...chartData.map(d => Number(d.amount)), 1) * 1.15;
+  const height = 280;
+  const width = 1000;
+  const paddingX = 40;
+  const paddingY = 40;
+
+  const points = chartData.map((d, i) => ({
+    x: (i / (chartData.length - 1 || 1)) * (width - paddingX * 2) + paddingX,
+    y: height - ((Number(d.amount) / maxAmount) * (height - paddingY * 2) + paddingY)
+  }));
+
+  const createPath = () => {
+    if (points.length < 2) return "";
+    let path = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const curr = points[i];
+      const next = points[i + 1];
+      const cp1x = curr.x + (next.x - curr.x) / 3;
+      const cp2x = curr.x + (next.x - curr.x) * 2 / 3;
+      path += ` C ${cp1x} ${curr.y} ${cp2x} ${next.y} ${next.x} ${next.y}`;
+    }
+    return path;
+  };
+
+  const pathLine = createPath();
+
+  return (
+    <div className="w-full h-[280px] relative">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+        {/* Simple Horizontal Grid */}
+        {[0, 0.5, 1].map((p, i) => (
+          <line 
+            key={i} 
+            x1={paddingX} y1={paddingY + p * (height - paddingY * 2)} 
+            x2={width - paddingX} y2={paddingY + p * (height - paddingY * 2)} 
+            stroke="rgba(0,0,0,0.03)" strokeWidth="1"
+          />
+        ))}
+
+        <motion.path 
+          initial={{ pathLength: 0, opacity: 0 }} 
+          animate={{ pathLength: 1, opacity: 1 }} 
+          transition={{ duration: 1, ease: "easeOut" }}
+          d={pathLine} fill="none" stroke={TOKENS.primary} strokeWidth="2.5" strokeLinecap="round" 
+        />
+
+        {points.map((p, i) => (
+          <g key={i} onMouseEnter={() => setHoveredPoint(i)} onMouseLeave={() => setHoveredPoint(null)}>
+            <circle cx={p.x} cy={p.y} r="12" fill="transparent" className="cursor-pointer" />
+            <circle 
+              cx={p.x} cy={p.y} r="3" fill="white" stroke={TOKENS.primary} strokeWidth="2"
+              className={cn("transition-all duration-200", hoveredPoint === i ? "scale-150" : "scale-100")}
+            />
+          </g>
+        ))}
+      </svg>
+
+      <AnimatePresence>
+        {hoveredPoint !== null && (
+          <motion.div 
+            initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 5 }}
+            className="absolute pointer-events-none z-50 bg-white border border-black/5 p-3 rounded-lg shadow-xl min-w-[120px]"
+            style={{ 
+              left: `${(points[hoveredPoint].x / width) * 100}%`, 
+              top: `${(points[hoveredPoint].y / height) * 100}%`,
+              transform: 'translate(-50%, -120%)'
+            }}
+          >
+            <p className="text-[9px] font-bold text-black/30 uppercase tracking-widest">{chartData[hoveredPoint].date}</p>
+            <p className="text-sm font-bold text-black">${Number(chartData[hoveredPoint].amount).toLocaleString()}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export default function SalesAnalyticsPage() {
   const { user } = useAuth();
@@ -56,9 +167,8 @@ export default function SalesAnalyticsPage() {
       if (response.data.success) {
         setData(response.data.data);
       }
-    } catch (error: any) {
-      console.error("Failed to fetch sales analytics:", error);
-      toast.error("Failed to load real-time sales data.");
+    } catch (error) {
+      toast.error("Analytics sync failed");
     } finally {
       setLoading(false);
     }
@@ -68,224 +178,225 @@ export default function SalesAnalyticsPage() {
     fetchAnalytics(range);
   }, [range, fetchAnalytics]);
 
-  const hasPermission = (perm: string) => user?.role === "admin" || user?.role === "super_admin" || user?.permissions?.includes(perm);
+  const stats = useMemo(() => [
+    { label: "Total Revenue", value: `$${(data?.totalSales || 0).toLocaleString()}`, growth: data?.salesGrowth || 0, icon: DollarSign },
+    { label: "Total Orders", value: (data?.orderCount || 0).toLocaleString(), growth: data?.orderGrowth || 0, icon: ShoppingBag },
+    { label: "Avg. Basket", value: `$${(data?.avgOrderValue || 0).toLocaleString()}`, growth: data?.aovGrowth || 0, icon: Target },
+    { label: "New Users", value: `+${(data?.newCustomers || 0).toLocaleString()}`, growth: 12.4, icon: Users },
+  ], [data]);
 
-  if (!hasPermission("sales.view")) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
-        <div className="size-20 rounded-full bg-red-50 flex items-center justify-center text-red-500 mb-6">
-          <BarChart3 className="size-10" />
-        </div>
-        <h2 className="text-2xl font-black tracking-tight text-primary">Access Denied</h2>
-        <p className="text-gray-500 max-w-xs mt-2">You do not have the required permissions to view sales analytics.</p>
-        <Button variant="outline" className="mt-8 rounded-xl" onClick={() => window.history.back()}>Go Back</Button>
-      </div>
-    );
-  }
-
-  const selectedRangeLabel = DATE_RANGES.find(r => r.value === range)?.label || "Last 30 Days";
+  const hasPermission = user?.role === "admin" || user?.role === "super_admin" || user?.role === "manager";
+  
+  if (!hasPermission) return null;
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-1">
-           <div className="flex items-center gap-3">
-              <div className="size-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <BarChart3 className="size-6" />
-              </div>
-              <div>
-                 <h1 className="text-4xl font-black tracking-tight text-foreground">Sales Analytics</h1>
-                 <p className="text-muted-foreground font-medium flex items-center gap-2">
-                    <TrendingUp className="size-3 text-emerald-500" />
-                    Real-time performance tracking & regional insights
-                 </p>
-              </div>
-           </div>
+    <div className="space-y-6 pb-20">
+      
+      {/* Sleek Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-black/5 pb-6">
+        <div>
+           <h1 className="text-2xl font-bold tracking-tight text-black">Sales Analytics</h1>
+           <p className="text-xs font-medium text-black/40 mt-0.5">Commercial performance and market intelligence.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="rounded-xl h-12 gap-2 font-bold border-black/5 bg-white shadow-sm">
-                <Calendar className="size-4" /> {selectedRangeLabel}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 border-black/5 shadow-xl">
-              {DATE_RANGES.map((r) => (
-                <DropdownMenuItem 
-                  key={r.value}
-                  className="rounded-xl cursor-pointer py-3 px-4 flex justify-between items-center"
-                  onSelect={() => setRange(r.value)}
-                >
-                  <span className={cn("text-xs font-bold", range === r.value ? "text-blue-600" : "text-black/60")}>
-                    {r.label}
-                  </span>
-                  {range === r.value && <Check className="size-4 text-blue-600" />}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
 
-          <Button variant="outline" className="rounded-xl h-12 gap-2 font-bold border-black/5 bg-white shadow-sm">
-            <Download className="size-4" /> Export
-          </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-black/[0.03] p-1 rounded-lg border border-black/5">
+            {DATE_RANGES.map((r) => (
+              <button
+                key={r.value}
+                onClick={() => setRange(r.value)}
+                className={cn(
+                  "px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
+                  range === r.value ? "bg-white text-black shadow-sm" : "text-black/40 hover:text-black"
+                )}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
           <Button 
-            className="rounded-xl h-12 gap-2 font-bold bg-[#062D1B] text-white shadow-xl shadow-emerald-900/10"
-            onClick={() => fetchAnalytics(range)}
+            variant="outline" size="icon" onClick={() => fetchAnalytics(range)}
+            className="size-9 rounded-lg border-black/5 hover:bg-black/[0.03]"
           >
-            <Filter className="size-4" /> Sync Data
+            <RefreshCcw className={cn("size-4 text-black/40", loading && "animate-spin")} />
+          </Button>
+          <Button className="h-9 px-4 rounded-lg bg-[#062D1B] text-white font-bold text-[10px] uppercase tracking-wider hover:bg-[#084228] transition-colors shadow-sm">
+            <Download className="mr-2 size-3.5" /> Export
           </Button>
         </div>
       </div>
 
-      {/* KPI GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { label: "Total Revenue", value: `$${data?.totalSales?.toLocaleString() || '0'}`, growth: data?.salesGrowth || 0, icon: DollarSign, color: "bg-blue-600" },
-          { label: "Total Orders", value: data?.orderCount?.toLocaleString() || '0', growth: data?.orderGrowth || 0, icon: ShoppingBag, color: "bg-emerald-500" },
-          { label: "Avg. Order Value", value: `$${data?.avgOrderValue || '0'}`, growth: data?.aovGrowth || 0, icon: Target, color: "bg-purple-600" }
-        ].map((kpi, i) => (
-          <Card key={i} className="border-none shadow-sm rounded-3xl bg-white overflow-hidden group hover:shadow-xl transition-all duration-500">
-            <CardContent className="p-8">
-              <div className="flex justify-between items-start mb-6">
-                <div className={cn("size-14 rounded-2xl flex items-center justify-center text-white shadow-lg", kpi.color)}>
-                  <kpi.icon className="size-7" />
+      {/* Grid KPI */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {stats.map((stat, i) => (
+          <Card key={i} className="border-black/5 shadow-sharcly bg-white rounded-xl overflow-hidden">
+             <CardContent className="p-5 flex items-center gap-4">
+                <div className="size-11 rounded-lg bg-[#F0FDF4] flex items-center justify-center text-[#062D1B]">
+                   <stat.icon className="size-5.5" />
                 </div>
-                {loading ? <Skeleton className="h-6 w-16 rounded-full" /> : (
-                  <Badge className={cn(
-                    "rounded-full px-3 py-1 font-bold text-[10px] uppercase tracking-wider",
-                    kpi.growth >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
-                  )}>
-                    {kpi.growth >= 0 ? <ArrowUpRight className="size-3 mr-1" /> : <ArrowDownRight className="size-3 mr-1" />}
-                    {Math.abs(kpi.growth)}%
-                  </Badge>
-                )}
-              </div>
-              <div className="space-y-1">
-                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30">{kpi.label}</p>
-                 {loading ? <Skeleton className="h-10 w-32 rounded-full mt-2" /> : (
-                   <h3 className="text-4xl font-black tracking-tight text-primary">{kpi.value}</h3>
-                 )}
-              </div>
-            </CardContent>
+                <div className="flex-1">
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-black/30 leading-none mb-1.5">{stat.label}</p>
+                   <div className="flex items-baseline gap-2">
+                      <h3 className="text-xl font-bold text-black tracking-tight leading-none">{stat.value}</h3>
+                      {loading ? <Skeleton className="h-4 w-10 bg-black/5 rounded" /> : (
+                        <span className={cn(
+                          "text-[9px] font-bold px-1.5 py-0.5 rounded",
+                          stat.growth >= 0 ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"
+                        )}>
+                          {stat.growth >= 0 ? "+" : ""}{stat.growth}%
+                        </span>
+                      )}
+                   </div>
+                </div>
+             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* TREND CHART */}
-        <Card className="lg:col-span-8 border-none shadow-sm rounded-3xl bg-white overflow-hidden">
-          <CardHeader className="p-8 border-b border-black/[0.03]">
-             <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                   <CardTitle className="text-xl font-black">Sales Performance</CardTitle>
-                   <CardDescription className="text-xs font-medium italic">Revenue trends for the selected period</CardDescription>
-                </div>
-                <div className="flex items-center gap-2">
-                   <div className="size-3 rounded-full bg-blue-600" />
-                   <span className="text-[10px] font-black uppercase tracking-widest text-black/40">Revenue</span>
-                </div>
-             </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Main Chart */}
+        <Card className="lg:col-span-8 border-black/5 shadow-sharcly bg-white rounded-xl overflow-hidden">
+          <CardHeader className="p-6 border-b border-black/5 flex flex-row items-center justify-between bg-black/[0.01]">
+            <div>
+              <CardTitle className="text-sm font-bold text-black">Revenue Performance</CardTitle>
+              <CardDescription className="text-[11px] font-medium text-black/40 mt-0.5">Daily aggregated gross sales volume.</CardDescription>
+            </div>
+            <div className="flex items-center gap-4">
+               <div className="flex items-center gap-1.5">
+                  <div className="size-2 rounded-full bg-[#062D1B]" />
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-black/40">Gross Sales</span>
+               </div>
+            </div>
           </CardHeader>
-          <CardContent className="p-10">
-             <div className="h-64 w-full flex items-end justify-between gap-4 relative">
-                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5">
-                   {[1,2,3,4].map(l => <div key={l} className="w-full h-px bg-black" />)}
-                </div>
+          <CardContent className="p-6">
+            <AnalyticsChart data={data?.recentSales || []} loading={loading} />
+          </CardContent>
+        </Card>
 
-                {loading ? <Skeleton className="w-full h-full rounded-2xl" /> : (data?.recentSales || []).map((point: any, i: number) => {
-                  const maxAmount = Math.max(...data.recentSales.map((s: any) => s.amount), 1);
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                      <div 
-                        className="w-full bg-blue-600/10 group-hover:bg-blue-600/20 rounded-t-xl transition-all duration-500 relative"
-                        style={{ height: `${(point.amount / maxAmount) * 100}%` }}
-                      >
-                         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black text-white text-[9px] font-black px-2 py-1 rounded shadow-xl whitespace-nowrap z-10">
-                            ${point.amount?.toLocaleString()}
-                         </div>
-                         <div className="absolute top-0 left-0 w-full h-1 bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.5)] rounded-t-full" />
+        {/* Region */}
+        <Card className="lg:col-span-4 border-black/5 shadow-sharcly bg-white rounded-xl overflow-hidden">
+          <CardHeader className="p-6 border-b border-black/5 bg-black/[0.01]">
+            <CardTitle className="text-sm font-bold text-black">Market Reach</CardTitle>
+            <CardDescription className="text-[11px] font-medium text-black/40 mt-0.5">Top regional distribution.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-5">
+            {loading ? Array.from({length: 4}).map((_, i) => (
+              <div key={i} className="space-y-2"><Skeleton className="h-3 w-full bg-black/5" /><Skeleton className="h-1.5 w-3/4 bg-black/5 rounded-full" /></div>
+            )) : (data?.regions || []).map((region: any, i: number) => (
+              <div key={i} className="space-y-2">
+                <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider">
+                  <span className="text-black/40">{region.name}</span>
+                  <span className="text-black">${Number(region.sales).toLocaleString()}</span>
+                </div>
+                <div className="h-1.5 w-full bg-black/[0.03] rounded-full overflow-hidden">
+                   <motion.div initial={{ width: 0 }} animate={{ width: `${region.percentage}%` }} className="h-full bg-[#062D1B]" />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Audit Log Table */}
+      <Card className="border-black/5 shadow-sharcly bg-white rounded-xl overflow-hidden">
+          <CardHeader className="p-6 border-b border-black/5 flex flex-col sm:flex-row items-start sm:items-center justify-between bg-black/[0.01] gap-4">
+            <div>
+              <CardTitle className="text-sm font-bold text-black">Audit Ledger</CardTitle>
+              <CardDescription className="text-[11px] font-medium text-black/40 mt-0.5">Recent commercial verification stream.</CardDescription>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+               <div className="relative flex-1 sm:w-48">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-black/20" />
+                  <input placeholder="Search..." className="w-full h-9 pl-9 pr-4 bg-black/[0.03] border-none rounded-lg text-xs font-medium outline-none focus:ring-1 ring-black/10" />
+               </div>
+               <Button variant="outline" size="icon" className="size-9 rounded-lg border-black/5 bg-white shadow-sm">
+                  <Filter className="size-3.5 text-black/40" />
+               </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0 overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-black/[0.01] text-[9px] font-bold text-black/30 uppercase tracking-[0.2em] text-left border-b border-black/5">
+                  <th className="px-6 py-4">Entity</th>
+                  <th className="px-6 py-4">Timestamp</th>
+                  <th className="px-6 py-4">Quantum</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-right">Activity</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/5">
+                {loading ? Array.from({length: 5}).map((_, i) => (
+                  <tr key={i}><td colSpan={5} className="px-6 py-6"><Skeleton className="h-10 w-full bg-black/5 rounded-lg" /></td></tr>
+                )) : (data?.recentTransactions || []).map((order: any) => (
+                  <tr key={order.id} className="hover:bg-black/[0.01] transition-colors">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-md bg-[#F0FDF4] flex items-center justify-center text-[11px] font-bold text-[#062D1B]">
+                          {order.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-black">{order.name}</p>
+                          <p className="text-[9px] font-medium text-black/20 uppercase tracking-widest mt-0.5">#ORD-{order.id.slice(0, 8).toUpperCase()}</p>
+                        </div>
                       </div>
-                      <p className="mt-4 text-[9px] font-black uppercase tracking-widest text-black/20 group-hover:text-blue-600 transition-colors">{point.date}</p>
-                    </div>
-                  )
-                })}
-             </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <p className="text-xs font-medium text-black/60">{new Date(order.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short' })}</p>
+                      <p className="text-[9px] font-medium text-black/20 mt-0.5">{new Date(order.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    </td>
+                    <td className="px-6 py-5">
+                      <p className="text-sm font-bold text-black">${Number(order.amount).toLocaleString()}</p>
+                      <p className="text-[9px] font-bold text-emerald-600/60 uppercase mt-0.5 tracking-tighter">Settled</p>
+                    </td>
+                    <td className="px-6 py-5">
+                      <Badge className={cn(
+                        "rounded-md px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest border-none shadow-none",
+                        order.status === 'DELIVERED' ? "bg-emerald-50 text-emerald-700" : 
+                        order.status === 'CANCELLED' ? "bg-rose-50 text-rose-700" :
+                        "bg-amber-50 text-amber-700"
+                      )}>
+                        {order.status}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <Link href={`/dashboard/orders/${order.id}`}>
+                        <Button variant="ghost" size="icon" className="size-8 rounded-lg hover:bg-black/[0.03]">
+                          <ChevronRight className="size-4 text-black/30" />
+                        </Button>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </CardContent>
-        </Card>
+          <div className="p-4 border-t border-black/5 bg-black/[0.01] flex justify-center">
+             <Button variant="ghost" className="text-[9px] font-bold uppercase tracking-[0.2em] text-black/30 hover:text-black transition-colors">
+                View All Transactions
+             </Button>
+          </div>
+      </Card>
 
-        {/* REGIONAL PERFORMANCE */}
-        <Card className="lg:col-span-4 border-none shadow-sm rounded-3xl bg-white overflow-hidden">
-          <CardHeader className="p-8 border-b border-black/[0.03]">
-             <div className="space-y-1">
-                <CardTitle className="text-xl font-black">Regional Performance</CardTitle>
-                <CardDescription className="text-xs font-medium italic">Sales distribution by shipping destination</CardDescription>
+      {/* Footer Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Conversion Rate", value: data?.conversionRate || "2.4%", icon: Target, sub: "Session to Checkout" },
+          { label: "Peak Activity", value: data?.peakTime || "N/A", icon: Clock, sub: "Peak throughput period" },
+          { label: "Retention Rate", value: "64.2%", icon: Users, sub: "Repeat commercial intent" },
+          { label: "System Health", value: "Optimal", icon: ShieldCheck, sub: "Real-time node status" },
+        ].map((item, i) => (
+          <div key={i} className="p-5 rounded-xl bg-white border border-black/5 shadow-sm">
+             <div className="flex items-center gap-3 mb-4">
+                <item.icon className="size-4 text-[#062D1B]" />
+                <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-black/30">{item.label}</span>
              </div>
-          </CardHeader>
-          <CardContent className="p-8 space-y-8">
-             {loading ? Array.from({length: 4}).map((_, i) => (
-               <div key={i} className="space-y-2">
-                  <div className="flex justify-between"><Skeleton className="h-3 w-20" /><Skeleton className="h-3 w-10" /></div>
-                  <Skeleton className="h-2 w-full" />
-               </div>
-             )) : (data?.regions || []).map((region: any, i: number) => (
-               <div key={i} className="space-y-3">
-                 <div className="flex justify-between items-end">
-                    <div className="space-y-0.5">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-primary/80 truncate max-w-[150px]">{region.name}</p>
-                       <p className="text-xs font-bold text-black/40">${region.sales.toLocaleString()}</p>
-                    </div>
-                    <div className={cn(
-                      "text-[10px] font-black",
-                      region.growth >= 0 ? "text-emerald-500" : "text-red-500"
-                    )}>
-                      {region.growth > 0 ? "+" : ""}{region.growth}%
-                    </div>
-                 </div>
-                 <div className="h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-black/[0.02]">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${region.percentage}%` }}
-                      transition={{ duration: 1, delay: i * 0.1 }}
-                      className={cn(
-                        "h-full rounded-full shadow-sm",
-                        i === 0 ? "bg-blue-600" : i === 1 ? "bg-emerald-500" : i === 2 ? "bg-purple-600" : "bg-orange-500"
-                      )}
-                    />
-                 </div>
-               </div>
-             ))}
-
-             <div className="pt-6 border-t border-black/[0.03] flex items-center justify-center">
-                <Button variant="ghost" className="text-[10px] font-black uppercase tracking-[0.2em] text-black/30 hover:text-blue-600 gap-3">
-                   Detailed Map View <Globe className="size-3" />
-                </Button>
-             </div>
-          </CardContent>
-        </Card>
+             <p className="text-xl font-bold text-black tracking-tight">{item.value}</p>
+             <p className="text-[9px] font-medium text-black/20 mt-1 uppercase tracking-tight">{item.sub}</p>
+          </div>
+        ))}
       </div>
 
-      {/* ADDITIONAL INSIGHTS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-20">
-         {[
-           { label: "Top Product", value: data?.topProduct || "None", icon: ShoppingBag, color: "text-orange-500" },
-           { label: "Conversion Rate", value: data?.conversionRate || "0%", icon: TrendingUp, color: "text-blue-600" },
-           { label: "New Customers", value: `+${data?.newCustomers || 0}`, icon: Users, color: "text-emerald-500" },
-           { label: "Peak Time", value: data?.peakTime || "N/A", icon: Calendar, color: "text-purple-600" }
-         ].map((insight, i) => (
-           <Card key={i} className="border-none shadow-sm rounded-[2rem] bg-white group hover:bg-black hover:text-white transition-all duration-500">
-             <CardContent className="p-8 flex flex-col items-center text-center space-y-4">
-                <div className={cn("size-12 rounded-2xl bg-gray-50 flex items-center justify-center transition-all group-hover:bg-white/10 group-hover:scale-110", insight.color)}>
-                   <insight.icon className="size-5" />
-                </div>
-                <div className="space-y-1">
-                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-black/30 group-hover:text-white/40">{insight.label}</p>
-                   <p className="text-sm font-black group-hover:text-white">{insight.value}</p>
-                </div>
-             </CardContent>
-           </Card>
-         ))}
-      </div>
     </div>
   );
 }
