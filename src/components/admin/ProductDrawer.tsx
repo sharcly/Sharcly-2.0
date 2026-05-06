@@ -266,7 +266,7 @@ export default function ProductDrawer({
                                     value={form.name}
                                     onChange={e => updateForm({ name: e.target.value })}
                                     placeholder="Product name..."
-                                    className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm"
+                                    className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm" 
                                  />
                               </Field>
                            </div>

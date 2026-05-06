@@ -88,6 +88,7 @@ export default function CookiesPage() {
           </div>
         </section>
       </main>
+
       <Footer />
     </div>
   );

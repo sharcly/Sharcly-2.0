@@ -343,16 +343,15 @@ function ContentManagementContent() {
           <p className="text-primary/40 font-medium text-lg">Architect site narrative and global technical authority.</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-end gap-6 w-full lg:w-auto">
-          <div className="space-y-3 w-full sm:w-80">
-            <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2 block italic">Target Page Context</Label>
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+          <div className="flex flex-col gap-1.5 w-full sm:w-64">
             <Select value={activePage} onValueChange={setActivePage}>
-              <SelectTrigger className="h-16 rounded-[1.5rem] bg-white border-black/5 shadow-organic font-black text-primary px-8">
+              <SelectTrigger className="h-10 rounded-lg bg-black/[0.03] border-black/5 font-bold text-black px-4">
                 <SelectValue placeholder="Select Page" />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl border-black/5 shadow-2xl">
+              <SelectContent className="rounded-xl border-black/5 shadow-xl">
                 {PAGES.map((page) => (
-                  <SelectItem key={page.id} value={page.id} className="font-bold py-4 px-6 focus:bg-primary/5 cursor-pointer">
+                  <SelectItem key={page.id} value={page.id} className="font-bold py-2 px-4 focus:bg-[#062D1B]/5 cursor-pointer text-xs">
                     {page.label}
                   </SelectItem>
                 ))}
@@ -362,9 +361,9 @@ function ContentManagementContent() {
           <Button
             disabled={isSaving || isLoading}
             onClick={saveAll}
-            className="h-16 px-12 font-black uppercase tracking-[0.3em] text-[10px] rounded-[1.5rem] shadow-2xl shadow-primary/20 bg-primary hover:bg-primary/90 transition-all hover:scale-105 active:scale-95"
+            className="h-10 px-8 font-bold uppercase tracking-wider text-[10px] rounded-lg bg-[#062D1B] text-white hover:bg-[#084228] transition-all shadow-sm w-full sm:w-auto"
           >
-            {isSaving ? <Loader2 className="mr-4 h-5 w-5 animate-spin" /> : <Save className="mr-4 h-5 w-5" />}
+            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Sync System
           </Button>
         </div>
@@ -394,11 +393,8 @@ function ContentManagementContent() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="flex flex-col items-center justify-center py-60 bg-white/30 backdrop-blur-md rounded-[4rem] border border-dashed border-black/10"
             >
-              <div className="relative">
-                <Loader2 className="h-20 w-20 text-primary/10 animate-spin" />
-                <Settings2 className="absolute inset-0 h-10 w-10 text-primary m-auto animate-pulse" />
-              </div>
-              <p className="text-primary/20 font-black uppercase tracking-[0.5em] text-[10px] mt-12 animate-pulse">Initializing Synthesis...</p>
+              <Loader2 className="h-10 w-10 text-[#062D1B]/20 animate-spin" />
+              <p className="text-[#062D1B]/20 font-bold uppercase tracking-[0.3em] text-[9px] mt-6">Initializing Synthesis...</p>
             </motion.div>
           ) : (
             <div className="space-y-12">
@@ -420,7 +416,7 @@ function ContentManagementContent() {
                           <Input
                             value={cmsContent.hero?.title || ""}
                             onChange={(e) => handleCmsUpdate("hero", "title", e.target.value)}
-                            className="h-20 rounded-[1.5rem] bg-sage/5 border-none font-black text-2xl px-8 focus:bg-white focus:ring-8 focus:ring-primary/5 transition-all text-primary"
+                            className="h-12 rounded-lg bg-black/[0.03] border-none font-bold text-lg px-6 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black"
                           />
                         </div>
                         <div className="space-y-4">
@@ -428,7 +424,7 @@ function ContentManagementContent() {
                           <Textarea
                             value={cmsContent.hero?.tagline || ""}
                             onChange={(e) => handleCmsUpdate("hero", "tagline", e.target.value)}
-                            className="min-h-[180px] rounded-[1.5rem] bg-sage/5 border-none font-medium text-lg px-8 py-8 focus:bg-white transition-all text-primary/60 leading-relaxed overflow-hidden"
+                            className="min-h-[140px] rounded-lg bg-black/[0.03] border-none font-medium text-sm px-6 py-4 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black/60 leading-relaxed"
                           />
                         </div>
                         <div className="space-y-4">
@@ -436,7 +432,7 @@ function ContentManagementContent() {
                           <Input
                             value={cmsContent.hero?.bg_image || ""}
                             onChange={(e) => handleCmsUpdate("hero", "bg_image", e.target.value)}
-                            className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8 italic text-primary/40 focus:bg-white transition-all"
+                            className="h-10 rounded-lg bg-black/[0.03] border-none font-medium px-4 italic text-black/40"
                           />
                         </div>
                       </CardContent>
@@ -773,7 +769,7 @@ function ContentManagementContent() {
                             <Input
                               value={cmsContent.philosophy?.title || ""}
                               onChange={(e) => handleCmsUpdate("philosophy", "title", e.target.value)}
-                              className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-black text-xl px-8 focus:bg-white"
+                              className="h-10 rounded-lg bg-black/[0.03] border-none font-bold text-sm px-4 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black"
                             />
                           </div>
                           <div className="space-y-4">
@@ -781,7 +777,7 @@ function ContentManagementContent() {
                             <Textarea
                               value={cmsContent.philosophy?.description || ""}
                               onChange={(e) => handleCmsUpdate("philosophy", "description", e.target.value)}
-                              className="min-h-[140px] rounded-[1.5rem] bg-sage/5 border-none font-medium text-base px-8 py-6 focus:bg-white transition-all"
+                              className="min-h-[120px] rounded-lg bg-black/[0.03] border-none font-medium text-xs px-4 py-3 focus:ring-2 focus:ring-[#062D1B]/10 transition-all text-black/60"
                             />
                           </div>
                           <div className="bg-primary p-8 rounded-[2rem] space-y-6">
@@ -789,7 +785,7 @@ function ContentManagementContent() {
                             <Input
                               value={cmsContent.partners?.cta_title || ""}
                               onChange={(e) => handleCmsUpdate("partners", "cta_title", e.target.value)}
-                              className="bg-white/10 border-white/10 h-14 rounded-xl text-white font-bold px-6 focus:bg-white/20"
+                              className="bg-white/10 border-white/10 h-10 rounded-lg text-white font-bold px-4 text-xs focus:bg-white/20 border-none"
                             />
                           </div>
                         </CardContent>
