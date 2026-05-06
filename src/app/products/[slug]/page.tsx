@@ -17,6 +17,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
+import { getImageUrl } from "@/lib/image-utils";
+
 
 export default function ProductDetailsPage() {
   const { slug } = useParams();
@@ -83,16 +85,16 @@ export default function ProductDetailsPage() {
   
   // Base gallery images
   const baseImages = product.imageUrls?.length > 0 
-    ? product.imageUrls.map((url: string) => url.startsWith('/api') ? `${baseUrl}${url}` : url) 
+    ? product.imageUrls.map((url: string) => getImageUrl(url)) 
     : (product.images?.length > 0 
-        ? product.images.map((img: any) => img.url || img) 
-        : [product.image_url || "https://i.postimg.cc/T3qHks4z/Sharcly-Chill-Collection.jpg"]);
+        ? product.images.map((img: any) => getImageUrl(img)) 
+        : [getImageUrl(product.image_url)]);
 
   // Collect unique images from variants
   const variantImages = (product.variants || [])
     .map((v: any) => v.image)
     .filter((img: any) => img)
-    .map((img: string) => img.startsWith('/api') ? `${baseUrl}${img}` : (img.startsWith('http') ? img : `${baseUrl}/api/images/${img}`));
+    .map((img: any) => getImageUrl(img));
 
   // Final image list (unique)
   const productImages = Array.from(new Set([...baseImages, ...variantImages]));
@@ -220,7 +222,7 @@ export default function ProductDetailsPage() {
                       <button key={v.id} onClick={() => {
                         setSelectedVariant(v);
                         if (v.image) {
-                          const variantUrl = v.image.startsWith('/api') ? `${baseUrl}${v.image}` : (v.image.startsWith('http') ? v.image : `${baseUrl}/api/images/${v.image}`);
+                          const variantUrl = getImageUrl(v.image);
                           const idx = productImages.indexOf(variantUrl);
                           if (idx !== -1) setActiveImage(idx);
                         }
