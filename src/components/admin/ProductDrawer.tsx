@@ -259,7 +259,6 @@ export default function ProductDrawer({
                   <div className="max-w-3xl mx-auto space-y-24 pb-20">
 
                      <FormSection title="Core Information" id="basic">
-                        {/* <div className="grid grid-cols-1 md:grid-cols-1 gap-8"> */}
                         <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                            <Field label="Product Name" required>
                               <input
@@ -290,7 +289,6 @@ export default function ProductDrawer({
                            >
                               {form.isAuthenticated ? <Check size={16} /> : <X size={16} />}
                            </button>
-                        </div>
                         </div>
                      </FormSection>
 
@@ -523,7 +521,6 @@ export default function ProductDrawer({
                   </div>
                )}
             </AnimatePresence>
-
          </div>
       </div>
    );
