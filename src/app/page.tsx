@@ -25,6 +25,7 @@ import { TrustLoyaltySection } from "@/components/trust-loyalty-section";
 import { ShopBySeries } from "@/components/shop-by-series";
 import ProcessStorySection from "@/components/ProcessStorySection";
 import { FinalCTA } from "@/components/final-cta";
+import { FeaturedProductsSection } from "@/components/sections/featured-products-section";
 const MOCK_PRODUCTS = [
    {
       id: "p1",
@@ -72,6 +73,9 @@ export default function Home() {
 
          <main className="flex-1">
             <HeroSection />
+
+            {/* Featured Products Section */}
+            <FeaturedProductsSection />
 
             {/* Shop By Series - Premium Luxury Grid */}
             <ShopBySeries />

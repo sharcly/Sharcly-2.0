@@ -16,7 +16,7 @@ export function BlogSkeleton({ viewMode }: BlogSkeletonProps) {
         <div
           key={i}
           className={cn(
-            "bg-white rounded-[2.5rem] border border-[#0d2719]/5 p-6 space-y-6",
+            "bg-white/5 rounded-[2.5rem] border border-white/5 p-6 space-y-6",
             !isGrid && "col-span-full flex flex-col md:flex-row gap-8"
           )}
         >
