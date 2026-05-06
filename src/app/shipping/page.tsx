@@ -1,11 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { motion, AnimatePresence } from "framer-motion";
-import { Truck, RotateCcw, ShieldCheck, Package, Clock, MapPin, ChevronDown, ArrowRight, Mail } from "lucide-react";
+import { Truck, RotateCcw, ShieldCheck, Package, Clock, MapPin, ChevronDown, ArrowRight, Mail, Globe, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { apiClient } from "@/lib/api-client";
 
 const shippingTiers = [
   {
@@ -50,6 +51,42 @@ const faqs = [
 
 export default function ShippingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [cmsContent, setCmsContent] = useState<any>({
+    hero: {
+      title: "SHIPPING & RETURNS.",
+      tagline: "Seamless logistics designed for your convenience. We ensure your wellness essentials reach you with speed and care."
+    },
+    shipping: {
+      title: "Shipping Policy",
+      description: "We provide complimentary standard shipping on all orders over $75 within the continental United States."
+    },
+    tracking: {
+      title: "Tracking",
+      description: "Once your order has been dispatched, you will receive a tracking link via email. Please allow up to 24 hours for the tracking information to update."
+    },
+    returns: {
+      title: "Returns & Refunds",
+      description: "We offer a 30-day satisfaction guarantee. If you are not completely satisfied with your purchase, you may return the product for a full refund or exchange."
+    },
+    guarantee: {
+      title: "Quality Guarantee",
+      description: "Every Sharcly product is triple-tested for quality. If you receive a damaged or defective item, please contact our support team immediately for a complimentary replacement."
+    }
+  });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await apiClient.get("/cms/shipping");
+        if (response.data.success && response.data.content) {
+          setCmsContent(response.data.content);
+        }
+      } catch (error) {
+        console.error("Failed to fetch shipping content:", error);
+      }
+    };
+    fetchContent();
+  }, []);
 
   return (
     <div className="min-h-screen antialiased" style={{ background: '#040e07', color: '#eff8ee' }}>

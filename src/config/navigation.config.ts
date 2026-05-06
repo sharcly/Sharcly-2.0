@@ -18,7 +18,9 @@ import {
   ShieldCheck,
   Globe,
   Gift,
-  BarChart3
+  BarChart3,
+  HelpCircle,
+  Truck
 } from "lucide-react";
 
 export type Role = "admin" | "super_admin" | "manager" | "content_manager" | "user";
@@ -129,6 +131,41 @@ export const navigationConfig: NavItem[] = [
     allowedRoles: ["admin", "manager"],
     category: "Content"
   },
+  {
+    label: "FAQs",
+    href: "/dashboard/faqs",
+    icon: HelpCircle,
+    allowedRoles: ["admin", "super_admin", "content_manager"],
+    category: "Content"
+  },
+  {
+    label: "Shipping & Returns",
+    href: "/dashboard/content?p=shipping",
+    icon: Truck,
+    allowedRoles: ["admin", "super_admin", "content_manager"],
+    category: "Content"
+  },
+  {
+    label: "Privacy Policy",
+    href: "/dashboard/content?p=privacy",
+    icon: ShieldCheck,
+    allowedRoles: ["admin", "super_admin", "content_manager"],
+    category: "Content"
+  },
+  {
+    label: "Terms of Service",
+    href: "/dashboard/content?p=terms",
+    icon: FileText,
+    allowedRoles: ["admin", "super_admin", "content_manager"],
+    category: "Content"
+  },
+  {
+    label: "Cookie Policy",
+    href: "/dashboard/content?p=cookies",
+    icon: Globe,
+    allowedRoles: ["admin", "super_admin", "content_manager"],
+    category: "Content"
+  },
 
   // BUSINESS
   {
@@ -146,15 +183,6 @@ export const navigationConfig: NavItem[] = [
     allowedRoles: ["admin", "super_admin"],
     requiredPermission: "wholesale.view",
     category: "Business"
-  },
-
-  // COMMUNICATION
-  {
-    label: "Messages",
-    href: "/dashboard/inbox",
-    icon: MessageSquare,
-    allowedRoles: ["admin", "super_admin", "manager"],
-    category: "Communication"
   },
 
   // MARKETING
