@@ -12,9 +12,9 @@ const footerLinks = [
   {
     title: "Shop",
     links: [
-      { name: "New Arrivals", href: "/new-arrivals" },
-      { name: "Collections", href: "/collections" },
-      { name: "Bestsellers", href: "/bestsellers" },
+      { name: "Shop All", href: "/products" },
+      { name: "New Arrivals", href: "/products?status=new" },
+      { name: "Bestsellers", href: "/products?sort=popular" },
       { name: "Sale", href: "/sale" },
     ],
   },

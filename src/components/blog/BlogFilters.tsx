@@ -1,9 +1,6 @@
 "use client";
 
 import { Search, Grid, List, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -43,10 +40,10 @@ export function BlogFilters({
   return (
     <div className="space-y-8">
       {/* Search and View Toggle */}
-      <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-        <div className="relative w-full lg:max-w-2xl group">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 size-5 text-[#0d2719]/20 group-focus-within:text-[#0d2719] transition-colors" />
-          <Input
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <div className="relative w-full lg:max-w-xl group">
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 size-4 transition-colors" style={{ color: 'rgba(239,248,238,0.3)' }} />
+          <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search our botanical archive..."
@@ -55,35 +52,44 @@ export function BlogFilters({
           {search && (
             <button
               onClick={() => setSearch("")}
-              className="absolute right-6 top-1/2 -translate-y-1/2 p-1 hover:bg-[#0d2719]/5 rounded-full transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 size-6 rounded-full flex items-center justify-center transition-colors hover:bg-[#eff8ee]/10"
+              style={{ backgroundColor: 'rgba(239,248,238,0.06)' }}
             >
-              <X className="size-4 opacity-40" />
+              <X className="size-3" style={{ color: '#eff8ee' }} />
             </button>
           )}
         </div>
 
-        <div className="flex bg-white rounded-full p-1 border border-[#0d2719]/5 shadow-sm self-end lg:self-center">
+        <div className="flex rounded-xl p-1 self-end lg:self-center" style={{ backgroundColor: 'rgba(239,248,238,0.04)', border: '1px solid rgba(239,248,238,0.06)' }}>
           <button
             onClick={() => setViewMode("grid")}
             className={cn(
-              "p-3 rounded-full transition-all duration-300",
+              "p-2.5 rounded-lg transition-all duration-300",
               viewMode === "grid"
-                ? "bg-[#0d2719] text-white shadow-lg"
-                : "text-[#0d2719]/40 hover:text-[#0d2719]"
+                ? "shadow-md"
+                : ""
             )}
+            style={viewMode === "grid" 
+              ? { backgroundColor: '#E8C547', color: '#040e07' } 
+              : { color: 'rgba(239,248,238,0.4)' }
+            }
           >
-            <Grid className="size-5" />
+            <Grid className="size-4" />
           </button>
           <button
             onClick={() => setViewMode("list")}
             className={cn(
-              "p-3 rounded-full transition-all duration-300",
+              "p-2.5 rounded-lg transition-all duration-300",
               viewMode === "list"
-                ? "bg-[#0d2719] text-white shadow-lg"
-                : "text-[#0d2719]/40 hover:text-[#0d2719]"
+                ? "shadow-md"
+                : ""
             )}
+            style={viewMode === "list" 
+              ? { backgroundColor: '#E8C547', color: '#040e07' } 
+              : { color: 'rgba(239,248,238,0.4)' }
+            }
           >
-            <List className="size-5" />
+            <List className="size-4" />
           </button>
         </div>
       </div>
@@ -105,55 +111,72 @@ export function BlogFilters({
           </button>
           {categories.map((cat) => (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => setSelectedCategory("")}
               className={cn(
                 "px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 border",
                 selectedCategory === cat
                   ? "bg-[#0d2719] text-white border-transparent shadow-lg"
                   : "bg-white text-[#0d2719] border-[#0d2719]/5 hover:border-[#0d2719]/20"
               )}
+              style={selectedCategory === "" 
+                ? { backgroundColor: '#E8C547', color: '#040e07' } 
+                : { backgroundColor: 'rgba(239,248,238,0.04)', color: 'rgba(239,248,238,0.6)', border: '1px solid rgba(239,248,238,0.06)' }
+              }
             >
-              {cat}
+              All
             </button>
-          ))}
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className="px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-300"
+                style={selectedCategory === cat 
+                  ? { backgroundColor: '#E8C547', color: '#040e07' } 
+                  : { backgroundColor: 'rgba(239,248,238,0.04)', color: 'rgba(239,248,238,0.6)', border: '1px solid rgba(239,248,238,0.06)' }
+                }
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Tags */}
-      <div className="space-y-4">
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0d2719]/30 ml-2">Filter by Tags</p>
-        <div className="flex flex-wrap gap-2">
-          {allTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              onClick={() => toggleTag(tag)}
-              className={cn(
-                "cursor-pointer px-4 py-2 rounded-full border-[#0d2719]/10 text-[10px] font-bold uppercase tracking-widest transition-all",
-                selectedTags.includes(tag)
-                  ? "bg-[#0d2719]/10 text-[#0d2719] border-[#0d2719]/30"
-                  : "bg-transparent text-[#0d2719]/40 hover:text-[#0d2719] hover:border-[#0d2719]/30"
-              )}
-            >
-              #{tag}
-            </Badge>
-          ))}
-          <AnimatePresence>
-            {selectedTags.length > 0 && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                onClick={() => setSelectedTags([])}
-                className="text-[10px] font-black uppercase tracking-widest text-[#0d2719]/60 hover:text-[#0d2719] ml-4 transition-colors"
+      {allTags.length > 0 && (
+        <div className="space-y-3">
+          <p className="text-[9px] font-black uppercase tracking-[0.3em]" style={{ color: 'rgba(239,248,238,0.3)' }}>Tags</p>
+          <div className="flex flex-wrap gap-2 items-center">
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className="px-3.5 py-2 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all duration-300"
+                style={selectedTags.includes(tag) 
+                  ? { backgroundColor: 'rgba(232,197,71,0.15)', color: '#E8C547', border: '1px solid rgba(232,197,71,0.25)' } 
+                  : { backgroundColor: 'transparent', color: 'rgba(239,248,238,0.35)', border: '1px solid rgba(239,248,238,0.08)' }
+                }
               >
-                Clear all tags
-              </motion.button>
-            )}
-          </AnimatePresence>
+                #{tag}
+              </button>
+            ))}
+            <AnimatePresence>
+              {selectedTags.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={() => setSelectedTags([])}
+                  className="text-[9px] font-black uppercase tracking-widest ml-3 underline underline-offset-4 transition-colors"
+                  style={{ color: 'rgba(239,248,238,0.4)' }}
+                >
+                  Clear tags
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

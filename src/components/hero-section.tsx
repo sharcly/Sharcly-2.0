@@ -1,20 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { ShieldCheck, Leaf, TrendingUp, ArrowRight, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-const SERIES = ["Chill", "Lift", "Balance", "Sleep", "Vape"];
+interface HeroSectionProps {
+  dynamicData?: any;
+}
 
-const MARQUEE_ITEMS = [
-  "Better Sleep", "Lab Verified", "Plant-Based", "Clean Sourced",
-  "Balanced Living", "Unwind Naturally", "Daily Reset",
-  "Farm Bill Compliant", "USDA Organic", "COA Every Batch"
-];
-
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -23,7 +19,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
@@ -32,8 +28,43 @@ const itemVariants = {
   },
 };
 
-export function HeroSection() {
-  const [activeSeries, setActiveSeries] = useState("Chill");
+export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
+  const seriesList = dynamicData?.series || ["Chill", "Lift", "Balance", "Sleep", "Vape"];
+  const marqueeItems = dynamicData?.marquee || [
+    "Better Sleep", "Lab Verified", "Plant-Based", "Clean Sourced",
+    "Balanced Living", "Unwind Naturally", "Daily Reset",
+    "Farm Bill Compliant", "USDA Organic", "COA Every Batch"
+  ];
+
+  const announcementText = dynamicData?.announcement?.text || "21+ · Farm Bill Compliant · Free Shipping $50+";
+  const kicker = dynamicData?.kicker || "Premium Hemp-Derived Wellness";
+  const hlLine1 = dynamicData?.headline?.line1 || "Balance is Where";
+  const hlHighlight = dynamicData?.headline?.highlight || "Better Living";
+  const hlLine2 = dynamicData?.headline?.line2 || "Begins.";
+  const subheadline = dynamicData?.subheadline || "Clean, lab-verified hemp-derived products — crafted for people who take their wellness as seriously as their ambitions.";
+  
+  const ctaPrimary = dynamicData?.cta?.primary || { label: "Explore Products", link: "/products" };
+  const ctaSecondary = dynamicData?.cta?.secondary || { label: "Our Story", link: "/about" };
+  
+  const mediaImageUrl = dynamicData?.media?.imageUrl;
+  const mediaVideoUrl = dynamicData?.media?.videoUrl;
+  
+  const activeMediaUrl = mediaImageUrl || mediaVideoUrl || "/assets/main-hero.mp4";
+  
+  // Auto-detect if the URL is an image by checking common extensions
+  const isImage = !!mediaImageUrl || /\.(jpg|jpeg|png|webp|gif|avif)(\?.*)?$/i.test(activeMediaUrl);
+  
+  const mediaLabel = dynamicData?.media?.label || "Sharcly · Premium Hemp Collection";
+  
+  const badges = dynamicData?.badges || [
+    { type: "coa", title: "Lab Verified", description: "COA available for every batch" },
+    { type: "reviews", rating: 4.9, totalReviews: 2400 }
+  ];
+
+  const coaBadge = badges.find((b: any) => b.type === "coa");
+  const reviewsBadge = badges.find((b: any) => b.type === "reviews");
+
+  const [activeSeries, setActiveSeries] = useState(seriesList[0]);
 
   return (
     <section className="relative h-[calc(100vh-40px)] flex flex-col lg:grid lg:grid-cols-2 overflow-hidden bg-[#040e07] selection:bg-[#E8C547] selection:text-[#040e07]">
@@ -79,7 +110,7 @@ export function HeroSection() {
               className="w-1.5 h-1.5 rounded-full bg-[#E8C547] shadow-[0_0_8px_#E8C547]"
             />
             <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E8C547]">
-              21+ · Farm Bill Compliant · Free Shipping $50+
+              {announcementText}
             </span>
           </div>
         </motion.div>
@@ -89,7 +120,7 @@ export function HeroSection() {
           variants={itemVariants}
           className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#eff8ee]/55 mb-4"
         >
-          Premium Hemp-Derived Wellness
+          {kicker}
         </motion.span>
 
         {/* Headline */}
@@ -97,9 +128,9 @@ export function HeroSection() {
           variants={itemVariants}
           className="font-cormorant text-[clamp(38px,4.8vw,64px)] font-black leading-[1] tracking-[-0.025em] text-[#eff8ee] mb-5"
         >
-          Balance is Where <br />
+          {hlLine1} <br />
           <span className="relative inline-block italic text-[#E8C547]">
-            Better Living
+            {hlHighlight}
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: "100%" }}
@@ -108,7 +139,7 @@ export function HeroSection() {
               style={{ background: "linear-gradient(to right, #E8C547, rgba(232,197,71,0))" }}
             />
           </span> <br />
-          Begins.
+          {hlLine2}
         </motion.h1>
 
         {/* Sub-headline */}
@@ -116,24 +147,29 @@ export function HeroSection() {
           variants={itemVariants}
           className="text-[14px] lg:text-[14px] text-[#eff8ee]/60 font-medium leading-[1.6] max-w-[400px] mb-6"
         >
-          Clean, lab-verified hemp-derived products — crafted for people
-          who take their wellness as seriously as their ambitions.
+          {subheadline}
         </motion.p>
 
         {/* CTA Row */}
         <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-8">
           <Button
+            asChild
             className="group h-auto px-8 py-4 rounded-full bg-[#E8C547] text-[#082f1d] hover:bg-[#f0cf55] transition-all duration-300 shadow-[0_8px_28px_rgba(232,197,71,0.28)] hover:-translate-y-0.5 active:scale-95"
           >
-            <span className="text-[12px] font-bold uppercase tracking-[0.08em]">Explore Products</span>
-            <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <a href={ctaPrimary.link}>
+              <span className="text-[12px] font-bold uppercase tracking-[0.08em]">{ctaPrimary.label}</span>
+              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </a>
           </Button>
 
           <Button
+            asChild
             variant="outline"
             className="h-auto px-8 py-4 rounded-full border-[#eff8ee]/18 bg-transparent text-[#eff8ee] hover:bg-[#eff8ee]/05 hover:border-[#eff8ee]/35 transition-all"
           >
-            <span className="text-[12px] font-bold uppercase tracking-[0.08em]">Our Story</span>
+            <a href={ctaSecondary.link}>
+              <span className="text-[12px] font-bold uppercase tracking-[0.08em]">{ctaSecondary.label}</span>
+            </a>
           </Button>
         </motion.div>
 
@@ -167,18 +203,26 @@ export function HeroSection() {
             className="relative w-full h-full rounded-[28px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6),0_0_0_1px_rgba(232,197,71,0.1),inset_0_0_40px_rgba(0,0,0,0.4)] bg-black isolate"
             style={{ maskImage: "linear-gradient(white, white)" }}
           >
-            {/* Video Background */}
+            {/* Media Background */}
             <div className="relative w-full h-full">
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="auto"
-                className="w-full h-full object-cover saturate-[1.15] brightness-[0.92] transition-opacity duration-1000"
-              >
-                <source src="/assets/main-hero.mp4" type="video/mp4" />
-              </video>
+              {isImage ? (
+                <img
+                  src={activeMediaUrl}
+                  alt={mediaLabel}
+                  className="w-full h-full object-cover saturate-[1.15] brightness-[0.92] transition-opacity duration-1000"
+                />
+              ) : (
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                  className="w-full h-full object-cover saturate-[1.15] brightness-[0.92] transition-opacity duration-1000"
+                >
+                  <source src={activeMediaUrl} type="video/mp4" />
+                </video>
+              )}
 
               {/* Overlays for smoother integration */}
               <div className="absolute inset-0 shadow-[inset_0_0_60px_rgba(0,0,0,0.5)] pointer-events-none" />
@@ -194,8 +238,8 @@ export function HeroSection() {
 
             {/* Bottom Label Overlay */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#eff8ee]/40">
-                Sharcly · Premium Hemp Collection
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#eff8ee]/40 whitespace-nowrap">
+                {mediaLabel}
               </span>
             </div>
           </motion.div>
@@ -234,7 +278,7 @@ export function HeroSection() {
 
           {/* Series Pills */}
           <div className="hidden lg:flex absolute -right-20 top-1/2 -translate-y-1/2 flex-col gap-2 z-20">
-            {SERIES.map((series, idx) => (
+            {seriesList.map((series: string, idx: number) => (
               <motion.button
                 key={series}
                 initial={{ opacity: 0, x: 20 }}
@@ -271,7 +315,7 @@ export function HeroSection() {
           {/* Double items for seamless loop */}
           {[...Array(2)].map((_, idx) => (
             <div key={idx} className="flex">
-              {MARQUEE_ITEMS.map((item, i) => (
+              {marqueeItems.map((item: string, i: number) => (
                 <div key={i} className="flex items-center px-12 gap-4">
                   <span className="text-[8px] text-[#E8C547]/45">✦</span>
                   <span className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[#eff8ee]/35">

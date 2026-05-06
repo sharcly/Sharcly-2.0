@@ -3,9 +3,8 @@
 import { motion } from "framer-motion";
 import { Calendar, ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface BlogCardProps {
   blog: {
@@ -22,6 +21,8 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ blog, viewMode }: BlogCardProps) {
+  const date = new Date(blog.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const fallbackImg = "https://images.unsplash.com/photo-1544022613-e87ce71c8e4d?auto=format&fit=crop&q=80";
   const isGrid = viewMode === "grid";
 
   return (

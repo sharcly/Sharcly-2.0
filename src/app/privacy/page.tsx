@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { apiClient } from "@/lib/api-client";
 import { motion } from "framer-motion";
 import { Shield, Lock, Eye, Sparkles } from "lucide-react";
+import Script from "next/script";
 
 export default function PrivacyPage() {
   const [content, setContent] = useState<any>({
@@ -30,6 +31,7 @@ export default function PrivacyPage() {
   }, []);
 
   return (
+    <>
     <div className="min-h-screen bg-[#040e07] text-[#eff8ee] selection:bg-[#eff8ee] selection:text-[#040e07] antialiased">
       <Navbar />
       
@@ -110,8 +112,17 @@ export default function PrivacyPage() {
 
                  {/* Main Body */}
                  <div className="lg:col-span-8">
-                    <div className="prose prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-headings:uppercase prose-p:text-emerald-100/70 prose-p:leading-relaxed prose-p:text-lg prose-p:font-medium whitespace-pre-wrap">
-                       {content.legal?.body}
+                    <div className="bg-white border border-primary/5 rounded-[3rem] p-8 md:p-16 min-h-[600px] privacy-embed-container">
+                      <p className="text-center text-primary/40 font-bold mb-10">Managed via Termly Main Account</p>
+                      <div 
+                        data-name="termly-embed" 
+                        data-id="4646b218-ff12-44d4-b4cc-1c2d8d805ccf" 
+                        data-type="iframe"
+                      ></div>
+                      <Script
+                        src="https://app.termly.io/embed-policy.min.js"
+                        strategy="afterInteractive"
+                      />
                     </div>
                  </div>
               </div>
@@ -121,5 +132,16 @@ export default function PrivacyPage() {
 
       <Footer />
     </div>
+
+    {/* Override Termly iframe styles to match dark theme */}
+    <style dangerouslySetInnerHTML={{ __html: `
+      .privacy-embed-container iframe {
+        border: none !important;
+        border-radius: 12px !important;
+        min-height: 600px !important;
+        filter: invert(0.88) hue-rotate(180deg) !important;
+      }
+    ` }} />
+    </>
   );
 }
