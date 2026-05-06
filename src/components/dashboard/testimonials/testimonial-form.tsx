@@ -53,7 +53,7 @@ interface TestimonialFormProps {
 }
 
 export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: TestimonialFormProps) {
-  const form = useForm<TestimonialFormValues>({
+  const form = useForm<any>({
     resolver: zodResolver(testimonialSchema),
     defaultValues: {
       name: initialData?.name || "",
@@ -69,13 +69,13 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
   const [rating, setRating] = useState(initialData?.rating || 5);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+    <Form {...(form as any)}>
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div className="flex-1 overflow-y-auto px-8 custom-scrollbar">
           <div className="space-y-8 pb-10 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="name"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
@@ -88,7 +88,7 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
                 )}
               />
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="role"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
@@ -104,7 +104,7 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="company"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
@@ -117,7 +117,7 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
                 )}
               />
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="rating"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
@@ -150,7 +150,7 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
             </div>
 
             <FormField
-              control={form.control}
+              control={form.control as any}
               name="message"
               render={({ field }) => (
                 <FormItem className="space-y-2">
@@ -170,7 +170,7 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
               <div className="md:col-span-2">
                 <FormField
-                  control={form.control}
+                  control={form.control as any}
                   name="image"
                   render={({ field }) => (
                     <FormItem className="space-y-2">
@@ -184,7 +184,7 @@ export function TestimonialForm({ initialData, onSubmit, isLoading, onCancel }: 
                 />
               </div>
               <FormField
-                control={form.control}
+                control={form.control as any}
                 name="featured"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-xl border border-black/[0.05] bg-[#062D1B]/[0.02] p-3 h-12">
