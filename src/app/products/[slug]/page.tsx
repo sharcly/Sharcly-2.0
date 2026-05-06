@@ -80,11 +80,22 @@ export default function ProductDetailsPage() {
   if (!product) return null;
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "http://localhost:8181";
-  const productImages = product.imageUrls?.length > 0 
+  
+  // Base gallery images
+  const baseImages = product.imageUrls?.length > 0 
     ? product.imageUrls.map((url: string) => url.startsWith('/api') ? `${baseUrl}${url}` : url) 
     : (product.images?.length > 0 
         ? product.images.map((img: any) => img.url || img) 
         : [product.image_url || "https://i.postimg.cc/T3qHks4z/Sharcly-Chill-Collection.jpg"]);
+
+  // Collect unique images from variants
+  const variantImages = (product.variants || [])
+    .map((v: any) => v.image)
+    .filter((img: any) => img)
+    .map((img: string) => img.startsWith('/api') ? `${baseUrl}${img}` : (img.startsWith('http') ? img : `${baseUrl}/api/images/${img}`));
+
+  // Final image list (unique)
+  const productImages = Array.from(new Set([...baseImages, ...variantImages]));
 
   const displayPrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
   const isOutOfStock = (selectedVariant ? selectedVariant.inventoryQuantity : product.stock) === 0;
@@ -206,7 +217,14 @@ export default function ProductDetailsPage() {
                   <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(239,248,238,0.7)' }}>Configuration</span>
                   <div className="grid grid-cols-2 gap-2">
                     {product.variants.map((v: any) => (
-                      <button key={v.id} onClick={() => setSelectedVariant(v)}
+                      <button key={v.id} onClick={() => {
+                        setSelectedVariant(v);
+                        if (v.image) {
+                          const variantUrl = v.image.startsWith('/api') ? `${baseUrl}${v.image}` : (v.image.startsWith('http') ? v.image : `${baseUrl}/api/images/${v.image}`);
+                          const idx = productImages.indexOf(variantUrl);
+                          if (idx !== -1) setActiveImage(idx);
+                        }
+                      }}
                         className={cn("relative p-3.5 rounded-xl text-left transition-all duration-300",
                           selectedVariant?.id === v.id ? "shadow-lg" : ""
                         )}
