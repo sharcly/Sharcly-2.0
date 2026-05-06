@@ -115,10 +115,8 @@ export default function ProductDrawer({
       stock: "0",
       description: "",
       categoryId: "",
-      typeId: "",
-      tags: [],
-      collections: [],
       status: "Published",
+      featured: false,
       thumbnail: null,
       galleryFiles: [],
       variants: [
@@ -147,6 +145,9 @@ export default function ProductDrawer({
    useEffect(() => {
       if (isOpen) {
          if (initialData) {
+            const thumbnailImg = initialData.images?.find((img: any) => img.isThumbnail);
+            const galleryImgs = initialData.images?.filter((img: any) => !img.isThumbnail && img.order !== 999);
+            
             setForm({
                ...initialData,
                name: initialData.name || "",
@@ -154,10 +155,10 @@ export default function ProductDrawer({
                price: initialData.price || "",
                stock: initialData.stock || "0",
                categoryId: initialData.categoryId || "",
-               typeId: initialData.typeId || "",
-               tags: Array.isArray(initialData.tags) ? initialData.tags.map((t: any) => typeof t === 'string' ? t : t.id) : [],
-               collections: Array.isArray(initialData.collections) ? initialData.collections.map((c: any) => typeof c === 'string' ? c : c.id) : [],
                subtitle: initialData.subtitle || "",
+               featured: initialData.featured || false,
+               thumbnail: thumbnailImg ? thumbnailImg.id : null,
+               galleryFiles: galleryImgs ? galleryImgs.map((img: any) => img.id) : [],
                isAuthenticated: initialData.isAuthenticated !== undefined ? initialData.isAuthenticated : true,
                variants: initialData.variants?.length > 0 ? initialData.variants : [],
                contentSections: initialData.contentSections || [],
@@ -178,10 +179,8 @@ export default function ProductDrawer({
                stock: "0",
                description: "",
                categoryId: "",
-               typeId: "",
-               tags: [],
-               collections: [],
                status: "Published",
+               featured: false,
                thumbnail: null,
                galleryFiles: [],
                variants: [
@@ -281,21 +280,33 @@ export default function ProductDrawer({
                                  <input type="number" value={form.stock} onChange={e => updateForm({ stock: e.target.value })} placeholder="0" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
                               </Field>
                            </div>
-                           <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                              <ShieldCheck className="h-5 w-5 text-emerald-600" />
-                              <span className="text-xs font-bold text-emerald-800 uppercase tracking-widest">Mark as Authenticated</span>
-                              <button
-                                 onClick={() => updateForm({ isAuthenticated: !form.isAuthenticated })}
-                                 className={cn("ml-auto size-10 rounded-lg flex items-center justify-center transition-all", form.isAuthenticated ? "bg-emerald-600 text-white" : "bg-neutral-200 text-neutral-400")}
-                              >
-                                 {form.isAuthenticated ? <Check size={16} /> : <X size={16} />}
-                              </button>
+                           <div className="flex flex-col gap-4">
+                              <div className="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                                 <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                                 <span className="text-xs font-bold text-emerald-800 uppercase tracking-widest">Mark as Authenticated</span>
+                                 <button
+                                    onClick={() => updateForm({ isAuthenticated: !form.isAuthenticated })}
+                                    className={cn("ml-auto size-10 rounded-lg flex items-center justify-center transition-all", form.isAuthenticated ? "bg-emerald-600 text-white" : "bg-neutral-200 text-neutral-400")}
+                                 >
+                                    {form.isAuthenticated ? <Check size={16} /> : <X size={16} />}
+                                 </button>
+                              </div>
+                              <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+                                 <Star className="h-5 w-5 text-amber-600" />
+                                 <span className="text-xs font-bold text-amber-800 uppercase tracking-widest">Featured Product</span>
+                                 <button
+                                    onClick={() => updateForm({ featured: !form.featured })}
+                                    className={cn("ml-auto size-10 rounded-lg flex items-center justify-center transition-all", form.featured ? "bg-amber-600 text-white" : "bg-neutral-200 text-neutral-400")}
+                                 >
+                                    {form.featured ? <Check size={16} /> : <X size={16} />}
+                                 </button>
+                              </div>
                            </div>
                         </div>
                      </FormSection>
 
                      <FormSection title="Organization" id="organization">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                            <Field label="Category" required hint="Select at least one category for your product.">
                               <div className="flex gap-2">
                                  <select
@@ -307,62 +318,6 @@ export default function ProductDrawer({
                                     {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
                                  </select>
                                  <button onClick={() => setIsCreatingCategory(true)} className="size-12 bg-neutral-100 rounded-xl flex items-center justify-center text-neutral-400 hover:text-emerald-500 transition-colors"><Plus size={16} /></button>
-                              </div>
-                           </Field>
-                           <Field label="Product Type">
-                              <select
-                                 value={form.typeId}
-                                 onChange={e => updateForm({ typeId: e.target.value })}
-                                 className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold appearance-none text-sm"
-                              >
-                                 <option value="">Select Type...</option>
-                                 {types.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                              </select>
-                           </Field>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                           <Field label="Collections">
-                              <div className="flex flex-wrap gap-2 p-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                                 {collections.map((col: any) => (
-                                    <button
-                                       key={col.id}
-                                       onClick={() => {
-                                          const newCols = form.collections.includes(col.id)
-                                             ? form.collections.filter((id: string) => id !== col.id)
-                                             : [...form.collections, col.id];
-                                          updateForm({ collections: newCols });
-                                       }}
-                                       className={cn(
-                                          "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                                          form.collections.includes(col.id) ? "bg-emerald-600 text-white shadow-md" : "bg-white text-neutral-400 border border-neutral-100 hover:text-neutral-900"
-                                       )}
-                                    >
-                                       {col.name}
-                                    </button>
-                                 ))}
-                                 {collections.length === 0 && <span className="text-[10px] font-bold text-neutral-300 italic">No collections available</span>}
-                              </div>
-                           </Field>
-                           <Field label="Tags">
-                              <div className="flex flex-wrap gap-2 p-4 bg-neutral-50 rounded-xl border border-neutral-100">
-                                 {tags.map((tag: any) => (
-                                    <button
-                                       key={tag.id}
-                                       onClick={() => {
-                                          const newTags = form.tags.includes(tag.id)
-                                             ? form.tags.filter((id: string) => id !== tag.id)
-                                             : [...form.tags, tag.id];
-                                          updateForm({ tags: newTags });
-                                       }}
-                                       className={cn(
-                                          "px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                                          form.tags.includes(tag.id) ? "bg-indigo-600 text-white shadow-md" : "bg-white text-neutral-400 border border-neutral-100 hover:text-neutral-900"
-                                       )}
-                                    >
-                                       {tag.name}
-                                    </button>
-                                 ))}
-                                 {tags.length === 0 && <span className="text-[10px] font-bold text-neutral-300 italic">No tags available</span>}
                               </div>
                            </Field>
                         </div>
