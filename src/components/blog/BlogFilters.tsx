@@ -46,17 +46,8 @@ export function BlogFilters({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search articles..."
-            className="w-full h-13 pl-13 pr-12 rounded-xl text-sm font-medium outline-none transition-all border"
-            style={{ 
-              backgroundColor: 'rgba(239,248,238,0.04)', 
-              borderColor: 'rgba(239,248,238,0.08)', 
-              color: '#eff8ee',
-              height: '52px',
-              paddingLeft: '48px'
-            }}
-            onFocus={(e) => { e.target.style.borderColor = 'rgba(232,197,71,0.3)'; e.target.style.backgroundColor = 'rgba(239,248,238,0.06)'; }}
-            onBlur={(e) => { e.target.style.borderColor = 'rgba(239,248,238,0.08)'; e.target.style.backgroundColor = 'rgba(239,248,238,0.04)'; }}
+            placeholder="Search our botanical archive..."
+            className="h-14 pl-14 pr-6 rounded-full border-[#0d2719]/5 bg-white shadow-sm focus:ring-8 focus:ring-[#0d2719]/5 text-sm font-medium transition-all"
           />
           {search && (
             <button
@@ -104,14 +95,28 @@ export function BlogFilters({
       </div>
 
       {/* Categories */}
-      {categories.length > 0 && (
-        <div className="space-y-3">
-          <p className="text-[9px] font-black uppercase tracking-[0.3em]" style={{ color: 'rgba(239,248,238,0.3)' }}>Categories</p>
-          <div className="flex flex-wrap gap-2">
+      <div className="space-y-4">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0d2719]/30 ml-2">Browse by Category</p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setSelectedCategory("")}
+            className={cn(
+              "px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 border",
+              selectedCategory === ""
+                ? "bg-[#0d2719] text-white border-transparent shadow-lg"
+                : "bg-white text-[#0d2719] border-[#0d2719]/5 hover:border-[#0d2719]/20"
+            )}
+          >
+            All Narratives
+          </button>
+          {categories.map((cat) => (
             <button
               onClick={() => setSelectedCategory("")}
               className={cn(
-                "px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-300"
+                "px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 border",
+                selectedCategory === cat
+                  ? "bg-[#0d2719] text-white border-transparent shadow-lg"
+                  : "bg-white text-[#0d2719] border-[#0d2719]/5 hover:border-[#0d2719]/20"
               )}
               style={selectedCategory === "" 
                 ? { backgroundColor: '#E8C547', color: '#040e07' } 

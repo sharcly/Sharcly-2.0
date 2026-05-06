@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Mail, Instagram, Twitter, Facebook, ArrowRight, Globe, Sparkles } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useRef } from "react";
+import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 
 const footerLinks = [
   {
@@ -53,7 +55,28 @@ const socialLinks = [
 export function Footer() {
   const currentYear = new Date().getFullYear();
   const [isFocused, setIsFocused] = useState(false);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const containerRef = useRef(null);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await apiClient.post("/marketing/subscribe", { email });
+      toast.success(response.data.message || "Thank you for subscribing!");
+      setEmail("");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to subscribe. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <footer 
@@ -90,21 +113,31 @@ export function Footer() {
               </div>
               
               <div className="relative">
-                <div className={`flex flex-col sm:flex-row gap-4 p-1.5 rounded-2xl transition-all duration-500 ${isFocused ? "bg-white/10 shadow-[0_0_30px_rgba(34,197,94,0.2)]" : "bg-white/5"}`}>
+                <form 
+                  onSubmit={handleSubscribe}
+                  className={`flex flex-col sm:flex-row gap-4 p-1.5 rounded-2xl transition-all duration-500 ${isFocused ? "bg-white/10 shadow-[0_0_30px_rgba(34,197,94,0.2)]" : "bg-white/5"}`}
+                >
                   <input 
                     type="email" 
                     placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     className="flex-1 bg-transparent border-none outline-none px-6 py-4 text-white placeholder:text-zinc-500 text-sm md:text-base font-medium"
+                    required
                   />
-                  <button className="group/btn relative px-8 py-4 bg-green-500 hover:bg-green-400 text-black font-bold rounded-xl transition-all duration-300 overflow-hidden active:scale-95 whitespace-nowrap">
+                  <button 
+                    type="submit"
+                    disabled={loading}
+                    className="group/btn relative px-8 py-4 bg-green-500 hover:bg-green-400 text-black font-bold rounded-xl transition-all duration-300 overflow-hidden active:scale-95 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     <span className="relative z-10 flex items-center gap-2">
-                      Subscribe Now <ArrowRight className="size-4 group-hover/btn:translate-x-1 transition-transform" />
+                      {loading ? "Subscribing..." : "Subscribe Now"} <ArrowRight className="size-4 group-hover/btn:translate-x-1 transition-transform" />
                     </span>
                     <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
                   </button>
-                </div>
+                </form>
                 <p className="mt-4 text-[11px] text-zinc-500 uppercase tracking-[0.2em] font-medium text-center sm:text-left px-2">
                   No spam. Just performance. Unsubscribe anytime.
                 </p>

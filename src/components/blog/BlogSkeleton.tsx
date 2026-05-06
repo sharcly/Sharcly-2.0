@@ -15,8 +15,8 @@ export function BlogSkeleton({ viewMode }: BlogSkeletonProps) {
         <div
           key={i}
           className={cn(
-            "rounded-[20px] overflow-hidden animate-pulse",
-            !isGrid && "flex flex-col md:flex-row"
+            "bg-white/5 rounded-[2.5rem] border border-white/5 p-6 space-y-6",
+            !isGrid && "col-span-full flex flex-col md:flex-row gap-8"
           )}
           style={{ backgroundColor: 'rgba(239,248,238,0.03)', border: '1px solid rgba(239,248,238,0.06)' }}
         >
