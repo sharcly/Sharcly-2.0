@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
+import { AnnouncementBar } from "@/components/announcement-bar";
 import { Footer } from "@/components/footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowLeft, 
-  Calendar, 
-  User, 
-  Clock, 
-  Share2, 
+import {
+  ArrowLeft,
+  Calendar,
+  User,
+  Clock,
+  Share2,
   BookOpen,
   Sparkles,
   ShoppingBag,
@@ -30,7 +31,9 @@ export default function BlogDetailPage() {
   const router = useRouter();
   const [blog, setBlog] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
+  const [products, setProducts] = useState<any[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
+
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -43,6 +46,20 @@ export default function BlogDetailPage() {
       try {
         const response = await apiClient.get(`/blogs/${slug}`);
         setBlog(response.data.blog);
+        
+        // Fetch related posts
+        const relatedRes = await apiClient.get(`/blogs`, {
+          params: { 
+            category: response.data.blog.category,
+            status: "PUBLISHED",
+            limit: 5 
+          }
+        });
+        setRelatedPosts(relatedRes.data.blogs.filter((p: any) => p.id !== response.data.blog.id).slice(0, 3));
+
+        // Fetch products
+        const productsRes = await apiClient.get(`/products`, { params: { limit: 2 } });
+        setProducts(productsRes.data.products || []);
       } catch (error) {
         console.error("Narrative not found in registry");
       } finally {
@@ -79,226 +96,238 @@ export default function BlogDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f9f0] text-[#0d2719] selection:bg-[#0d2719] selection:text-white">
-      <Navbar />
-      
-      {/* Reading Progress Bar */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-1.5 bg-[#0d2719] z-[100] origin-left" 
-        style={{ scaleX }} 
+    <div className="min-h-screen bg-[#040e07] text-[#eff8ee] selection:bg-[#E8C547] selection:text-[#040e07] relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#040e07] via-[#082f1d] to-[#040e07] pointer-events-none" />
+      <div 
+        className="absolute inset-0 opacity-[0.1] pointer-events-none"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }}
+      />
+      <div 
+        className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-radial-gradient from-[rgba(232,197,71,0.05)] to-transparent opacity-50 pointer-events-none -translate-y-1/2 translate-x-1/4"
+        style={{
+          background: "radial-gradient(circle, rgba(232,197,71,0.08) 0%, transparent 70%)"
+        }}
       />
 
-      <main>
-        {/* Hero Section */}
-        <section className="pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-hidden">
-          <div className="container mx-auto px-6">
-            <div className="max-w-5xl">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-6 mb-12"
-              >
-                <button 
-                  onClick={() => router.back()} 
-                  className="group flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-[#0d2719]/40 hover:text-[#0d2719] transition-colors"
-                >
-                  <div className="size-10 rounded-full border border-[#0d2719]/10 flex items-center justify-center group-hover:bg-[#0d2719] group-hover:text-white transition-all">
-                    <ArrowLeft className="size-4" />
-                  </div>
-                  Back to Registry
-                </button>
-                <div className="h-px w-12 bg-[#0d2719]/10" />
-                <Badge className="bg-[#0d2719]/5 text-[#0d2719] border-none font-black text-[10px] uppercase tracking-[0.2em] px-6 py-2.5 rounded-full flex items-center gap-2">
-                  <Sparkles className="size-3" /> Botanical Piece
-                </Badge>
-              </motion.div>
+      <div className="relative z-10">
+        <AnnouncementBar />
+        <Navbar />
 
-              <motion.h1 
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-6xl lg:text-[7rem] font-black tracking-tighter leading-[0.9] mb-16 italic font-serif"
-              >
-                {blog.title}
-              </motion.h1>
+      {/* Reading Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1.5 bg-[#0d2719] z-[100] origin-left"
+        style={{ scaleX }}
+      />
 
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="flex flex-wrap items-center gap-12 py-10 border-y border-[#0d2719]/10"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-white flex items-center justify-center shadow-sm"><User className="size-5 opacity-40" /></div>
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-30">Authored By</p>
-                    <p className="text-sm font-bold">{blog.author?.name || "Sharcly Botanical"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-white flex items-center justify-center shadow-sm"><Calendar className="size-5 opacity-40" /></div>
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-30">Log Date</p>
-                    <p className="text-sm font-bold">{new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-full bg-white flex items-center justify-center shadow-sm"><Clock className="size-5 opacity-40" /></div>
-                  <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.3em] opacity-30">Read Time</p>
-                    <p className="text-sm font-bold">5 Min Sequence</p>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
+      <main className="pt-32 pb-24">
 
-        {/* Featured Image */}
+        {/* Featured Image Section (Optional/Top-level) */}
         {blog.featuredImage && (
-          <motion.section 
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="px-6 lg:container lg:mx-auto"
-          >
+          <section className="px-6 lg:container lg:mx-auto mb-16">
             <div className="relative aspect-[21/9] rounded-[4rem] overflow-hidden shadow-2xl border border-[#0d2719]/5">
-              <img 
-                src={blog.featuredImage} 
-                alt={blog.title} 
-                className="absolute inset-0 w-full h-full object-cover" 
+              <img
+                src={blog.featuredImage}
+                alt={blog.title}
+                className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0d2719]/20" />
             </div>
-          </motion.section>
+          </section>
         )}
 
-        {/* Content Section */}
-        <section className="py-32 lg:py-48">
+        {/* 2-Column Layout: Article + Sidebar */}
+        <section>
           <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto">
-              {/* Excerpt/Intro */}
-              {blog.excerpt && (
-                <div className="mb-24 relative">
-                  <div className="absolute -left-10 top-0 text-[120px] font-serif italic text-[#0d2719]/5 leading-none">"</div>
-                  <p className="text-3xl lg:text-4xl font-bold italic font-serif leading-tight text-[#0d2719]/70 relative z-10">
-                    {blog.excerpt}
-                  </p>
-                  <div className="h-px w-32 bg-[#0d2719] mt-16" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+              {/* Left Column (col-8): Header, Paragraphs */}
+              <div className="lg:col-span-8 space-y-12">
+                {/* Article Header */}
+                <div className="space-y-6">
+                  <button
+                    onClick={() => router.back()}
+                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#eff8ee]/40 hover:text-[#E8C547] transition-colors"
+                  >
+                    <ArrowLeft className="size-3" /> Back to Registry
+                  </button>
+                  <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-white leading-[0.9]">
+                    {blog.title}
+                  </h1>
+                  <div className="flex items-center gap-3 text-xs font-medium text-[#eff8ee]/40">
+                    <span className="text-[#E8C547] font-bold">{blog.author?.name || "Dr. Rachel Kim"}</span>
+                    <span>|</span>
+                    <span>{new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  </div>
                 </div>
-              )}
+                {/* Excerpt/Intro */}
+                {blog.excerpt && (
+                  <div className="mb-10 relative">
+                    <div className="absolute -left-10 top-0 text-[100px] font-serif italic text-white/5 leading-none">"</div>
+                    <p className="text-2xl lg:text-3xl font-bold italic font-serif leading-tight text-[#eff8ee]/70 relative z-10">
+                      {blog.excerpt}
+                    </p>
+                    <div className="h-px w-20 bg-[#E8C547] mt-6" />
+                  </div>
+                )}
 
-              {/* Main Content */}
-              <div 
-                className="prose prose-xl prose-sharcly max-w-none 
-                prose-headings:font-serif prose-headings:italic prose-headings:tracking-tighter prose-headings:text-[#0d2719]
-                prose-p:text-xl prose-p:leading-[1.8] prose-p:font-medium prose-p:text-[#0d2719]/80
-                prose-strong:text-[#0d2719] prose-strong:font-black
-                prose-blockquote:border-l-4 prose-blockquote:border-[#0d2719] prose-blockquote:pl-10 prose-blockquote:italic
-                prose-img:rounded-[3rem] prose-img:shadow-2xl"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(blog.content) }}
-              />
+                {/* Main Content */}
+                <div
+                  className="prose prose-lg prose-sharcly max-w-none 
+                  prose-headings:font-serif prose-headings:italic prose-headings:tracking-tighter prose-headings:text-white
+                  prose-p:text-lg prose-p:leading-relaxed prose-p:font-medium prose-p:text-[#eff8ee]/70
+                  prose-strong:text-white prose-strong:font-black
+                  prose-blockquote:border-l-4 prose-blockquote:border-[#E8C547] prose-blockquote:pl-10 prose-blockquote:italic
+                  prose-img:rounded-[3rem] prose-img:shadow-2xl"
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(blog.content) }}
+                />
 
-              {/* Tags & Social Share */}
-              <div className="mt-32 pt-20 border-t border-[#0d2719]/10 flex flex-col md:flex-row items-center justify-between gap-12">
-                <div className="flex flex-wrap gap-3">
-                  {blog.tags?.map((tag: string) => (
-                    <Badge key={tag} variant="outline" className="px-6 py-2.5 rounded-full border-[#0d2719]/10 text-[10px] font-black uppercase tracking-widest text-[#0d2719]/50 hover:text-[#0d2719] hover:border-[#0d2719]/30 transition-all cursor-pointer">
-                      #{tag}
-                    </Badge>
-                  ))}
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Share Narrative</span>
-                  <Button variant="outline" className="rounded-full size-14 p-0 border-[#0d2719]/10 hover:bg-[#0d2719] hover:text-white transition-all shadow-sm">
-                    <Share2 className="size-5" />
-                  </Button>
+                {/* Tags & Social Share */}
+                <div className="mt-20 pt-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8">
+                  <div className="flex flex-wrap gap-3">
+                    {blog.tags?.map((tag: string) => (
+                      <Badge key={tag} variant="outline" className="px-6 py-2.5 rounded-full border-white/10 text-[10px] font-black uppercase tracking-widest text-[#eff8ee]/40 hover:text-[#E8C547] hover:border-[#E8C547]/30 transition-all cursor-pointer">
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-20">Share Narrative</span>
+                    <Button variant="outline" className="rounded-full size-14 p-0 border-white/10 hover:bg-white/5 hover:text-[#E8C547] transition-all shadow-sm">
+                      <Share2 className="size-5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
 
-              {/* CTA Section */}
-              <div className="mt-32 p-12 lg:p-20 rounded-[4rem] bg-white border border-[#0d2719]/5 shadow-xl flex flex-col lg:flex-row items-center gap-12 justify-between">
-                <div className="space-y-6 text-center lg:text-left">
-                  <h3 className="text-4xl font-bold tracking-tight">Experience the Synthesis.</h3>
-                  <p className="text-[#0d2719]/50 font-medium max-w-md">Discover the botanical products featured in this exploration.</p>
+              {/* Right Column: Sidebar */}
+              <aside className="lg:col-span-4 space-y-16">
+                {/* Recommended Reading */}
+                <div className="space-y-8">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-bold tracking-tight text-white">Recommended Reading</h3>
+                    <div className="h-0.5 w-12 bg-[#E8C547]" />
+                  </div>
+                  <div className="space-y-8">
+                    {relatedPosts.map((post) => (
+                      <Link key={post.id} href={`/blogs/${post.slug}`} className="block group space-y-2">
+                        <h4 className="text-lg font-bold text-[#eff8ee] group-hover:text-[#E8C547] transition-colors leading-tight">
+                          {post.title}
+                        </h4>
+                        <p className="text-[11px] font-medium text-[#eff8ee]/30 uppercase tracking-widest">
+                          {new Date(post.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} • 5 min read
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                  <Button asChild className="rounded-full h-16 px-10 bg-[#0d2719] text-white shadow-2xl font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-transform gap-3">
-                    <Link href="/products"><ShoppingBag className="size-4" /> Explore Products</Link>
-                  </Button>
-                  <Button asChild variant="outline" className="rounded-full h-16 px-10 border-[#0d2719]/10 font-black uppercase tracking-widest text-[10px] hover:bg-[#0d2719]/5 transition-all">
-                    <Link href="/blogs">Back to Registry</Link>
+
+                {/* Popular Products */}
+                <div className="space-y-8 pt-16 border-t border-white/5">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-bold tracking-tight text-white">Popular Products</h3>
+                    <div className="h-0.5 w-12 bg-[#E8C547]" />
+                  </div>
+                  <div className="space-y-8">
+                    {products.map((product) => (
+                      <Link key={product.id} href={`/products/${product.slug}`} className="flex items-center gap-6 group">
+                        <div className="size-24 rounded-2xl bg-white/5 border border-white/5 p-2 flex-shrink-0 group-hover:scale-105 transition-transform overflow-hidden">
+                          <img 
+                            src={product.images?.[0]?.url || "https://images.unsplash.com/photo-1512069772995-ec65ed45afd6?auto=format&fit=crop&q=80"} 
+                            alt={product.name} 
+                            className="w-full h-full object-contain" 
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-bold text-[#eff8ee] leading-tight line-clamp-2">
+                            {product.name}
+                          </h4>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#E8C547] opacity-60 group-hover:opacity-100 transition-opacity">
+                            Experience &raquo;
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Small CTA Card */}
+                <div className="bg-white/5 rounded-[2.5rem] p-10 text-white space-y-6 border border-white/5 backdrop-blur-xl">
+                  <div className="size-12 rounded-xl bg-[#E8C547] flex items-center justify-center text-[#040e07]">
+                    <ShoppingBag className="size-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold">The Botanical Collection</h3>
+                    <p className="text-white/40 text-sm font-medium leading-relaxed">
+                      Explore our full range of state-based formulas and botanical syntheses.
+                    </p>
+                  </div>
+                  <Button asChild className="w-full h-14 bg-[#E8C547] text-[#040e07] font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-[#E8C547]/90 shadow-xl transition-all">
+                    <Link href="/products">Shop All Products</Link>
                   </Button>
                 </div>
-              </div>
+              </aside>
             </div>
           </div>
         </section>
 
-        {/* Related Posts Section (LIST VIEW as requested) */}
-        <section className="py-32 bg-[#f9fff9] border-t border-[#0d2719]/5">
+        {/* Related Posts Section */}
+        <section className="py-32 border-t border-white/5">
           <div className="container mx-auto px-6">
-            <RelatedPosts 
-              currentBlogId={blog.id} 
-              category={blog.category} 
-              tags={blog.tags} 
+            <RelatedPosts
+              currentBlogId={blog.id}
+              category={blog.category}
+              tags={blog.tags}
             />
           </div>
         </section>
 
-        {/* Newsletter Section */}
-        <section className="py-40 bg-[#0d2719] text-white relative overflow-hidden">
-          <div className="container mx-auto px-6 relative z-10 text-center space-y-16">
-            <BookOpen className="size-20 mx-auto opacity-10 mb-8" />
-            <div className="space-y-6">
-              <p className="text-[10px] font-black uppercase tracking-[0.5em] opacity-30">Immediate Transmission</p>
-              <h2 className="text-6xl lg:text-8xl font-black tracking-tighter italic font-serif leading-[0.8]">
-                Stay in the <br /> <span className="not-italic">Knowledge.</span>
-              </h2>
-            </div>
-            <div className="max-w-2xl mx-auto relative group">
-              <input
-                type="email"
-                placeholder="Botanical Identity (Email)"
-                className="w-full h-24 bg-white/5 border border-white/10 rounded-[2.5rem] px-10 font-bold text-lg text-white outline-none focus:ring-8 focus:ring-white/[0.02] transition-all placeholder:text-white/10"
-              />
-              <Button className="absolute right-4 top-4 h-16 px-12 bg-white text-[#0d2719] font-black uppercase tracking-widest text-[10px] rounded-[1.8rem] hover:bg-white/90 shadow-2xl">
-                Join Archive
-              </Button>
-            </div>
-          </div>
-        </section>
+
       </main>
 
       <Footer />
 
-      <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
+      <style dangerouslySetInnerHTML={{
+        __html: sanitizeHtml(`
         .prose-sharcly h2 {
-          font-size: 3rem;
-          line-height: 1;
-          margin-top: 6rem;
-          margin-bottom: 3rem;
+          font-size: 2.5rem;
+          line-height: 1.1;
+          margin-top: 3.5rem;
+          margin-bottom: 1.5rem;
         }
         .prose-sharcly h3 {
-          font-size: 2.25rem;
-          line-height: 1.1;
-          margin-top: 4rem;
-          margin-bottom: 2rem;
+          font-size: 1.75rem;
+          line-height: 1.2;
+          margin-top: 2.5rem;
+          margin-bottom: 1rem;
         }
         .prose-sharcly p {
-          margin-bottom: 2.5rem;
+          margin-bottom: 1.5rem;
         }
         .prose-sharcly ul, .prose-sharcly ol {
-          margin-bottom: 3rem;
-          padding-left: 2rem;
+          margin-bottom: 2rem;
+          padding-left: 1.5rem;
         }
         .prose-sharcly li {
-          margin-bottom: 1rem;
-          font-size: 1.25rem;
+          margin-bottom: 0.75rem;
+          font-size: 1.125rem;
           font-weight: 500;
-          color: rgba(13, 39, 25, 0.7);
+          color: rgba(239, 248, 238, 0.6);
         }
-      `)}} />
+        .prose-sharcly img {
+          border-radius: 3rem;
+          margin: 4rem auto;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          max-height: 70vh;
+          width: auto;
+          display: block;
+        }
+      `)
+      }} />
+      </div>
     </div>
   );
 }

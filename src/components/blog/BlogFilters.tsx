@@ -41,7 +41,7 @@ export function BlogFilters({
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       {/* Search and View Toggle */}
       <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
         <div className="relative w-full lg:max-w-2xl group">
@@ -50,7 +50,7 @@ export function BlogFilters({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search our botanical archive..."
-            className="h-16 pl-14 pr-6 rounded-full border-[#0d2719]/5 bg-white shadow-sm focus:ring-8 focus:ring-[#0d2719]/5 text-sm font-medium transition-all"
+            className="h-14 pl-14 pr-6 rounded-full border-[#0d2719]/5 bg-white shadow-sm focus:ring-8 focus:ring-[#0d2719]/5 text-sm font-medium transition-all"
           />
           {search && (
             <button
@@ -95,7 +95,7 @@ export function BlogFilters({
           <button
             onClick={() => setSelectedCategory("")}
             className={cn(
-              "px-8 py-3 rounded-full text-xs font-bold transition-all duration-300 border",
+              "px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 border",
               selectedCategory === ""
                 ? "bg-[#0d2719] text-white border-transparent shadow-lg"
                 : "bg-white text-[#0d2719] border-[#0d2719]/5 hover:border-[#0d2719]/20"
@@ -108,7 +108,7 @@ export function BlogFilters({
               key={cat}
               onClick={() => setSelectedCategory(cat)}
               className={cn(
-                "px-8 py-3 rounded-full text-xs font-bold transition-all duration-300 border",
+                "px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 border",
                 selectedCategory === cat
                   ? "bg-[#0d2719] text-white border-transparent shadow-lg"
                   : "bg-white text-[#0d2719] border-[#0d2719]/5 hover:border-[#0d2719]/20"

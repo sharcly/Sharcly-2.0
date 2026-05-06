@@ -2,25 +2,29 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Navbar } from "@/components/navbar";
+import { AnnouncementBar } from "@/components/announcement-bar";
 import { Footer } from "@/components/footer";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { BlogFilters } from "@/components/blog/BlogFilters";
 import { BlogSkeleton } from "@/components/blog/BlogSkeleton";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Sparkles, ArrowRight } from "lucide-react";
+import { BookOpen, Sparkles, ArrowRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export default function BlogsPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  
+
   // Filters
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  
+
   // Derived metadata
   const [categories, setCategories] = useState<string[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
@@ -38,7 +42,7 @@ export default function BlogsPage() {
           },
         });
         setBlogs(response.data.blogs || []);
-        
+
         // Extract categories and tags if not already set (initial load)
         if (categories.length === 0 && response.data.blogs?.length > 0) {
           const cats = new Set<string>();
@@ -65,142 +69,236 @@ export default function BlogsPage() {
   }, [search, selectedCategory, selectedTags]);
 
   return (
-    <div className="min-h-screen bg-[#f0f9f0] text-[#0d2719] selection:bg-[#0d2719] selection:text-white">
-      <Navbar />
+    <div className="min-h-screen bg-[#040e07] text-[#eff8ee] selection:bg-[#E8C547] selection:text-[#040e07] relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#040e07] via-[#082f1d] to-[#040e07] pointer-events-none" />
+      <div 
+        className="absolute inset-0 opacity-[0.15] pointer-events-none"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+        }}
+      />
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-radial-gradient from-[rgba(232,197,71,0.08)] to-transparent opacity-50 pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(232,197,71,0.1) 0%, transparent 70%)"
+        }}
+      />
 
-      <main className="pt-32 pb-40">
-        {/* Hero Section */}
-        <section className="container mx-auto px-6 mb-24">
-          <div className="max-w-4xl space-y-8">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-4"
-            >
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">The Sharcly Journal</span>
-              <div className="h-px w-12 bg-[#0d2719]/10" />
-              <Sparkles className="size-4 opacity-40" />
-            </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-6xl lg:text-9xl font-black tracking-tighter leading-[0.8] text-[#0d2719]"
-            >
-              BOTANICAL <br />
-              <span className="italic font-serif opacity-30">ARCHIVES.</span>
-            </motion.h1>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-xl lg:text-2xl text-[#0d2719]/50 font-medium max-w-2xl leading-relaxed"
-            >
-              Deep investigations into hemp science, lifestyle protocols, and the latest synthesis from our botanical labs.
-            </motion.p>
+      <div className="relative z-10">
+        <AnnouncementBar />
+        <Navbar />
+
+      <main className="pb-24">
+        {/* Dark Header Banner */}
+        <section className="bg-[#062D1B] py-20 mb-12">
+          <div className="container mx-auto px-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 text-[#E8C547] text-[10px] font-black uppercase tracking-[0.4em]">
+                <div className="h-px w-8 bg-[#E8C547]" />
+                Insights & Guides
+              </div>
+              <h2 className="text-white text-xl lg:text-3xl font-medium max-w-3xl leading-relaxed">
+                Explore the science of state-based wellness. From cannabinoid breakthroughs to daily routine optimization.
+              </h2>
+            </div>
           </div>
         </section>
 
-        {/* Filters Section */}
-        <section className="container mx-auto px-6 mb-20">
-          <BlogFilters
-            search={search}
-            setSearch={setSearch}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            categories={categories}
-            allTags={allTags}
-          />
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            {/* Left Sidebar */}
+            <aside className="lg:col-span-3 space-y-12 relative">
+              {/* Search */}
+              <div className="relative group">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 size-4 text-[#eff8ee]/20 group-focus-within:text-[#E8C547] transition-colors" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search stories..."
+                  className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 text-xs font-bold text-[#eff8ee] focus:border-[#E8C547]/30 outline-none transition-all placeholder:text-[#eff8ee]/20"
+                />
+              </div>
+
+              {/* Categories */}
+              <div className="space-y-6">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#eff8ee]/30 px-4">Collections</h3>
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={() => setSelectedCategory("")}
+                    className={cn(
+                      "flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all",
+                      selectedCategory === ""
+                        ? "bg-[#E8C547] text-[#040e07]"
+                        : "text-[#eff8ee]/60 hover:bg-white/5 hover:text-[#eff8ee]"
+                    )}
+                  >
+                    <span>All Posts</span>
+                    <span className="opacity-40">{blogs.length}</span>
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={cn(
+                        "flex items-center justify-between px-4 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-widest",
+                        selectedCategory === cat
+                          ? "bg-[#E8C547] text-[#040e07]"
+                          : "text-[#eff8ee]/60 hover:bg-white/5 hover:text-[#eff8ee]"
+                      )}
+                    >
+                      <span>{cat}</span>
+                      <span className="opacity-40">{blogs.filter(b => b.category === cat).length}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Latest Insight List */}
+              <div className="space-y-8 pt-8 border-t border-white/5">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#eff8ee]/30 px-4">Latest Insights</h3>
+                <div className="space-y-8">
+                  {blogs.slice(0, 3).map((blog) => (
+                    <Link key={blog.id} href={`/blogs/${blog.slug}`} className="flex gap-4 group">
+                      <div className="size-16 rounded-xl overflow-hidden flex-shrink-0 border border-white/5">
+                        <img
+                          src={blog.featuredImage || "https://images.unsplash.com/photo-1544022613-e87ce71c8e4d?auto=format&fit=crop&q=80"}
+                          alt=""
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="text-[11px] font-bold text-[#eff8ee] leading-tight line-clamp-2 group-hover:text-[#E8C547] transition-colors">{blog.title}</h4>
+                        <p className="text-[9px] font-medium text-[#eff8ee]/30 uppercase tracking-widest">
+                          {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </aside>
+
+            {/* Main Content Area */}
+            <div className="lg:col-span-9 space-y-20">
+              {/* Featured Post (only if not searching or filtering) */}
+              {!search && !selectedCategory && blogs[0] && (
+                <section>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div className="aspect-[4/3] rounded-[3rem] overflow-hidden shadow-xl border border-white/10">
+                      <img
+                        src={blogs[0].featuredImage || "https://images.unsplash.com/photo-1544022613-e87ce71c8e4d?auto=format&fit=crop&q=80"}
+                        alt={blogs[0].title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="space-y-8">
+                      <div className="flex items-center gap-4">
+                        <Badge className="bg-[#E8C547] text-[#040e07] border-none font-black text-[9px] uppercase tracking-[0.2em] px-4 py-1.5 rounded-[0.8rem]">Featured</Badge>
+                        <span className="text-xs text-[#eff8ee]/40 font-medium">
+                          {new Date(blogs[0].createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                        </span>
+                      </div>
+                      <h1 className="text-5xl lg:text-7xl font-bold tracking-tighter leading-[0.95] text-white">
+                        {blogs[0].title}
+                      </h1>
+                      <p className="text-[#eff8ee]/60 text-lg leading-relaxed max-w-xl">
+                        {blogs[0].excerpt}
+                      </p>
+                      <Link
+                        href={`/blogs/${blogs[0].slug}`}
+                        className="inline-flex items-center gap-3 text-sm font-bold text-[#E8C547] hover:gap-4 transition-all"
+                      >
+                        Read full story <ArrowRight className="size-5" />
+                      </Link>
+                    </div>
+                  </div>
+                </section>
+              )}
+
+                {/* Latest Insights Header */}
+                <div className="space-y-12">
+                  <h3 className="text-sm font-bold text-[#eff8ee] border-b border-white/10 pb-4">Latest Insights</h3>
+                  <AnimatePresence mode="wait">
+                    {loading ? (
+                      <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <BlogSkeleton viewMode="grid" />
+                      </motion.div>
+                    ) : blogs.length === 0 ? (
+                      <motion.div key="empty" className="py-20 text-center space-y-6">
+                        <div className="size-20 rounded-full bg-white/5 flex items-center justify-center mx-auto shadow-sm">
+                          <BookOpen className="size-8 text-[#E8C547] opacity-50" />
+                        </div>
+                        <h3 className="text-2xl font-bold">No stories matched the sequence.</h3>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="content"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"
+                      >
+                        {(search || selectedCategory ? blogs : blogs.slice(1)).map((blog) => (
+                          <BlogCard key={blog.id} blog={blog} viewMode="grid" />
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        {/* Elevated Ritual CTA Section */}
+        <section className="container mx-auto px-6 mt-32">
+          <div className="bg-[#0b2112] rounded-[4rem] p-12 lg:p-24 relative overflow-hidden text-center space-y-10">
+            <div className="space-y-6 relative z-10">
+              <h2 className="text-white text-5xl lg:text-7xl font-bold tracking-tight italic font-serif leading-tight">
+                Elevate Your Ritual
+              </h2>
+              <p className="text-white/60 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+                Experience the science of state-based wellness. From potent tinctures to bio-available gummies, discover your ideal state.
+              </p>
+            </div>
+            <div className="relative z-10">
+              <Button asChild className="rounded-full h-16 px-12 bg-[#B39371] text-white font-bold uppercase tracking-widest text-xs hover:bg-[#B39371]/90 shadow-2xl transition-all hover:scale-105">
+                <Link href="/products">Shop the Collection</Link>
+              </Button>
+            </div>
+          </div>
         </section>
 
-        {/* Blog Listing */}
-        <section className="container mx-auto px-6">
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <motion.div
-                key="skeleton"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <BlogSkeleton viewMode={viewMode} />
-              </motion.div>
-            ) : blogs.length === 0 ? (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="py-40 text-center space-y-8 bg-white/50 rounded-[4rem] border border-[#0d2719]/5"
-              >
-                <div className="size-24 rounded-full bg-white flex items-center justify-center mx-auto shadow-sm">
-                  <BookOpen className="size-10 opacity-20" />
-                </div>
-                <div className="space-y-4">
-                  <h3 className="text-4xl font-bold tracking-tighter italic font-serif">No stories matched the sequence.</h3>
-                  <p className="text-[#0d2719]/40 font-medium">Try adjusting your filters or search terms to find what you're looking for.</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSearch("");
-                    setSelectedCategory("");
-                    setSelectedTags([]);
-                  }}
-                  className="rounded-full px-10 h-14 border-[#0d2719]/10 font-bold text-xs uppercase tracking-widest hover:bg-[#0d2719] hover:text-white transition-all"
-                >
-                  Clear Archive Filters
-                </Button>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="content"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" : "flex flex-col gap-10"}
-              >
-                {blogs.map((blog, i) => (
-                  <BlogCard key={blog.id} blog={blog} viewMode={viewMode} />
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </section>
-
-        {/* Newsletter / CTA Section */}
-        <section className="container mx-auto px-6 mt-40">
-          <div className="bg-[#0d2719] rounded-[4rem] p-12 lg:p-24 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 size-[600px] bg-white/[0.03] rounded-full -mr-[300px] -mt-[300px] blur-3xl" />
+        {/* Join the Circle Newsletter Section */}
+        {/* <section className="container mx-auto px-6 mt-32">
+          <div className="bg-[#0d2719] rounded-[4rem] p-12 lg:p-20 relative overflow-hidden group border border-white/5">
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-              <div className="space-y-10 text-white">
-                <h2 className="text-6xl lg:text-8xl font-black tracking-tighter italic font-serif leading-[0.8]">
-                  Join the <br /> <span className="not-italic">Circle.</span>
+              <div className="space-y-6 text-white">
+                <h2 className="text-4xl lg:text-5xl font-bold tracking-tight">
+                  Join the Sharcly Circle
                 </h2>
-                <p className="text-xl text-white/40 font-medium max-w-sm leading-relaxed">
-                  Receive immediate transmission of new research, narratives, and limited botanical drops.
+                <p className="text-lg text-white/40 font-medium max-w-sm leading-relaxed">
+                  Stay updated on new drops and exclusive wellness insights.
                 </p>
               </div>
-              <div className="relative group">
+              <div className="relative flex flex-col sm:flex-row gap-4">
                 <input
                   type="email"
-                  placeholder="Botanical Identity (Email)"
-                  className="w-full h-24 bg-white/5 border border-white/10 rounded-[2.5rem] px-10 font-bold text-lg text-white outline-none focus:ring-8 focus:ring-white/[0.02] transition-all placeholder:text-white/10"
+                  placeholder="Enter your email address"
+                  className="flex-1 h-16 bg-white rounded-full px-8 font-medium text-black outline-none transition-all placeholder:text-black/30"
                 />
-                <Button className="absolute right-4 top-4 h-16 px-10 bg-white text-[#0d2719] font-black uppercase tracking-widest text-[10px] rounded-[1.8rem] hover:bg-white/90 shadow-2xl transition-all hover:scale-105 active:scale-95">
+                <Button className="h-16 px-10 bg-[#E8C547] text-black font-black uppercase tracking-widest text-[10px] rounded-full hover:bg-[#E8C547]/90 shadow-2xl transition-all">
                   Subscribe
                 </Button>
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
 
       <Footer />
     </div>
-  );
+  </div>
+);
 }

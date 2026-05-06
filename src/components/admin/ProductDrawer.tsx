@@ -216,7 +216,7 @@ export default function ProductDrawer({
    const handleCreateCategory = async () => {
       if (!newCatName) return;
       try {
-         const res = await apiClient.post("/admin/categories", { name: newCatName });
+         const res = await apiClient.post("/products/categories", { name: newCatName });
          toast.success("Category created successfully");
          updateForm({ categoryId: res.data.category.id });
          setIsCreatingCategory(false);
@@ -425,7 +425,7 @@ export default function ProductDrawer({
                                  value={form.description}
                                  onChange={e => updateForm({ description: e.target.value })}
                                  placeholder="Primary product description..."
-                                 className="w-full min-h-[100px] p-5 bg-white border border-neutral-200 rounded-xl outline-none font-medium leading-relaxed text-sm" 
+                                 className="w-full min-h-[100px] p-5 bg-white border border-neutral-200 rounded-xl outline-none font-medium leading-relaxed text-sm"
                               />
                            </Field>
 
@@ -523,7 +523,6 @@ export default function ProductDrawer({
                   </div>
                )}
             </AnimatePresence>
-
          </div>
       </div>
    );

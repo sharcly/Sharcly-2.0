@@ -32,15 +32,15 @@ export function BlogCard({ blog, viewMode }: BlogCardProps) {
       transition={{ duration: 0.5 }}
       whileHover={{ y: -8 }}
       className={cn(
-        "group relative bg-white rounded-[2.5rem] border border-[#0d2719]/5 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden",
-        !isGrid && "flex flex-col md:flex-row"
+        "group relative bg-transparent transition-all duration-500 overflow-hidden",
+        !isGrid && "flex flex-col md:flex-row gap-8"
       )}
     >
       {/* Image Section */}
       <div
         className={cn(
-          "relative overflow-hidden",
-          isGrid ? "aspect-[16/10]" : "w-full md:w-2/5 aspect-[16/10] md:aspect-auto"
+          "relative overflow-hidden rounded-[2rem]",
+          isGrid ? "aspect-[4/3]" : "w-full md:w-2/5 aspect-[4/3] md:aspect-auto"
         )}
       >
         <Link href={`/blogs/${blog.slug}`}>
@@ -53,32 +53,29 @@ export function BlogCard({ blog, viewMode }: BlogCardProps) {
         </Link>
         
         {blog.category && (
-          <Badge className="absolute top-6 left-6 bg-white/90 backdrop-blur-md text-[#0d2719] border-none font-bold text-[10px] uppercase tracking-widest px-4 py-1.5 rounded-full">
+          <Badge className="absolute top-4 left-4 bg-white text-[#0d2719] border-none font-bold text-[9px] uppercase tracking-[0.2em] px-4 py-1.5 rounded-[0.8rem] shadow-sm">
             {blog.category}
           </Badge>
         )}
       </div>
 
       {/* Content Section */}
-      <div className={cn("p-8 md:p-10 flex flex-col flex-1", !isGrid && "justify-center")}>
-        <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-[#0d2719]/40 mb-6">
-          <span className="flex items-center gap-2">
-            <Calendar className="size-3" />
+      <div className={cn("py-6 flex flex-col flex-1", !isGrid && "justify-center")}>
+        <div className="flex items-center gap-2 text-[11px] font-medium text-[#eff8ee]/40 mb-3">
+          <span>
             {new Date(blog.createdAt).toLocaleDateString("en-US", {
-              month: "short",
+              month: "long",
               day: "numeric",
               year: "numeric",
             })}
           </span>
-          <span className="size-1 rounded-full bg-[#0d2719]/10" />
-          <span className="flex items-center gap-2">
-            <Clock className="size-3" /> 5 min read
-          </span>
+          <span>•</span>
+          <span>5 min read</span>
         </div>
 
         <h3 className={cn(
-          "font-bold tracking-tight text-[#0d2719] group-hover:text-[#0d2719]/70 transition-colors mb-4",
-          isGrid ? "text-2xl leading-tight" : "text-3xl lg:text-4xl leading-tight"
+          "font-bold tracking-tight text-[#eff8ee] group-hover:text-[#E8C547] transition-colors mb-4",
+          isGrid ? "text-xl lg:text-2xl leading-tight" : "text-2xl lg:text-3xl leading-tight"
         )}>
           <Link href={`/blogs/${blog.slug}`}>
             {blog.title}
@@ -86,21 +83,18 @@ export function BlogCard({ blog, viewMode }: BlogCardProps) {
         </h3>
 
         {blog.excerpt && (
-          <p className="text-[#0d2719]/60 font-medium leading-relaxed mb-8 line-clamp-2 md:line-clamp-3">
+          <p className="text-[#eff8ee]/60 text-sm leading-relaxed mb-6 line-clamp-2">
             {blog.excerpt}
           </p>
         )}
 
         <div className="mt-auto">
-          <Button
-            asChild
-            variant="link"
-            className="p-0 h-auto text-[10px] font-black uppercase tracking-[0.2em] text-[#0d2719] hover:text-[#0d2719]/70 transition-all group-hover:translate-x-2 duration-300 no-underline"
+          <Link 
+            href={`/blogs/${blog.slug}`} 
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#E8C547] hover:gap-3 transition-all"
           >
-            <Link href={`/blogs/${blog.slug}`} className="flex items-center gap-3">
-              Read Protocol <ArrowRight className="size-3" />
-            </Link>
-          </Button>
+            Read Article <ArrowRight className="size-4" />
+          </Link>
         </div>
       </div>
     </motion.article>

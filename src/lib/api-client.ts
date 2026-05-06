@@ -69,6 +69,10 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    
+    if (error.response?.status === 404) {
+      console.error("🔥 AXIOS 404 ERROR! URL:", originalRequest?.method?.toUpperCase(), originalRequest?.url);
+    }
 
     // Skip refresh logic for auth-related endpoints to prevent infinite loops
     const authUrls = ["/auth/login", "/auth/register", "/auth/refresh-token", "/auth/logout"];
