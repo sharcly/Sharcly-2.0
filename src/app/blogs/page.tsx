@@ -108,7 +108,7 @@ export default function BlogsPage() {
             </div>
           </div>
         </section>
-      )}
+
 
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">

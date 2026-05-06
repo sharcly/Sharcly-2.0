@@ -134,14 +134,14 @@ export default function TermsPage() {
     </div>
 
     {/* Override Termly iframe styles to match dark theme */}
-    <style jsx global>{\`
+    <style dangerouslySetInnerHTML={{ __html: `
       .terms-embed-container iframe {
         border: none !important;
         border-radius: 12px !important;
         min-height: 600px !important;
         filter: invert(0.88) hue-rotate(180deg) !important;
       }
-    \`}</style>
+    ` }} />
     </>
   );
 }
