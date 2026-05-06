@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { apiClient } from "@/lib/api-client";
 import { motion } from "framer-motion";
 import { Cookie, MousePointer2, ShieldCheck, Sparkles } from "lucide-react";
+import Script from "next/script";
 
 export default function CookiesPage() {
   const [content, setContent] = useState<any>({
