@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
 import { getImageUrl } from "@/lib/image-utils";
+import { ProductDetailSkeleton } from "@/components/ui/skeletons";
 
 
 export default function ProductDetailsPage() {
@@ -123,11 +124,37 @@ export default function ProductDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#040e07' }}>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center gap-4">
-          <div className="size-10 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(239,248,238,0.08)', borderTopColor: '#E8C547' }} />
-          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(239,248,238,0.2)' }}>Loading...</span>
-        </motion.div>
+      <div className="min-h-screen antialiased" style={{ background: 'linear-gradient(175deg, #040e07 0%, #082f1d 50%, #040e07 100%)', color: '#eff8ee' }}>
+        <Navbar />
+        <main className="pt-28 pb-20">
+          <div className="container mx-auto px-6 md:px-12">
+
+            {/* Breadcrumb skeleton */}
+            <div className="flex items-center gap-3 mb-10">
+              <div className="h-3 w-28 rounded-lg" style={{ background: 'rgba(239,248,238,0.06)' }} />
+              <div className="h-3 w-3 rounded-full" style={{ background: 'rgba(239,248,238,0.04)' }} />
+              <div className="h-3 w-20 rounded-lg" style={{ background: 'rgba(239,248,238,0.06)' }} />
+            </div>
+
+            <ProductDetailSkeleton />
+
+            {/* Tabs skeleton */}
+            <div className="mt-20 md:mt-28 max-w-4xl mx-auto space-y-8">
+              <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'rgba(239,248,238,0.04)', border: '1px solid rgba(239,248,238,0.06)' }}>
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex-1 h-11 rounded-lg" style={{ background: i === 1 ? 'rgba(232,197,71,0.1)' : 'transparent' }} />
+                ))}
+              </div>
+              <div className="space-y-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="h-4 rounded-lg" style={{ background: 'rgba(239,248,238,0.04)', width: i === 3 ? '60%' : '100%' }} />
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
