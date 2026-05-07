@@ -44,7 +44,20 @@ export default function ProductDetailsPage() {
         const response = await apiClient.get(`/products/${slug}`);
         const productData = response.data.product;
         setProduct(productData);
-        if (productData?.variants?.length > 0) setSelectedVariant(productData.variants[0]);
+        if (productData?.variants?.length > 0) {
+        const firstVariant = productData.variants[0];
+        setSelectedVariant(firstVariant);
+        
+        // Initial image selection based on first variant
+        if (firstVariant.image) {
+          const variantUrl = getImageUrl(firstVariant.image);
+          // We need to wait for productImages to be calculated, or use baseImages here
+          // But since productImages is derived from productData, it will be available.
+          // However, setActiveImage(0) is the default, so we only change if variant has image.
+          const variantIdx = productImages.findIndex(img => img === variantUrl);
+          if (variantIdx !== -1) setActiveImage(variantIdx);
+        }
+      }
       } catch (error: any) {
         toast.error("Failed to load product");
       } finally {
@@ -61,7 +74,7 @@ export default function ProductDetailsPage() {
       slug: product.slug,
       price: displayPrice,
       quantity,
-      image: productImages[0],
+      image: productImages[activeImage] || productImages[0],
       category: product.category?.name
     }));
     setAddedToCart(true);
@@ -223,8 +236,15 @@ export default function ProductDetailsPage() {
                         setSelectedVariant(v);
                         if (v.image) {
                           const variantUrl = getImageUrl(v.image);
-                          const idx = productImages.indexOf(variantUrl);
-                          if (idx !== -1) setActiveImage(idx);
+                          const idx = productImages.findIndex(img => img === variantUrl);
+                          if (idx !== -1) {
+                            setActiveImage(idx);
+                          } else {
+                            console.log("Variant image not found in gallery:", variantUrl);
+                          }
+                        } else {
+                          // Fallback: If no image linked to variant, show the poster (first image)
+                          setActiveImage(0);
                         }
                       }}
                         className={cn("relative p-3.5 rounded-xl text-left transition-all duration-300",
