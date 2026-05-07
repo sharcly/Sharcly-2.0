@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -22,15 +22,31 @@ import { getImageUrl } from "@/lib/image-utils";
 
 export default function ProductDetailsPage() {
   const { slug } = useParams();
+  const dispatch = useDispatch();
+  
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [liked, setLiked] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "specs" | "shipping">("details");
-  const dispatch = useDispatch();
+  
+  // New Image States
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>("");
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  // Derived Images
+  const baseImages = useMemo(() => {
+    if (!product) return [getImageUrl(null)];
+    if (product.imageUrls?.length > 0) {
+      return product.imageUrls.map((url: string) => getImageUrl(url));
+    }
+    if (product.images?.length > 0) {
+      return product.images.map((img: any) => getImageUrl(img));
+    }
+    return [getImageUrl(product.image_url)];
+  }, [product]);
 
   useSeo(`product/${slug}`, {
     title: product ? `${product.name} | Sharcly` : "Loading...",
@@ -45,19 +61,8 @@ export default function ProductDetailsPage() {
         const productData = response.data.product;
         setProduct(productData);
         if (productData?.variants?.length > 0) {
-        const firstVariant = productData.variants[0];
-        setSelectedVariant(firstVariant);
-        
-        // Initial image selection based on first variant
-        if (firstVariant.image) {
-          const variantUrl = getImageUrl(firstVariant.image);
-          // We need to wait for productImages to be calculated, or use baseImages here
-          // But since productImages is derived from productData, it will be available.
-          // However, setActiveImage(0) is the default, so we only change if variant has image.
-          const variantIdx = productImages.findIndex(img => img === variantUrl);
-          if (variantIdx !== -1) setActiveImage(variantIdx);
+          setSelectedVariant(productData.variants[0]);
         }
-      }
       } catch (error: any) {
         toast.error("Failed to load product");
       } finally {
@@ -67,14 +72,49 @@ export default function ProductDetailsPage() {
     fetchProduct();
   }, [slug]);
 
+  // Handle initial image selection once product/variants are loaded
+  useEffect(() => {
+    if (product && !currentImageUrl) {
+      const firstV = product.variants?.[0];
+      if (firstV?.image) {
+        setCurrentImageUrl(getImageUrl(firstV.image));
+      } else if (baseImages.length > 0) {
+        setCurrentImageUrl(baseImages[0]);
+      }
+    }
+  }, [product, baseImages, currentImageUrl]);
+
+  // Combine base gallery images and variant images for the thumbnails
+  const variantImages = useMemo(() => {
+    return (product?.variants || [])
+      .map((v: any) => v.image ? getImageUrl(v.image) : null)
+      .filter(Boolean);
+  }, [product]);
+
+  const allImages = useMemo(() => {
+    return Array.from(new Set([...baseImages, ...variantImages]));
+  }, [baseImages, variantImages]);
+
+  // Synchronize activeImageIndex when currentImageUrl changes
+  useEffect(() => {
+    const idx = allImages.findIndex(img => img === currentImageUrl);
+    if (idx !== -1) {
+      setActiveImageIndex(idx);
+    }
+  }, [currentImageUrl, allImages]);
+
+  const displayPrice = selectedVariant ? Number(selectedVariant.price) : Number(product?.price || 0);
+  const isOutOfStock = (selectedVariant ? selectedVariant.inventoryQuantity : product?.stock) === 0;
+
   const handleAddToCart = () => {
+    if (!product) return;
     dispatch(addToCart({
       id: selectedVariant ? selectedVariant.id : product.id,
       name: selectedVariant ? `${product.name} - ${selectedVariant.title}` : product.name,
       slug: product.slug,
       price: displayPrice,
       quantity,
-      image: productImages[activeImage] || productImages[0],
+      image: currentImageUrl || allImages[0],
       category: product.category?.name
     }));
     setAddedToCart(true);
@@ -93,27 +133,6 @@ export default function ProductDetailsPage() {
   }
 
   if (!product) return null;
-
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "http://localhost:8181";
-  
-  // Base gallery images
-  const baseImages = product.imageUrls?.length > 0 
-    ? product.imageUrls.map((url: string) => getImageUrl(url)) 
-    : (product.images?.length > 0 
-        ? product.images.map((img: any) => getImageUrl(img)) 
-        : [getImageUrl(product.image_url)]);
-
-  // Collect unique images from variants
-  const variantImages = (product.variants || [])
-    .map((v: any) => v.image)
-    .filter((img: any) => img)
-    .map((img: any) => getImageUrl(img));
-
-  // Final image list (unique)
-  const productImages = Array.from(new Set([...baseImages, ...variantImages]));
-
-  const displayPrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
-  const isOutOfStock = (selectedVariant ? selectedVariant.inventoryQuantity : product.stock) === 0;
 
   const PROMISE_ITEMS = [
     { icon: ShieldCheck, label: "Lab Verified", sub: "COA every batch" },
@@ -146,7 +165,7 @@ export default function ProductDetailsPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-3">
               <div className="relative aspect-square max-h-[calc(100vh-160px)] rounded-[20px] overflow-hidden group" style={{ backgroundColor: '#0d2518', border: '1px solid rgba(239,248,238,0.06)', boxShadow: '0 30px 80px rgba(0,0,0,0.5)' }}>
                 <AnimatePresence mode="wait">
-                  <motion.img key={activeImage} src={productImages[activeImage]} alt={product.name}
+                  <motion.img key={currentImageUrl} src={currentImageUrl} alt={product.name}
                     initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.4 }} className="absolute inset-0 w-full h-full object-cover" />
                 </AnimatePresence>
@@ -177,22 +196,33 @@ export default function ProductDetailsPage() {
                   </div>
                 )}
 
-                {productImages.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full backdrop-blur-md" style={{ backgroundColor: 'rgba(4,14,7,0.6)' }}>
-                    <span className="text-[10px] font-bold tabular-nums" style={{ color: 'rgba(239,248,238,0.9)' }}>{activeImage + 1} / {productImages.length}</span>
+                {/* Restore Navigation Dots (Floating on top of image) */}
+                {allImages.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 px-2 py-1 rounded-full backdrop-blur-md" style={{ backgroundColor: 'rgba(4,14,7,0.3)' }}>
+                    {allImages.map((_, idx) => (
+                      <div key={idx} className={cn("size-1.5 rounded-full transition-all duration-300", 
+                        (currentImageUrl === allImages[idx] || activeImageIndex === idx) ? "w-4 bg-[#E8C547]" : "bg-white/40"
+                      )} />
+                    ))}
                   </div>
                 )}
               </div>
 
-              {/* Thumbnails */}
-              {productImages.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto no-scrollbar p-1.5">
-                  {productImages.map((src: string, i: number) => (
-                    <button key={i} onClick={() => setActiveImage(i)}
-                      className={cn("relative size-14 md:size-16 rounded-xl overflow-hidden shrink-0 transition-all duration-300",
-                        activeImage === i ? "ring-[2.5px] ring-[#E8C547] ring-offset-[3px] opacity-100" : "opacity-40 hover:opacity-70"
-                      )}>
-                      <img src={src} className="absolute inset-0 w-full h-full object-cover" alt={`View ${i + 1}`} />
+              {/* Thumbnails BELOW the image, centered */}
+              {allImages.length > 1 && (
+                <div className="flex justify-center gap-3 overflow-x-auto no-scrollbar pt-4">
+                  {allImages.map((img, idx) => (
+                    <button 
+                      key={idx} 
+                      onClick={() => {
+                        setCurrentImageUrl(img);
+                        setActiveImageIndex(idx);
+                      }} 
+                      className={cn("relative size-16 md:size-20 rounded-xl overflow-hidden shrink-0 transition-all duration-300 border-2", 
+                        (currentImageUrl === img || activeImageIndex === idx) ? "border-[#E8C547] opacity-100 scale-105" : "border-transparent opacity-40 hover:opacity-100"
+                      )}
+                    >
+                      <img src={img} alt={`Gallery ${idx}`} className="absolute inset-0 w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
@@ -235,27 +265,28 @@ export default function ProductDetailsPage() {
                       <button key={v.id} onClick={() => {
                         setSelectedVariant(v);
                         if (v.image) {
-                          const variantUrl = getImageUrl(v.image);
-                          const idx = productImages.findIndex(img => img === variantUrl);
-                          if (idx !== -1) {
-                            setActiveImage(idx);
-                          } else {
-                            console.log("Variant image not found in gallery:", variantUrl);
-                          }
+                          setCurrentImageUrl(getImageUrl(v.image));
                         } else {
                           // Fallback: If no image linked to variant, show the poster (first image)
-                          setActiveImage(0);
+                          setCurrentImageUrl(baseImages[0]);
                         }
                       }}
-                        className={cn("relative p-3.5 rounded-xl text-left transition-all duration-300",
+                        className={cn("relative p-3.5 rounded-xl text-left transition-all duration-300 flex items-center gap-3",
                           selectedVariant?.id === v.id ? "shadow-lg" : ""
                         )}
                         style={selectedVariant?.id === v.id
                           ? { backgroundColor: '#E8C547', color: '#082f1d' }
                           : { backgroundColor: 'rgba(239,248,238,0.04)', border: '1px solid rgba(239,248,238,0.08)', color: '#eff8ee' }}
                       >
-                        <span className="text-[11px] font-bold block">{v.title}</span>
-                        <span className="text-[10px] font-semibold" style={{ opacity: 0.8 }}>${Number(v.price).toFixed(2)}</span>
+                        {v.image && (
+                          <div className="size-10 rounded-lg overflow-hidden shrink-0 border border-white/10">
+                            <img src={getImageUrl(v.image)} className="w-full h-full object-cover" alt={v.title} />
+                          </div>
+                        )}
+                        <div>
+                          <span className="text-[11px] font-bold block">{v.title}</span>
+                          <span className="text-[10px] font-semibold" style={{ opacity: 0.8 }}>${Number(v.price).toFixed(2)}</span>
+                        </div>
                       </button>
                     ))}
                   </div>
