@@ -120,33 +120,34 @@ export default function WholesalePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#040e07] text-[#eff8ee] selection:bg-emerald-500/20 selection:text-emerald-300 overflow-x-hidden">
+    <div className="min-h-screen flex flex-col font-sans antialiased selection:bg-[#E8C547] selection:text-[#040e07] overflow-x-hidden" style={{ background: "linear-gradient(160deg, #040e07 0%, #082f1d 50%, #040e07 100%)", color: "#eff8ee" }}>
       <Navbar />
       
       <main>
         {/* 1. HERO SECTION */}
-        <section className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden">
-          {/* Hero Image Background */}
-          <div className="absolute inset-0 z-0">
-             <div className="absolute inset-0 bg-gradient-to-b from-[#040e07] via-transparent to-[#040e07] z-10" />
-             <div className="absolute inset-0 bg-gradient-to-r from-[#040e07] via-[#040e07]/40 to-transparent z-10" />
-             <img 
-               src="/wholesale_hero_image_1778007530988.png" 
-               alt="Sharcly Wholesale" 
-               className="size-full object-cover scale-105"
-             />
-          </div>
+        <section className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-24 px-6 overflow-hidden">
+          {/* Animated Glass Blobs */}
+          <motion.div 
+            animate={{ x: [0, 40, 0], y: [0, 24, 0] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 -left-20 w-[480px] h-[480px] bg-white/5 rounded-full blur-[120px] pointer-events-none" 
+          />
+          <motion.div 
+            animate={{ x: [0, -32, 0], y: [0, 48, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-1/4 -right-20 w-[560px] h-[560px] bg-[#E8C547]/10 rounded-full blur-[140px] pointer-events-none" 
+          />
 
-          <div className="container mx-auto px-6 relative z-20">
-            <div className="max-w-4xl">
+          <div className="container max-w-[1280px] mx-auto relative z-20 text-center">
+            <div className="max-w-[960px] mx-auto">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
-                className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-500/10 rounded-full mb-10 border border-emerald-500/20"
+                className="inline-flex items-center gap-3 px-4 py-2 bg-[#E8C547]/10 rounded-full mb-10 border border-[#E8C547]/20"
               >
-                <Sparkles className="size-3.5 text-emerald-400" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400">Official Partnership Portal</span>
+                <Sparkles className="size-3.5 text-[#E8C547]" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#E8C547]">Official Partnership Portal</span>
               </motion.div>
               
               <motion.h1 
@@ -155,14 +156,14 @@ export default function WholesalePage() {
                 transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as any, delay: 0.2 }}
                 className="text-5xl md:text-7xl font-black leading-[1.1] tracking-tighter mb-8"
               >
-                {pageContent.heroTitle}
+                Grow with <span className="italic font-serif text-[#E8C547]">Sharcly.</span>
               </motion.h1>
               
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.4 }}
-                className="text-lg md:text-xl text-white/50 font-medium max-w-lg mb-12 leading-relaxed"
+                className="text-lg md:text-xl text-white/60 font-medium max-w-2xl mx-auto mb-12 leading-relaxed"
               >
                 {pageContent.heroSubtitle}
               </motion.p>
@@ -171,11 +172,11 @@ export default function WholesalePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.6 }}
-                className="flex flex-col sm:flex-row items-center gap-6"
+                className="flex flex-col sm:flex-row items-center justify-center gap-8"
               >
                 <Button 
                   size="lg" 
-                  className="h-20 px-12 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.3em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-emerald-600/30 group"
+                  className="h-20 px-12 bg-[#E8C547] hover:bg-[#d4b33f] text-[#040e07] font-black text-xs uppercase tracking-[0.3em] rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-2xl shadow-[#E8C547]/20 group"
                   onClick={() => document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   Apply to Partner <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -193,7 +194,7 @@ export default function WholesalePage() {
 
         {/* 2. VALUE PROPS */}
         <section className="py-40 bg-white/[0.02] border-y border-white/5 relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-emerald-500/5 rounded-full blur-[160px] translate-x-1/2 -translate-y-1/2" />
+           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#E8C547]/5 rounded-full blur-[160px] translate-x-1/2 -translate-y-1/2" />
           
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -225,10 +226,10 @@ export default function WholesalePage() {
                   transition={{ duration: 0.8, delay: i * 0.1 }}
                   className="space-y-6"
                 >
-                  <div className="size-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center border border-emerald-500/20">
-                    <item.icon className="size-6 text-emerald-400" />
+                  <div className="size-14 bg-[#E8C547]/10 rounded-2xl flex items-center justify-center border border-[#E8C547]/20">
+                    <item.icon className="size-6 text-[#E8C547]" />
                   </div>
-                  <h3 className="text-2xl font-black tracking-tight">{item.title}</h3>
+                  <h3 className="text-2xl font-black font-serif tracking-tight">{item.title}</h3>
                   <p className="text-white/40 font-medium leading-relaxed text-sm">{item.desc}</p>
                 </motion.div>
               ))}
@@ -240,7 +241,9 @@ export default function WholesalePage() {
         <section id="tiers" className="py-40 relative">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter mb-6">Partner Tiers</h2>
+              <h2 className="text-4xl md:text-6xl font-black font-serif tracking-tighter mb-6">
+                Partner <span className="italic font-serif text-[#E8C547]">Tiers.</span>
+              </h2>
               <p className="text-base text-white/40 font-medium">Simple options for businesses of all sizes. Choose what fits you best.</p>
             </div>
 
@@ -265,22 +268,22 @@ export default function WholesalePage() {
                     transition={{ duration: 0.8, delay: i * 0.1 }}
                     className={`relative p-12 rounded-[3rem] border flex flex-col transition-all duration-700 group ${
                       tier.featured 
-                        ? 'bg-emerald-600 border-emerald-500 shadow-2xl shadow-emerald-600/20 z-10 lg:scale-105' 
+                        ? 'bg-[#1a1914] border-[#E8C547]/40 shadow-2xl shadow-[#E8C547]/5 z-10 lg:scale-105' 
                         : 'bg-white/5 border-white/10 hover:bg-white/[0.08]'
                     }`}
                   >
                     {tier.featured && (
-                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-white text-emerald-900 font-black uppercase tracking-[0.3em] px-8 py-2.5 rounded-full text-[9px] shadow-2xl z-20">
+                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-[#E8C547] text-[#040e07] font-black uppercase tracking-[0.3em] px-8 py-2.5 rounded-full text-[9px] shadow-2xl z-20">
                          Most Popular
                       </div>
                     )}
 
                     <div className="mb-12">
-                      <h3 className={`text-3xl font-black tracking-tight mb-4 ${tier.featured ? 'text-white' : 'text-white'}`}>
+                      <h3 className={`text-3xl font-black font-serif tracking-tight mb-4 ${tier.featured ? 'text-white' : 'text-white'}`}>
                         {tier.name}
                       </h3>
                       <div className="flex items-baseline gap-2">
-                         <span className={`text-5xl font-black ${tier.featured ? 'text-white' : 'text-emerald-500'}`}>{tier.discount}</span>
+                         <span className={`text-5xl font-black ${tier.featured ? 'text-[#E8C547]' : 'text-[#E8C547]'}`}>{tier.discount}</span>
                       </div>
                       <p className={`text-[10px] font-black uppercase tracking-[0.25em] mt-3 ${tier.featured ? 'text-white/60' : 'text-white/30'}`}>
                         Starting at {tier.minOrder}
@@ -290,7 +293,7 @@ export default function WholesalePage() {
                     <div className="space-y-5 mb-14 flex-1">
                       {(Array.isArray(tier.features) ? tier.features : []).map((feature: string, idx: number) => (
                         <div key={idx} className="flex items-start gap-4">
-                          <CheckCircle2 className={`h-5 w-5 shrink-0 ${tier.featured ? 'text-white' : 'text-emerald-500'}`} />
+                          <CheckCircle2 className={`h-5 w-5 shrink-0 ${tier.featured ? 'text-[#E8C547]' : 'text-[#E8C547]'}`} />
                           <span className={`text-sm font-bold leading-relaxed ${tier.featured ? 'text-white/80' : 'text-white/50'}`}>
                             {feature}
                           </span>
@@ -301,8 +304,8 @@ export default function WholesalePage() {
                     <Button 
                       className={`w-full h-18 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-xl ${
                         tier.featured 
-                          ? 'bg-white hover:bg-emerald-50 text-emerald-900 shadow-emerald-900/10' 
-                          : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/20'
+                          ? 'bg-[#E8C547] hover:bg-[#d4b33f] text-[#040e07] shadow-[#E8C547]/20' 
+                          : 'bg-white/5 hover:bg-white/10 text-white border border-[#E8C547]/20'
                       }`}
                       onClick={() => document.getElementById('apply-form')?.scrollIntoView({ behavior: 'smooth' })}
                     >
@@ -317,15 +320,17 @@ export default function WholesalePage() {
 
         {/* 4. FORM SECTION */}
         <section id="apply-form" className="py-40 relative">
-           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-emerald-500/5 blur-[120px] rounded-full" />
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#E8C547]/5 blur-[120px] rounded-full" />
           
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-4xl mx-auto text-center mb-20">
-              <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-500/10 rounded-full mb-6 border border-emerald-500/20">
-                <Leaf className="size-3 text-emerald-400" />
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-emerald-400">Join the Collective</span>
+              <div className="inline-flex items-center gap-3 px-4 py-2 bg-[#E8C547]/10 rounded-full mb-6 border border-[#E8C547]/20">
+                <Leaf className="size-3 text-[#E8C547]" />
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#E8C547]">Join the Collective</span>
               </div>
-              <h2 className="text-4xl md:text-7xl font-black tracking-tighter mb-6">Partner Inquiry</h2>
+              <h2 className="text-4xl md:text-7xl font-black font-serif tracking-tighter mb-6">
+                Partner <span className="italic font-serif text-[#E8C547]">Inquiry.</span>
+              </h2>
               <p className="text-lg text-white/40 font-medium">Tell us about your business. We'll find the best way to work together.</p>
             </div>
             
@@ -338,18 +343,18 @@ export default function WholesalePage() {
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto text-center">
                <motion.div {...fadeIn}>
-                 <p className="text-3xl md:text-5xl font-black tracking-tighter text-white leading-[1.2] mb-14 italic">
+                 <p className="text-3xl md:text-5xl font-black font-serif tracking-tighter text-white leading-[1.2] mb-14 italic">
                    "{pageContent.testimonialQuote}"
                  </p>
-                 <div className="flex flex-col items-center gap-6">
-                    <div className="size-20 bg-emerald-600 rounded-3xl rotate-12 shadow-2xl shadow-emerald-600/20 flex items-center justify-center">
-                       <Globe className="size-10 text-white" />
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="size-20 bg-[#E8C547]/10 border border-[#E8C547]/20 rounded-3xl rotate-12 shadow-2xl flex items-center justify-center">
+                       <Globe className="size-10 text-[#E8C547]" />
                     </div>
                     <div className="space-y-1">
                        <p className="font-black text-2xl text-white tracking-tight">{pageContent.testimonialAuthor}</p>
-                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500">{pageContent.testimonialRole}</p>
+                       <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#E8C547]">{pageContent.testimonialRole}</p>
                     </div>
-                 </div>
+                  </div>
                </motion.div>
             </div>
           </div>

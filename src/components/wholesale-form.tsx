@@ -49,15 +49,15 @@ export function WholesaleForm() {
         animate={{ opacity: 1, scale: 1 }}
         className="p-12 bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 text-center space-y-6"
       >
-        <div className="size-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-emerald-500/20">
-          <CheckCircle2 className="size-10 text-white" />
+        <div className="size-20 bg-[#E8C547] rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-[#E8C547]/20">
+          <CheckCircle2 className="size-10 text-[#040e07]" />
         </div>
         <h3 className="text-3xl font-black text-white tracking-tight">Application Sent</h3>
         <p className="text-white/60 font-medium max-w-sm mx-auto">Thanks for your interest! Our partnership team will review your application and get back to you within 24 hours.</p>
         <Button 
           onClick={() => setIsSuccess(false)}
           variant="ghost" 
-          className="text-emerald-400 font-black uppercase tracking-widest text-[10px] hover:text-emerald-300"
+          className="text-[#E8C547] font-black uppercase tracking-widest text-[10px] hover:text-[#d4b33f]"
         >
           Send Another Application
         </Button>
@@ -75,7 +75,7 @@ export function WholesaleForm() {
     >
       <div className="relative p-8 md:p-12 bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden">
         {/* Decorative Glow */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/10 rounded-full blur-[100px]" />
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#E8C547]/10 rounded-full blur-[100px]" />
         
         <form onSubmit={handleSubmit} className="relative z-10 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
@@ -87,7 +87,7 @@ export function WholesaleForm() {
                 name="businessName"
                 placeholder="Your Company Name"
                 required
-                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-all placeholder:text-neutral-300 font-bold"
+                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-[#E8C547]/50 transition-all placeholder:text-neutral-300 font-bold"
               />
             </div>
 
@@ -99,7 +99,7 @@ export function WholesaleForm() {
                 name="contactName"
                 placeholder="Full Name"
                 required
-                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-all placeholder:text-neutral-300 font-bold"
+                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-[#E8C547]/50 transition-all placeholder:text-neutral-300 font-bold"
               />
             </div>
 
@@ -112,7 +112,7 @@ export function WholesaleForm() {
                 type="email"
                 placeholder="email@company.com"
                 required
-                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-all placeholder:text-neutral-300 font-bold"
+                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-[#E8C547]/50 transition-all placeholder:text-neutral-300 font-bold"
               />
             </div>
 
@@ -125,7 +125,7 @@ export function WholesaleForm() {
                 type="tel"
                 placeholder="Contact Number"
                 required
-                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-all placeholder:text-neutral-300 font-bold"
+                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-[#E8C547]/50 transition-all placeholder:text-neutral-300 font-bold"
               />
             </div>
 
@@ -133,7 +133,7 @@ export function WholesaleForm() {
             <div className="space-y-3">
               <Label className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Business Type</Label>
               <Select name="businessType" required>
-                <SelectTrigger className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 font-bold">
+                <SelectTrigger className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus:ring-2 focus:ring-[#E8C547]/50 font-bold">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-none shadow-2xl p-2">
@@ -153,7 +153,7 @@ export function WholesaleForm() {
                 id="estimatedVolume"
                 name="estimatedVolume"
                 placeholder="Expected Orders"
-                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-all placeholder:text-neutral-300 font-bold"
+                className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus-visible:ring-2 focus-visible:ring-[#E8C547]/50 transition-all placeholder:text-neutral-300 font-bold"
               />
             </div>
           </div>
@@ -165,7 +165,7 @@ export function WholesaleForm() {
               id="message"
               name="message"
               placeholder="Tell us about your business goals..."
-              className="min-h-[140px] bg-white border-none text-neutral-900 rounded-3xl focus-visible:ring-2 focus-visible:ring-emerald-500/50 transition-all placeholder:text-neutral-300 p-6 font-bold"
+              className="min-h-[140px] bg-white border-none text-neutral-900 rounded-3xl focus-visible:ring-2 focus-visible:ring-[#E8C547]/50 transition-all placeholder:text-neutral-300 p-6 font-bold"
             />
           </div>
 
@@ -173,7 +173,7 @@ export function WholesaleForm() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-18 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-[0.25em] rounded-2xl transition-all duration-300 shadow-xl shadow-emerald-600/20 active:scale-[0.98]"
+              className="w-full h-18 bg-[#E8C547] hover:bg-[#d4b33f] text-[#040e07] font-black text-xs uppercase tracking-[0.25em] rounded-2xl transition-all duration-300 shadow-xl shadow-[#E8C547]/20 active:scale-[0.98]"
             >
               {isSubmitting ? (
                  <div className="flex items-center gap-3">
