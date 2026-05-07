@@ -22,7 +22,7 @@ const steps = [
     number: "02",
     title: "Cryogenic Extraction",
     description: "We use sub-zero CO₂ extraction methods to preserve the delicate terpene profiles and cannabinoid integrity of the plant — no ethanol, no compromise.",
-    image: "https://i.postimg.cc/T3qHks4z/Sharcly-Chill-Collection.jpg",
+    image: "/manufacturing-cryogenic.png",
     stat: "-40°C",
     statLabel: "Extraction Temp"
   },
@@ -31,7 +31,7 @@ const steps = [
     number: "03",
     title: "Triple-Stage Filtration",
     description: "A proprietary three-step filtration process removes all impurities while keeping the essential beneficial compounds intact. Each stage is independently verified.",
-    image: "https://i.postimg.cc/9F7Kz7H4/Sharcly-Lift-Series.jpg",
+    image: "/manufacturing-filtration.png",
     stat: "3×",
     statLabel: "Filtration Stages"
   }
