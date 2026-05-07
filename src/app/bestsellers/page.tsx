@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ProductCard } from "@/components/product-card";
+import { ProductGridSkeleton } from "@/components/ui/skeletons";
 import { apiClient } from "@/lib/api-client";
 import { motion } from "framer-motion";
 import { Sparkles, TrendingUp } from "lucide-react";
@@ -68,9 +69,7 @@ export default function BestsellersPage() {
         <section className="container mx-auto px-6">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="aspect-[5/6] bg-neutral-100 animate-pulse rounded-xl" />
-              ))}
+              <ProductGridSkeleton count={4} />
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">

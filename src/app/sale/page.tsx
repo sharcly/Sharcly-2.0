@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { ProductCard } from "@/components/product-card";
+import { ProductGridSkeleton } from "@/components/ui/skeletons";
 import { apiClient } from "@/lib/api-client";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Percent, ArrowDown, Clock, Zap, Shield, Tag } from "lucide-react";
@@ -176,17 +177,7 @@ export default function SalePage() {
           {/* Product grid */}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {[...Array(4)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="animate-pulse"
-                >
-                  <div className="aspect-[4/5] rounded-[20px]" style={{ background: 'linear-gradient(to bottom, rgba(239,248,238,0.03), rgba(239,248,238,0.06))' }} />
-                </motion.div>
-              ))}
+              <ProductGridSkeleton count={4} />
             </div>
           ) : products.length === 0 ? (
             <motion.div
