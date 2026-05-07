@@ -36,7 +36,8 @@ export const metadata: Metadata = {
   title: "Sharcly",
   description: "Discover our curated collection of products. Browse our latest featured items and shop with confidence.",
   icons: {
-    icon: "https://cdn.mignite.app/ws/works_01KM0WR2ZSKYNHV0ZE2MPNM9EF/final-Logo-1--01KM5Y2NCW8720B30G9G0XW18Y.png",
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
   }
 };
 
