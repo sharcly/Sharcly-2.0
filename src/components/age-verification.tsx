@@ -54,7 +54,7 @@ export function AgeVerification() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] as any }}
           className="relative w-full max-w-2xl px-6 md:px-12 py-20 flex flex-col items-center"
         >
           {/* Elegant Header */}

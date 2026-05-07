@@ -14,8 +14,8 @@ export const getImageUrl = (image: any): string => {
     return `${baseUrl}${image}`;
   }
 
-  // Case 3: Just the UUID string
-  if (typeof image === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(image)) {
+  // Case 3: Just the filename or UUID string
+  if (typeof image === 'string' && !image.includes('/') && !image.includes('http')) {
     return `${apiUrl}/images/${image}`;
   }
 

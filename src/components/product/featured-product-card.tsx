@@ -73,7 +73,7 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           src={imageUrl}
           alt={product.name}
           animate={{ scale: hovered ? 1.08 : 1 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as any }}
           className="w-full h-full object-cover"
         />
         

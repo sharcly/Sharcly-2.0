@@ -24,7 +24,7 @@ const itemVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as any },
   },
 };
 
@@ -244,40 +244,37 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
             </div>
           </motion.div>
 
-          {coaBadge && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute -left-4 lg:-left-12 bottom-12 w-[210px] p-[14px_18px] rounded-[16px] bg-[#082f1d]/85 backdrop-blur-[20px] border border-[#E8C547]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-4"
-            >
-              <div className="w-10 h-10 rounded-xl bg-[#E8C547]/10 flex items-center justify-center flex-shrink-0">
-                <ShieldCheck className="w-5 h-5 text-[#E8C547]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#E8C547]">{coaBadge.title}</span>
-                <span className="text-[11px] text-[#eff8ee]/70 leading-tight">{coaBadge.description}</span>
-              </div>
-            </motion.div>
-          )}
+          {/* Floating Badge 1: COA */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.9, ease: [0.22, 1, 0.36, 1] as any }}
+            className="absolute -left-4 lg:-left-12 bottom-12 w-[210px] p-[14px_18px] rounded-[16px] bg-[#082f1d]/85 backdrop-blur-[20px] border border-[#E8C547]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-4"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#E8C547]/10 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-5 h-5 text-[#E8C547]" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#E8C547]">Lab Verified</span>
+              <span className="text-[11px] text-[#eff8ee]/70 leading-tight">COA available for every batch</span>
+            </div>
+          </motion.div>
 
           {/* Floating Badge 2: Stars */}
-          {reviewsBadge && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 1.05, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute -right-4 lg:-right-10 top-12 w-[130px] p-[16px] rounded-[16px] bg-[#082f1d]/85 backdrop-blur-[20px] border border-[#E8C547]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col items-center text-center"
-            >
-              <span className="font-cormorant text-2xl font-bold text-[#eff8ee] mb-1 leading-none">{reviewsBadge.rating}</span>
-              <div className="flex gap-0.5 mb-1.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-[#E8C547] text-[#E8C547]" />
-                ))}
-              </div>
-              <span className="text-[11px] font-medium text-[#eff8ee]/55 whitespace-nowrap">{reviewsBadge.totalReviews.toLocaleString()}+ Reviews</span>
-            </motion.div>
-          )}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.05, ease: [0.22, 1, 0.36, 1] as any }}
+            className="absolute -right-4 lg:-right-10 top-12 w-[130px] p-[16px] rounded-[16px] bg-[#082f1d]/85 backdrop-blur-[20px] border border-[#E8C547]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col items-center text-center"
+          >
+            <span className="font-cormorant text-2xl font-bold text-[#eff8ee] mb-1 leading-none">4.9</span>
+            <div className="flex gap-0.5 mb-1.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-3 h-3 fill-[#E8C547] text-[#E8C547]" />
+              ))}
+            </div>
+            <span className="text-[11px] font-medium text-[#eff8ee]/55 whitespace-nowrap">2,400+ Reviews</span>
+          </motion.div>
 
           {/* Series Pills */}
           <div className="hidden lg:flex absolute -right-20 top-1/2 -translate-y-1/2 flex-col gap-2 z-20">

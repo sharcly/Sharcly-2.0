@@ -276,7 +276,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] as any }}
             className="relative h-[60vh] md:h-[80vh] rounded-[48px] md:rounded-[64px] overflow-hidden group shadow-2xl border-4 md:border-8 border-white/10"
           >
             <motion.div style={{ scale: imageScale }} className="absolute inset-0 z-0">

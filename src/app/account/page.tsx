@@ -107,7 +107,7 @@ export default function AccountPage() {
                    </div>
                    <div className="pt-4 flex gap-2">
                       <div className="px-4 py-1.5 rounded-full bg-emerald-400/10 border border-emerald-400/20 text-[8px] font-black uppercase tracking-widest text-emerald-400">Verified Member</div>
-                      <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[8px] font-black uppercase tracking-widest text-[#eff8ee]/40">Active since {new Date(user.createdAt).getFullYear()}</div>
+                      <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/5 text-[8px] font-black uppercase tracking-widest text-[#eff8ee]/40">Active since {new Date((user as any).createdAt).getFullYear()}</div>
                    </div>
                 </div>
              </div>
