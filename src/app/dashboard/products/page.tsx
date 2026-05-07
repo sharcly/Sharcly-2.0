@@ -70,6 +70,13 @@ export default function DashboardProductsPage() {
   const [tags, setTags] = useState<any[]>([]);
   const [types, setTypes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Search and Pagination
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   // Modals
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -85,17 +92,19 @@ export default function DashboardProductsPage() {
   const [categoryForm, setCategoryForm] = useState({ name: "", slug: "", description: "" });
   const [collectionForm, setCollectionForm] = useState({ name: "", slug: "", description: "" });
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (page = currentPage, search = debouncedSearch) => {
     setLoading(true);
     try {
       const [pRes, cRes, colRes, tRes, tyRes] = await Promise.all([
-        apiClient.get("/products"),
+        apiClient.get(`/products?page=${page}&limit=10${search ? `&search=${search}` : ""}`),
         apiClient.get("/products/categories"),
         apiClient.get("/products/collections"),
         apiClient.get("/products/tags"),
         apiClient.get("/products/types")
       ]);
       setProducts(pRes.data.products);
+      setTotalPages(pRes.data.pagination?.pages || 1);
+      setTotalProducts(pRes.data.pagination?.total || 0);
       setCategories(cRes.data.categories || []);
       setCollections(colRes.data.collections || []);
       setTags(tRes.data.tags || []);
@@ -105,11 +114,20 @@ export default function DashboardProductsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, debouncedSearch]);
+
+  // Debounce search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1); // Reset to first page on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData(currentPage, debouncedSearch);
+  }, [fetchData, currentPage, debouncedSearch]);
 
   // Product Actions
   const handleCreateProduct = async (e: React.FormEvent) => {
@@ -237,13 +255,17 @@ export default function DashboardProductsPage() {
               </div>
               <div className="relative w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
-                <Input placeholder="Search products..." className="pl-12 h-12 rounded-2xl border-black/5 bg-neutral-50 font-medium" />
+                <Input 
+                  placeholder="Search products..." 
+                  className="pl-12 h-12 rounded-2xl border-black/5 bg-neutral-50 font-medium" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
             </CardHeader>
             <CardContent className="p-0">
               <ScrollArea className="w-full">
                 <Table>
-
                   <TableHeader className="bg-neutral-50/50">
                     <TableRow className="border-black/5 hover:bg-transparent">
                       <TableHead className="pl-8 py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Image</TableHead>
@@ -255,7 +277,7 @@ export default function DashboardProductsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {loading ? [1, 2, 3].map(i => <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-20 w-full rounded-2xl" /></TableCell></TableRow>) : products.map(p => (
+                    {loading ? [1, 2, 3].map(i => <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-20 w-full rounded-2xl" /></TableCell></TableRow>) : products.length > 0 ? products.map(p => (
                       <TableRow key={p.id} className="border-black/5 hover:bg-neutral-50/50 transition-all group">
                         <TableCell className="pl-8 py-6">
                           <div className="size-16 rounded-2xl bg-neutral-100 border border-black/5 overflow-hidden shadow-sm group-hover:scale-110 transition-transform duration-500">
@@ -311,10 +333,46 @@ export default function DashboardProductsPage() {
                           </DropdownMenu>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-20 text-center text-neutral-400 font-medium">
+                          {debouncedSearch ? `No products found for "${debouncedSearch}"` : "No products available"}
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </ScrollArea>
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="p-8 border-t border-black/5 flex items-center justify-between bg-neutral-50/30">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
+                    Showing page <span className="text-neutral-900">{currentPage}</span> of <span className="text-neutral-900">{totalPages}</span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1 || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Previous
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -346,7 +404,7 @@ export default function DashboardProductsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.map(p => (
+                    {products.length > 0 ? products.map(p => (
                       <TableRow key={p.id} className="border-black/5 hover:bg-neutral-50 transition-all group">
                         <TableCell className="pl-8 py-8">
                           <span className="font-bold text-neutral-900 text-base">{p.name}</span>
@@ -375,10 +433,46 @@ export default function DashboardProductsPage() {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="py-20 text-center text-neutral-400 font-medium">
+                          No products found
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </ScrollArea>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="p-8 border-t border-black/5 flex items-center justify-between bg-neutral-50/30">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
+                    Showing page <span className="text-neutral-900">{currentPage}</span> of <span className="text-neutral-900">{totalPages}</span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1 || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Previous
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
