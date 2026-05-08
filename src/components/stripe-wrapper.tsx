@@ -5,7 +5,11 @@ import { Elements } from "@stripe/react-stripe-js";
 import { useThemeSettings } from "@/components/theme-provider";
 
 // Placeholder Publishable Key - Should be in .env
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder");
+const STRIPE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+if (!STRIPE_KEY) {
+  console.warn("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is missing. Stripe will not initialize correctly.");
+}
+const stripePromise = STRIPE_KEY ? loadStripe(STRIPE_KEY) : null;
 
 export function StripeWrapper({ children }: { children: React.ReactNode }) {
   const { settings } = useThemeSettings();
@@ -24,6 +28,10 @@ export function StripeWrapper({ children }: { children: React.ReactNode }) {
       }
     }
   };
+
+  if (!stripePromise) {
+    return <>{children}</>;
+  }
 
   return (
     <Elements stripe={stripePromise} options={options}>
