@@ -11,7 +11,7 @@ import { FileText, Scale, Gavel, Sparkles } from "lucide-react";
 export default function TermsPage() {
   const [content, setContent] = useState<any>({
     legal: {
-      body: `Welcome to Sharcly. By accessing our website and purchasing our products, you agree to the following terms, designed to ensure a safe and transparent experience for everyone in our community.\n\n1. AGE REQUIREMENT\nYou must be at least 21 years of age to purchase Sharcly products. By placing an order, you confirm that you meet this age requirement. We reserve the right to verify age at our discretion.\n\n2. PRODUCT INTENT\nSharcly products are hemp-derived and contain less than 0.3% THC in accordance with federal law. These products are intended for wellness and relaxation. They are not intended to diagnose, treat, or cure any disease. Please consult with a healthcare professional before use.\n\n3. SHIPPING & COMPLIANCE\nWe ship only to states where our products are legally compliant. It is your responsibility to understand the local laws in your jurisdiction before placing an order.\n\n4. SATISFACTION GUARANTEE\nWe stand by the quality of our series. If you are not satisfied with your purchase, please refer to our Returns policy or contact our support team. We aim to resolve every concern with fairness and speed.\n\n5. INTELLECTUAL PROPERTY\nAll content on this site, including designs, photography, and the "Sharcly" name, is the property of Sharcly and may not be used without our express written consent.`
+      body: `Welcome to the Sharcly ecosystem. By engaging with our platform and acquiring our products, you enter into a mutual agreement defined by transparency and responsibility.\n\n1. MANDATORY AGE VERIFICATION\nSharcly products are strictly for individuals aged 21 and over. By placing an order, you affirm your legal age. We reserve the right to employ third-party verification to ensure compliance.\n\n2. PRODUCT INTENT & COMPLIANCE\nAll Sharcly offerings are hemp-derived and contain less than 0.3% THC, adhering strictly to federal standards. These products are intended for wellness and are not designed to diagnose, treat, or cure any medical condition. Consultation with a professional is advised before use.\n\n3. JURISDICTIONAL COMPLIANCE\nWe only facilitate shipments to jurisdictions where our products are legally authorized. It is the consumer's responsibility to understand and adhere to local laws before acquisition.\n\n4. QUALITY GUARANTEE\nWe stand behind the precision of every series. If your experience does not meet the Sharcly standard, please consult our Returns protocol. We are committed to resolving every inquiry with speed and fairness.\n\n5. INTELLECTUAL PROPERTY\nThe Sharcly name, designs, and editorial content are the exclusive property of Sharcly. Unauthorized reproduction is strictly prohibited.`
     }
   });
 
@@ -30,23 +30,33 @@ export default function TermsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#040e07] text-[#eff8ee] selection:bg-[#eff8ee] selection:text-[#040e07] antialiased">
+    <>
+    <div className="min-h-screen font-sans antialiased selection:bg-[#E8C547] selection:text-[#040e07]" style={{ background: "linear-gradient(160deg, #040e07 0%, #082f1d 50%, #040e07 100%)", color: "#eff8ee" }}>
       <Navbar />
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="pt-32 pb-24 md:pt-48 md:pb-32 relative overflow-hidden">
-           <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/20 to-transparent" />
-           <div className="container mx-auto px-6 relative z-10">
-              <div className="max-w-4xl">
+        <section className="relative min-h-[70vh] flex items-center justify-center pt-32 pb-24 px-6 overflow-hidden">
+          {/* Animated Glass Blobs */}
+          <motion.div 
+            animate={{ x: [0, 40, 0], y: [0, 24, 0] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 -left-20 w-[480px] h-[480px] bg-white/5 rounded-full blur-[120px] pointer-events-none" 
+          />
+          <motion.div 
+            animate={{ x: [0, -32, 0], y: [0, 48, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-1/4 -right-20 w-[560px] h-[560px] bg-[#E8C547]/10 rounded-full blur-[140px] pointer-events-none" 
+          />
+
+           <div className="container max-w-[1280px] mx-auto relative z-20 text-center">
+              <div className="max-w-[960px] mx-auto">
                 <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-4 mb-8"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-center gap-4 mb-8"
                 >
-                  <Badge className="bg-[#E8C547]/10 text-[#E8C547] border-none font-black text-[10px] uppercase tracking-[0.3em] px-4 py-1.5">Legal Framework</Badge>
-                  <div className="h-px w-12 bg-emerald-500/20" />
-                  <Sparkles className="size-4 text-[#E8C547] opacity-40" />
+                  <Badge className="bg-[#E8C547]/10 text-[#E8C547] border border-[#E8C547]/20 font-black text-[10px] uppercase tracking-[0.3em] px-6 py-2 rounded-full">Legal Framework</Badge>
                 </motion.div>
                 
                 <motion.h1 
@@ -56,14 +66,14 @@ export default function TermsPage() {
                   className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-12 uppercase"
                 >
                   TERMS & <br/>
-                  <span className="opacity-20 italic font-serif">CONDITIONS</span>.
+                  <span className="italic font-serif text-[#E8C547]">CONDITIONS</span>.
                 </motion.h1>
 
                 <motion.p 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-xl lg:text-2xl text-emerald-100/40 font-medium max-w-2xl leading-relaxed"
+                  className="text-xl lg:text-2xl text-white/40 font-medium max-w-2xl mx-auto leading-relaxed"
                 >
                   Clear, honest, and binding agreements that define the relationship between our brand and our community.
                 </motion.p>
@@ -110,8 +120,13 @@ export default function TermsPage() {
 
                  {/* Main Body */}
                  <div className="lg:col-span-8">
-                    <div className="prose prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-headings:uppercase prose-p:text-emerald-100/70 prose-p:leading-relaxed prose-p:text-lg prose-p:font-medium whitespace-pre-wrap">
-                       {content.legal?.body}
+                    <div className="bg-white border border-primary/5 rounded-[3rem] p-8 md:p-16 min-h-[600px] text-primary/80">
+                      <div className="prose prose-emerald max-w-none prose-headings:text-[#040e07] prose-headings:font-black prose-a:text-[#E8C547] prose-a:font-bold hover:prose-a:underline">
+                        <div 
+                          className="leading-relaxed text-lg"
+                          dangerouslySetInnerHTML={{ __html: content.legal?.body || "Terms and conditions content is being prepared." }}
+                        />
+                      </div>
                     </div>
                  </div>
               </div>
@@ -121,5 +136,7 @@ export default function TermsPage() {
 
       <Footer />
     </div>
+
+    </>
   );
 }

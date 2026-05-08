@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/navbar";
 import { AnnouncementBar } from "@/components/announcement-bar";
 import { Footer } from "@/components/footer";
 import { BlogCard } from "@/components/blog/BlogCard";
-import { BlogFilters } from "@/components/blog/BlogFilters";
 import { BlogSkeleton } from "@/components/blog/BlogSkeleton";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,7 +35,7 @@ export default function BlogsPage() {
         const response = await apiClient.get("/blogs", {
           params: {
             status: "PUBLISHED",
-            search: search,
+            search,
             category: selectedCategory,
             tags: selectedTags.length > 0 ? selectedTags.join(",") : undefined,
           },
@@ -55,18 +54,22 @@ export default function BlogsPage() {
           setAllTags(Array.from(tags));
         }
       } catch (error) {
-        console.error("Failed to fetch narratives");
+        console.error("Failed to fetch blogs");
       } finally {
         setLoading(false);
       }
     };
-
-    const timer = setTimeout(() => {
-      fetchBlogs();
-    }, 300); // Debounce search
-
+    const timer = setTimeout(fetchBlogs, 300);
     return () => clearTimeout(timer);
   }, [search, selectedCategory, selectedTags]);
+
+  const isFiltering = !!(search || selectedCategory || selectedTags.length > 0);
+  const featuredBlog = !isFiltering ? blogs[0] : null;
+  const gridBlogs = featuredBlog ? blogs.slice(1) : blogs;
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+  };
 
   return (
     <div className="min-h-screen bg-[#040e07] text-[#eff8ee] selection:bg-[#E8C547] selection:text-[#040e07] relative overflow-hidden">
@@ -105,6 +108,7 @@ export default function BlogsPage() {
             </div>
           </div>
         </section>
+
 
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">

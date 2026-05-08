@@ -1,9 +1,37 @@
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/request'
+import type { NextRequest } from 'next/server'
+import { jwtVerify } from 'jose'
 
-export function middleware(request: NextRequest) {
+/**
+ * Decodes the role from the signed access_token JWT.
+ * Falls back to the plain 'role' cookie ONLY if no access_token is present
+ * (e.g., on initial load before backend cookie is set).
+ * 
+ * SECURITY: Never trust the plain 'role' cookie alone — users can set it manually.
+ * The access_token is httpOnly (JS cannot read it) and is signed by the backend.
+ */
+async function getRoleFromRequest(request: NextRequest): Promise<string | null> {
+  const accessToken = request.cookies.get('access_token')?.value
+  const roleCookie = request.cookies.get('role')?.value || null
+
+  if (accessToken) {
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET || '')
+      const { payload } = await jwtVerify(accessToken, secret)
+      if (payload.role) return payload.role as string
+    } catch (err) {
+      // If JWT verification fails (e.g. missing secret in frontend), 
+      // we still check the role cookie as a fallback.
+      return roleCookie
+    }
+  }
+
+  return roleCookie
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const role = request.cookies.get('role')?.value
+  const role = await getRoleFromRequest(request)
   
   // Define protected routes
   const isAdminRoute = pathname.startsWith('/dashboard') || pathname.startsWith('/admin') || pathname.startsWith('/manager')

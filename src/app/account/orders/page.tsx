@@ -6,6 +6,7 @@ import { ShoppingBag, ArrowRight, Package } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { OrderTableSkeleton } from "@/components/ui/skeletons";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -34,11 +35,8 @@ export default function OrdersPage() {
 
       <div className="min-h-[400px]">
         {loading ? (
-          <div className="space-y-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-24 bg-white/5 rounded-[2rem] animate-pulse" />
-            ))}
-          </div>
+          <OrderTableSkeleton rows={4} />
+
         ) : orders.length === 0 ? (
           <div className="py-24 text-center border border-dashed border-white/10 rounded-[2.5rem] space-y-6">
             <ShoppingBag className="size-16 opacity-10 mx-auto" />

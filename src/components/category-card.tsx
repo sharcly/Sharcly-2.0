@@ -21,7 +21,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ name, slug, icon: Ic
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] as any }}
         className="relative mb-8"
       >
         <div className="relative aspect-[4/5] rounded-[2.5rem] bg-white overflow-hidden border border-black/[0.03] shadow-organic transition-all duration-700 group-hover:shadow-sharcly group-hover:-translate-y-2 group-hover:border-primary/10">

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { 
@@ -11,7 +12,9 @@ import {
   Package,
   ClipboardList,
   BookOpen,
-  ArrowRight
+  ArrowRight,
+  ShieldCheck,
+  Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -204,8 +207,8 @@ export default function DashboardPage() {
                         </TableCell>
                         <TableCell className="py-5">
                           <div className="flex flex-col">
-                            <span className="text-xs font-bold text-neutral-900">{new Date(order.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                            <span className="text-[10px] text-neutral-400 font-medium">{new Date(order.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                            <span className="text-xs font-bold text-neutral-900">{format(new Date(order.date), "MMM d")}</span>
+                            <span className="text-[10px] text-neutral-400 font-medium">{format(new Date(order.date), "HH:mm")}</span>
                           </div>
                         </TableCell>
                         <TableCell className="py-5 text-xs font-medium text-neutral-600">

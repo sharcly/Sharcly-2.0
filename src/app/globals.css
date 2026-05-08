@@ -66,6 +66,16 @@
     0% { transform: translateX(100%); }
     100% { transform: translateX(0%); }
   }
+
+  /* Skeleton shimmer sweep */
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
 :root {

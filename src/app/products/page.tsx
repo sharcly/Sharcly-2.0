@@ -22,6 +22,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ProductCard } from "@/components/product-card";
+import { ProductGridSkeleton } from "@/components/ui/skeletons";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useSeo } from "@/hooks/use-seo";
@@ -359,13 +360,8 @@ function ProductsContent() {
           {/* ═══ PRODUCT GRID ═══ */}
           <AnimatePresence mode="popLayout">
             {loading ? (
-              <div className="grid gap-6 md:gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <motion.div key={`skel-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }} className="animate-pulse">
-                    <div className="aspect-[4/5] rounded-[20px]" style={{ background: 'linear-gradient(to bottom, rgba(239,248,238,0.03), rgba(239,248,238,0.06))' }} />
-                  </motion.div>
-                ))}
-              </div>
+              <ProductGridSkeleton count={8} />
+
             ) : products.length === 0 ? (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-32 flex flex-col items-center text-center">
                 <div className="size-16 rounded-2xl flex items-center justify-center mb-5 rotate-6" style={{ backgroundColor: 'rgba(239,248,238,0.05)' }}>
@@ -386,7 +382,7 @@ function ProductsContent() {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.97 }}
-                    transition={{ duration: 0.45, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.45, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] as any }}
                   >
                     <ProductCard product={product} />
                   </motion.div>

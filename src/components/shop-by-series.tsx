@@ -172,7 +172,13 @@ const SeriesCard = ({ item, index }: { item: typeof seriesData[0], index: number
   );
 };
 
-export const ShopBySeries = () => {
+interface ShopBySeriesProps {
+  dynamicData?: any;
+}
+
+export const ShopBySeries = ({ dynamicData }: ShopBySeriesProps = {}) => {
+  const dataList = (Array.isArray(dynamicData) && dynamicData.length > 0) ? dynamicData : seriesData;
+
   return (
     <section
       style={{
@@ -263,7 +269,7 @@ export const ShopBySeries = () => {
           `)}} />
           
           <div className="marquee-container py-2 md:py-4 gap-6 md:gap-10">
-            {[...seriesData, ...seriesData, ...seriesData].map((item, index) => (
+            {[...dataList, ...dataList, ...dataList].map((item, index) => (
               <div key={`${item.number}-${index}`} className="w-[180px] md:w-[280px] shrink-0">
                 <SeriesCard item={item} index={index} />
               </div>

@@ -11,7 +11,7 @@ import { Shield, Lock, Eye, Sparkles } from "lucide-react";
 export default function PrivacyPage() {
   const [content, setContent] = useState<any>({
     legal: {
-      body: `At Sharcly, we believe your privacy is a fundamental right. This policy outlines how we handle your personal information with the same care and respect we give our products.\n\n1. INFORMATION COLLECTION\nWe collect information you provide directly to us, such as your name, shipping address, and email when you place an order or subscribe to our newsletter. We also collect minimal technical data via cookies to ensure our site works correctly for you.\n\n2. HOW WE USE YOUR DATA\nYour data is primarily used to fulfill your orders, process payments, and provide you with the best possible customer support. If you've opted in, we may also send you updates about new series launches and wellness tips.\n\n3. NO DATA SELLING\nWe have never sold, and will never sell, your personal information to third parties. Your data stays within the Sharcly ecosystem, used only by our trusted service providers (like shipping carriers and payment processors) to complete your transactions.\n\n4. DATA SECURITY\nWe use industry-standard SSL/TLS encryption for all data transfers. Your payment information is processed through secure, PCI-compliant gateways and is never stored on our local servers.\n\n5. YOUR RIGHTS\nYou have the right to access, correct, or delete your personal data at any time. If you wish to exercise these rights, please contact our privacy team at privacy@sharcly.com.`
+      body: `At Sharcly, we consider the privacy of our community as paramount as the quality of our formulations. This Privacy Protocol outlines our commitment to the ethical stewardship of your data.\n\n1. INFORMATION HARVESTING\nWe collect data you provide explicitly—such as your identity, shipping destination, and contact details—to fulfill orders and provide bespoke support. Minimal technical metadata is collected to ensure the peak performance of our digital flagship.\n\n2. USAGE PROTOCOLS\nYour data is utilized strictly for transaction fulfillment, secure payment processing, and if opted-in, highly curated updates on new series launches.\n\n3. DATA SOVEREIGNTY\nWe operate on a strict no-sale policy. Your personal information has never been, and will never be, sold to third parties. Data remains within the Sharcly ecosystem, shared only with essential partners (logistics and payment gateways) required to complete your experience.\n\n4. CRYPTOGRAPHIC SECURITY\nAll data transfers are protected by industry-leading SSL/TLS encryption. Your financial information is handled by PCI-compliant processors and never touches our local servers.\n\n5. YOUR RIGHTS\nYou maintain full authority over your data. You may request access, correction, or deletion of your information at any time by contacting our privacy team at privacy@sharcly.com.`
     }
   });
 
@@ -30,23 +30,33 @@ export default function PrivacyPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#040e07] text-[#eff8ee] selection:bg-[#eff8ee] selection:text-[#040e07] antialiased">
+    <>
+    <div className="min-h-screen font-sans antialiased selection:bg-[#E8C547] selection:text-[#040e07]" style={{ background: "linear-gradient(160deg, #040e07 0%, #082f1d 50%, #040e07 100%)", color: "#eff8ee" }}>
       <Navbar />
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="pt-32 pb-24 md:pt-48 md:pb-32 relative overflow-hidden">
-           <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/20 to-transparent" />
-           <div className="container mx-auto px-6 relative z-10">
-              <div className="max-w-4xl">
+        <section className="relative min-h-[70vh] flex items-center justify-center pt-32 pb-24 px-6 overflow-hidden">
+          {/* Animated Glass Blobs */}
+          <motion.div 
+            animate={{ x: [0, 40, 0], y: [0, 24, 0] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 -left-20 w-[480px] h-[480px] bg-white/5 rounded-full blur-[120px] pointer-events-none" 
+          />
+          <motion.div 
+            animate={{ x: [0, -32, 0], y: [0, 48, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-1/4 -right-20 w-[560px] h-[560px] bg-[#E8C547]/10 rounded-full blur-[140px] pointer-events-none" 
+          />
+
+           <div className="container max-w-[1280px] mx-auto relative z-20 text-center">
+              <div className="max-w-[960px] mx-auto">
                 <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-4 mb-8"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-center gap-4 mb-8"
                 >
-                  <Badge className="bg-[#E8C547]/10 text-[#E8C547] border-none font-black text-[10px] uppercase tracking-[0.3em] px-4 py-1.5">Data Sovereignty</Badge>
-                  <div className="h-px w-12 bg-emerald-500/20" />
-                  <Sparkles className="size-4 text-[#E8C547] opacity-40" />
+                  <Badge className="bg-[#E8C547]/10 text-[#E8C547] border border-[#E8C547]/20 font-black text-[10px] uppercase tracking-[0.3em] px-6 py-2 rounded-full">Data Sovereignty</Badge>
                 </motion.div>
                 
                 <motion.h1 
@@ -56,14 +66,14 @@ export default function PrivacyPage() {
                   className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-12 uppercase"
                 >
                   PRIVACY <br/>
-                  <span className="opacity-20 italic font-serif">PROTOCOL</span>.
+                  <span className="italic font-serif text-[#E8C547]">PROTOCOL</span>.
                 </motion.h1>
 
                 <motion.p 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="text-xl lg:text-2xl text-emerald-100/40 font-medium max-w-2xl leading-relaxed"
+                  className="text-xl lg:text-2xl text-white/40 font-medium max-w-2xl mx-auto leading-relaxed"
                 >
                   Your trust is our most valuable asset. We are committed to transparency and the ethical stewardship of your data.
                 </motion.p>
@@ -110,8 +120,13 @@ export default function PrivacyPage() {
 
                  {/* Main Body */}
                  <div className="lg:col-span-8">
-                    <div className="prose prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tighter prose-headings:uppercase prose-p:text-emerald-100/70 prose-p:leading-relaxed prose-p:text-lg prose-p:font-medium whitespace-pre-wrap">
-                       {content.legal?.body}
+                    <div className="bg-white border border-primary/5 rounded-[3rem] p-8 md:p-16 min-h-[600px] text-primary/80">
+                      <div className="prose prose-emerald max-w-none prose-headings:text-[#040e07] prose-headings:font-black prose-a:text-[#E8C547] prose-a:font-bold hover:prose-a:underline">
+                        <div 
+                          className="leading-relaxed text-lg"
+                          dangerouslySetInnerHTML={{ __html: content.legal?.body || "Privacy policy content is being prepared." }}
+                        />
+                      </div>
                     </div>
                  </div>
               </div>
@@ -121,5 +136,7 @@ export default function PrivacyPage() {
 
       <Footer />
     </div>
+
+    </>
   );
 }

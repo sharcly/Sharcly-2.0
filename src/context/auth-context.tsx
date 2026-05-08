@@ -100,9 +100,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     Cookies.set("role", newUser.role, { expires: 1, path: "/" });
 
     if (newUser.role === "user") {
-      router.push("/account");
+      window.location.href = "/account";
     } else {
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     }
   };
 
