@@ -98,6 +98,8 @@ function CheckoutContent() {
   const [summary, setSummary] = useState<any>(null);
 
   const fetchSummary = async (code?: string) => {
+    if (!cartItems || cartItems.length === 0) return;
+    
     try {
       const response = await apiClient.post("/orders/preview", {
         items: cartItems.map(i => ({ productId: i.id, quantity: i.quantity })),
@@ -106,8 +108,13 @@ function CheckoutContent() {
       if (response.data.success) {
         setSummary(response.data.summary);
       }
-    } catch (err) {
-      console.error("Failed to fetch summary:", err);
+    } catch (err: any) {
+      console.error("Checkout Summary Fetch Error:", err.response?.data?.message || err.message);
+      // If it's a 400 from an invalid coupon, we might want to clear the coupon
+      if (err.response?.status === 400 && code) {
+        setAppliedCoupon(null);
+        setCouponCode("");
+      }
     }
   };
 

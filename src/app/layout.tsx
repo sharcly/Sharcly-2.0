@@ -42,6 +42,7 @@ export const metadata: Metadata = {
 
 import { ReduxProvider } from "@/store/provider";
 import { Analytics } from "@vercel/analytics/next";
+import { CartSync } from "@/components/cart-sync";
 
 export default function RootLayout({
   children,
@@ -54,20 +55,19 @@ export default function RootLayout({
       <body className={`${inter.variable} ${cormorant.variable} ${dmSans.variable} font-sans antialiased bg-background text-foreground`}>
         <ReduxProvider>
           <ThemeProvider>
-            <CartProvider>
-              <AuthProvider>
-                <div className="min-h-screen flex flex-col">
-                  {children}
-                </div>
-                <AgeVerification />
-                <WelcomePopup />
-                <Toaster position="top-right" />
-                <CartDrawer />
-                <ChatwootWidget />
-                <GlobalSeoIntegrator />
-                <Analytics />
-              </AuthProvider>
-            </CartProvider>
+            <AuthProvider>
+              <div className="min-h-screen flex flex-col">
+                {children}
+              </div>
+              <CartSync />
+              <AgeVerification />
+              <WelcomePopup />
+              <Toaster position="top-right" />
+              <CartDrawer />
+              <ChatwootWidget />
+              <GlobalSeoIntegrator />
+              <Analytics />
+            </AuthProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>
