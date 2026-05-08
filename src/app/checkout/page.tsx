@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -551,24 +551,38 @@ function CheckoutContent() {
                                    </div>
                                 </button>
                               ))}
-                           </div>
-
-                           <AnimatePresence mode="wait">
-                              {formData.paymentMethod === 'online' ? (
-                                <motion.div key="card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.25 }} className="space-y-6 pt-6 border-t border-gray-50">
+                               <AnimatePresence mode="wait">
+                               {formData.paymentMethod === 'online' ? (
+                                 <motion.div 
+                                   key="card" 
+                                   initial={{ opacity: 0, y: 10 }} 
+                                   animate={{ opacity: 1, y: 0 }} 
+                                   exit={{ opacity: 0, y: -10 }} 
+                                   transition={{ duration: 0.3, ease: "easeOut" }} 
+                                   className="space-y-8 pt-8 border-t border-gray-100"
+                                 >
+                                    <div className="flex items-center gap-3 mb-2">
+                                       <div className="size-8 rounded-lg bg-[#062D1B]/5 flex items-center justify-center">
+                                          <ScanLine className="size-4 text-[#062D1B]/40" />
+                                       </div>
+                                       <div>
+                                          <p className="text-[11px] font-bold uppercase tracking-widest text-[#062D1B]">Card Details</p>
+                                          <p className="text-[9px] text-[#062D1B]/30 font-medium">Safe & Encrypted Transaction</p>
+                                       </div>
+                                    </div>
 
                                     {/* Cardholder Name */}
                                     <div className="space-y-2">
                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Cardholder Name</Label>
-                                       <div className="relative">
+                                       <div className="relative group">
                                           <Input
                                             required={formData.paymentMethod === 'online'}
                                             value={formData.cardHolderName}
                                             onChange={(e) => setFormData({...formData, cardHolderName: e.target.value})}
                                             placeholder="Full name as on card"
-                                            className="checkout-input pl-12 border border-gray-100 focus:border-[#062D1B] transition-colors"
+                                            className="checkout-input pl-12 border border-gray-100 focus:border-[#062D1B] transition-all bg-gray-50/30"
                                           />
-                                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#062D1B]/20">
+                                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#062D1B]/20 group-focus-within:text-[#062D1B] transition-colors">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                           </div>
                                        </div>
@@ -578,104 +592,93 @@ function CheckoutContent() {
                                     <div className="space-y-2">
                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Card Number</Label>
                                        <div className={cn(
-                                         "relative flex items-center h-14 px-4 rounded-xl border bg-white transition-all duration-200",
-                                         cardFocus === 'number' ? "border-[#062D1B] shadow-[0_0_0_3px_rgba(6,45,27,0.08)]" : "border-gray-100",
-                                         cardComplete.number ? "border-emerald-300" : ""
+                                         "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300",
+                                         cardFocus === 'number' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100",
+                                         cardComplete.number ? "border-emerald-200" : ""
                                        )}>
                                           <CreditCard className={cn("size-4 mr-3 shrink-0 transition-colors", cardFocus === 'number' ? "text-[#062D1B]" : "text-[#062D1B]/20")} />
-                                          <CardNumberElement
-                                            options={{ ...CARD_ELEMENT_OPTIONS, showIcon: true, iconStyle: 'default' }}
-                                            className="w-full"
-                                            onFocus={() => setCardFocus('number')}
-                                            onBlur={() => setCardFocus(null)}
-                                            onChange={(e) => setCardComplete(p => ({ ...p, number: e.complete }))}
-                                          />
+                                          <div className="flex-1">
+                                            <CardNumberElement
+                                              options={{ ...CARD_ELEMENT_OPTIONS, showIcon: true, iconStyle: 'default' }}
+                                              className="w-full"
+                                              onFocus={() => setCardFocus('number')}
+                                              onBlur={() => setCardFocus(null)}
+                                              onChange={(e) => setCardComplete(p => ({ ...p, number: e.complete }))}
+                                            />
+                                          </div>
                                           {cardComplete.number && (
                                             <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="shrink-0 ml-2">
-                                              <CheckCircle2 className="size-4 text-emerald-500" />
+                                              <BadgeCheck className="size-4 text-emerald-500" />
                                             </motion.div>
                                           )}
                                        </div>
                                     </div>
 
                                     {/* Expiry + CVC */}
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 gap-5">
                                        <div className="space-y-2">
                                           <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Expiry Date</Label>
                                           <div className={cn(
-                                            "relative flex items-center h-14 px-4 rounded-xl border bg-white transition-all duration-200",
-                                            cardFocus === 'expiry' ? "border-[#062D1B] shadow-[0_0_0_3px_rgba(6,45,27,0.08)]" : "border-gray-100",
-                                            cardComplete.expiry ? "border-emerald-300" : ""
+                                            "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300",
+                                            cardFocus === 'expiry' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100",
+                                            cardComplete.expiry ? "border-emerald-200" : ""
                                           )}>
                                              <Calendar className={cn("size-4 mr-3 shrink-0 transition-colors", cardFocus === 'expiry' ? "text-[#062D1B]" : "text-[#062D1B]/20")} />
-                                             <CardExpiryElement
-                                               options={CARD_ELEMENT_OPTIONS}
-                                               className="w-full"
-                                               onFocus={() => setCardFocus('expiry')}
-                                               onBlur={() => setCardFocus(null)}
-                                               onChange={(e) => setCardComplete(p => ({ ...p, expiry: e.complete }))}
-                                             />
-                                             {cardComplete.expiry && (
-                                               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="shrink-0 ml-2">
-                                                 <CheckCircle2 className="size-4 text-emerald-500" />
-                                               </motion.div>
-                                             )}
+                                             <div className="flex-1">
+                                               <CardExpiryElement
+                                                 options={CARD_ELEMENT_OPTIONS}
+                                                 className="w-full"
+                                                 onFocus={() => setCardFocus('expiry')}
+                                                 onBlur={() => setCardFocus(null)}
+                                                 onChange={(e) => setCardComplete(p => ({ ...p, expiry: e.complete }))}
+                                               />
+                                             </div>
                                           </div>
                                        </div>
                                        <div className="space-y-2">
                                           <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">CVV / CVC</Label>
                                           <div className={cn(
-                                            "relative flex items-center h-14 px-4 rounded-xl border bg-white transition-all duration-200",
-                                            cardFocus === 'cvc' ? "border-[#062D1B] shadow-[0_0_0_3px_rgba(6,45,27,0.08)]" : "border-gray-100",
-                                            cardComplete.cvc ? "border-emerald-300" : ""
+                                            "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300",
+                                            cardFocus === 'cvc' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100",
+                                            cardComplete.cvc ? "border-emerald-200" : ""
                                           )}>
                                              <Lock className={cn("size-4 mr-3 shrink-0 transition-colors", cardFocus === 'cvc' ? "text-[#062D1B]" : "text-[#062D1B]/20")} />
-                                             <CardCvcElement
-                                               options={CARD_ELEMENT_OPTIONS}
-                                               className="w-full"
-                                               onFocus={() => setCardFocus('cvc')}
-                                               onBlur={() => setCardFocus(null)}
-                                               onChange={(e) => setCardComplete(p => ({ ...p, cvc: e.complete }))}
-                                             />
-                                             {cardComplete.cvc && (
-                                               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="shrink-0 ml-2">
-                                                 <CheckCircle2 className="size-4 text-emerald-500" />
-                                               </motion.div>
-                                             )}
+                                             <div className="flex-1">
+                                               <CardCvcElement
+                                                 options={CARD_ELEMENT_OPTIONS}
+                                                 className="w-full"
+                                                 onFocus={() => setCardFocus('cvc')}
+                                                 onBlur={() => setCardFocus(null)}
+                                                 onChange={(e) => setCardComplete(p => ({ ...p, cvc: e.complete }))}
+                                               />
+                                             </div>
                                           </div>
                                        </div>
                                     </div>
 
                                     {/* Security & Stripe badge */}
-                                    <div className="flex items-center justify-between pt-2">
-                                       <div className="flex items-center gap-3">
-                                          <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/25">
-                                             <Lock className="size-3" /> 256-bit SSL
+                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-50">
+                                       <div className="flex items-center gap-4">
+                                          <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/30 bg-gray-50 px-3 py-1.5 rounded-full">
+                                             <Lock className="size-3 text-emerald-600" /> SSL SECURED
                                           </div>
-                                          <div className="w-px h-3 bg-gray-200" />
-                                          <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/25">
-                                             <ShieldCheck className="size-3" /> PCI Compliant
+                                          <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/30 bg-gray-50 px-3 py-1.5 rounded-full">
+                                             <ShieldCheck className="size-3 text-emerald-600" /> PCI LEVEL 1
                                           </div>
                                        </div>
-                                       <div className="flex items-center gap-1.5">
+                                       
+                                       <div className="flex items-center gap-3">
                                           <span className="text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/20">Powered by</span>
-                                          <svg height="16" viewBox="0 0 60 25" xmlns="http://www.w3.org/2000/svg" className="opacity-25">
-                                            <path d="M59.64 14.28h-8.06c.19 1.93 1.6 2.55 3.2 2.55 1.64 0 2.96-.37 4.05-.95v3.32a8.33 8.33 0 0 1-4.56 1.1c-4.01 0-6.83-2.5-6.83-7.48 0-4.19 2.39-7.52 6.3-7.52 3.92 0 5.96 3.28 5.96 7.5 0 .4-.04 1.26-.06 1.48zm-5.92-5.62c-1.03 0-2.17.73-2.17 2.58h4.25c0-1.85-1.07-2.58-2.08-2.58zM40.95 20.3c-1.44 0-2.32-.6-2.9-1.04l-.02 4.63-4.45.97V6.27h3.92l.1 1.02a4.7 4.7 0 0 1 3.36-1.41c2.9 0 5.62 2.6 5.62 7.17 0 5.13-2.69 7.25-5.63 7.25zM40 9.87c-.96 0-1.54.38-1.97.9l.02 6.09c.4.5.97.9 1.95.9 1.65 0 2.58-1.81 2.58-3.96 0-2.06-.91-3.93-2.58-3.93zM28.24 5.07c-1.44 0-2.31-.97-2.31-2.12C25.93 1.77 26.8 1 28.24 1c1.43 0 2.3.77 2.3 1.95 0 1.15-.87 2.12-2.3 2.12zm2.19 15.16h-4.44V6.27h4.44v13.96zM23.95 7.27c-.67-.22-1.12-.36-1.83-.36-.85 0-1.39.44-1.39 1.1v12h-4.45V7.55c0-2.55 1.73-3.71 3.69-3.71 1.1 0 2.49.41 3.22.86l.76 2.57zM9.43 10.07c-.83 0-1.48.52-1.48 1.23 0 .84 1.05 1.26 2.25 1.74 1.85.73 4.38 1.74 4.38 4.87 0 3.39-2.73 4.59-5.35 4.59-1.62 0-3.31-.4-4.88-1.29L5.6 18a8.9 8.9 0 0 0 3.62.8c.96 0 1.73-.4 1.73-1.18 0-.91-1.12-1.38-2.36-1.87-1.83-.72-4.17-1.66-4.17-4.73 0-3.1 2.4-4.52 5.04-4.52 1.5 0 2.97.37 4.33 1.09l-1.24 3.19a7.38 7.38 0 0 0-2.12-.71z" fill="#062D1B" fillRule="evenodd"/>
-                                          </svg>
+                                          <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-4 opacity-40 grayscale" />
                                        </div>
                                     </div>
 
                                     {/* Accepted cards */}
-                                    <div className="flex items-center gap-2 pt-1">
-                                       <span className="text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/20">Accepted:</span>
-                                       {[
-                                         { name: 'Visa', color: '#1A1F71' },
-                                         { name: 'MC', color: '#EB001B' },
-                                         { name: 'Amex', color: '#2E77BC' },
-                                         { name: 'Discover', color: '#F76F20' },
-                                       ].map(card => (
-                                         <div key={card.name} className="h-6 px-2.5 rounded-md border border-gray-100 bg-white flex items-center">
-                                           <span className="text-[9px] font-black" style={{ color: card.color }}>{card.name}</span>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                       <span className="text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/20 mr-1">Accepted:</span>
+                                       {['Visa', 'Mastercard', 'Amex', 'Discover', 'Apple Pay', 'Google Pay'].map(name => (
+                                         <div key={name} className="px-3 py-1.5 rounded-lg border border-gray-100 bg-white text-[8px] font-bold uppercase tracking-widest text-[#062D1B]/40">
+                                           {name}
                                          </div>
                                        ))}
                                     </div>
