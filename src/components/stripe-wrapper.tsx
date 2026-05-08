@@ -12,26 +12,15 @@ export function StripeWrapper({ children }: { children: React.ReactNode }) {
   
   const options = {
     appearance: {
-      theme: 'none' as const,
+      theme: 'flat' as const,
       variables: {
         colorPrimary: settings?.primaryColor || '#062D1B',
         colorBackground: '#ffffff',
         colorText: '#062D1B',
         colorDanger: '#df1b41',
-        fontFamily: 'Instrument Sans, sans-serif',
+        fontFamily: 'Outfit, sans-serif',
         spacingUnit: '4px',
-        borderRadius: '16px',
-      },
-      rules: {
-        '.Input': {
-          border: '2px solid rgba(0,0,0,0.03)',
-          padding: '16px',
-          boxShadow: 'none',
-        },
-        '.Input:focus': {
-          border: '2px solid #062D1B',
-          boxShadow: '0 10px 40px -10px rgba(6,45,27,0.1)',
-        }
+        borderRadius: '12px',
       }
     }
   };
