@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Script from "next/script";
 import { apiClient } from "@/lib/api-client";
-import { useCart } from "@/context/cart-context";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 export default function GlobalSeoIntegrator() {
-  const { cartItems } = useCart();
+  const cartItems = useSelector((state: RootState) => state.cart.items);
   const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {

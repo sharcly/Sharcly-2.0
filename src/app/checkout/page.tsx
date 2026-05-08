@@ -101,8 +101,9 @@ function CheckoutContent() {
     if (!cartItems || cartItems.length === 0) return;
     
     try {
+      const validItems = cartItems.filter(i => i && i.id);
       const response = await apiClient.post("/orders/preview", {
-        items: cartItems.map(i => ({ productId: i.id, quantity: i.quantity })),
+        items: validItems.map(i => ({ productId: i.id, quantity: i.quantity })),
         couponCode: code || appliedCoupon?.code
       });
       if (response.data.success) {
@@ -216,10 +217,12 @@ function CheckoutContent() {
         ? shippingStr 
         : `${formData.billing.address}, ${formData.billing.city}, ${formData.billing.state} ${formData.billing.zipCode}, ${formData.billing.country}`;
 
+      const validItems = cartItems.filter((i: any) => i && i.id);
+
       // 1. Create order and get clientSecret
       const response = await apiClient.post("/orders", {
         email: formData.email,
-        items: cartItems.map(i => ({ productId: i.id, quantity: i.quantity })),
+        items: validItems.map((i: any) => ({ productId: i.id, quantity: i.quantity })),
         shippingAddress: shippingStr,
         billingAddress: billingStr,
         paymentMethod: formData.paymentMethod,
