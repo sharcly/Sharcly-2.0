@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import { useCart } from "@/context/cart-context";
 
 interface KlaviyoTrackingProps {
   publicApiKey: string;
 }
 
 export default function KlaviyoTracking({ publicApiKey }: KlaviyoTrackingProps) {
-  const cartItems = useSelector((state: RootState) => state.cart.items);
+  const { cartItems } = useCart();
 
   useEffect(() => {
     // 1. Inject Klaviyo Object
