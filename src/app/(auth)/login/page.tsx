@@ -26,7 +26,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const response = await apiClient.post("/auth/login", { email, password });
-      login(response.data.accessToken, response.data.refreshToken, response.data.user);
+      login(response.data.user);
       toast.success("Login successful.");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Invalid email or password.");

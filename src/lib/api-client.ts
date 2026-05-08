@@ -33,21 +33,6 @@ apiClient.interceptors.request.use(
       config.headers["X-CSRF-Token"] = csrfToken;
     }
 
-    // FALLBACK: Attach Bearer token from localStorage if cookies are blocked (HTTP/IP scenarios)
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser);
-          if (user.accessToken && !config.headers["Authorization"]) {
-            config.headers["Authorization"] = `Bearer ${user.accessToken}`;
-          }
-        } catch (e) {
-          // Ignore parse errors
-        }
-      }
-    }
-
     return config;
   },
   (error) => Promise.reject(error)
@@ -95,28 +80,16 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // FALLBACK: Get refresh token from localStorage if cookies are blocked
-        let refreshToken = null;
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          try {
-            refreshToken = JSON.parse(storedUser).refreshToken;
-          } catch (e) {}
-        }
-
-        // Call the refresh endpoint
+        // Call the refresh endpoint (will use refresh_token cookie)
         const response = await axios.post(
           `${API_URL}/auth/refresh-token`,
-          { refreshToken }, // Send token in body as fallback for environments where cookies fail
+          {}, 
           { withCredentials: true }
         );
 
-        // If backend returned new tokens in body, update localStorage
-        if (response.data.success && response.data.accessToken && storedUser) {
-          const user = JSON.parse(storedUser);
-          user.accessToken = response.data.accessToken;
-          user.refreshToken = response.data.refreshToken;
-          localStorage.setItem("user", JSON.stringify(user));
+        // If backend returned success, it means new cookies were set
+        if (response.data.success) {
+          // Tokens are in cookies now
         }
 
         // Resolve all queued requests
@@ -127,9 +100,7 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         // Refresh failed — clean up
         if (typeof window !== "undefined") {
-          localStorage.removeItem("user");
-
-          // ONLY redirect to login if the user is on a protected route (dashboard or account)
+          // ONLY redirect to login if the user is on a protected route
           const isProtectedRoute =
             window.location.pathname.startsWith("/dashboard") ||
             window.location.pathname.startsWith("/account");
