@@ -120,7 +120,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
             {/* Search Bar */}
             <div 
               className="hidden md:flex items-center gap-3 px-4 h-10 rounded-lg bg-black/[0.03] border border-black/5 text-black/40 cursor-pointer hover:bg-black/[0.06] transition-all group w-[280px]" 
-              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+              onClick={() => window.dispatchEvent(new CustomEvent('toggle-command-palette'))}
             >
               <Search className="h-4 w-4 group-hover:text-emerald-600 transition-colors" />
               <span className="text-xs font-medium flex-1">Search for anything...</span>
@@ -131,14 +131,31 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
             </div>
             
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="relative size-9 rounded-lg hover:bg-black/[0.03] text-black/40 hover:text-black transition-colors group">
-                <Bell className="h-4 w-4" />
-                <span className="absolute top-2.5 right-2.5 size-1.5 bg-blue-500 rounded-full ring-2 ring-white" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative size-9 rounded-lg hover:bg-black/[0.03] text-black/40 hover:text-black transition-colors group border-none outline-none ring-0">
+                    <Bell className="h-4 w-4" />
+                    <span className="absolute top-2.5 right-2.5 size-1.5 bg-blue-500 rounded-full ring-2 ring-white" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 rounded-2xl border-black/5 p-4 shadow-2xl">
+                   <div className="flex flex-col items-center gap-3 py-8 text-center">
+                      <div className="size-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+                         <Bell className="size-6 text-blue-500" />
+                      </div>
+                      <div className="space-y-1">
+                         <p className="text-sm font-bold text-black">No new notifications</p>
+                         <p className="text-[10px] text-black/40 font-medium max-w-[200px]">We'll notify you when something important happens in your store.</p>
+                      </div>
+                   </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
               
-              <Button variant="ghost" size="icon" className="size-9 rounded-lg hover:bg-black/[0.03] text-black/40 hover:text-black transition-colors hidden lg:flex">
-                <Settings className="h-4 w-4" />
-              </Button>
+              <Link href="/dashboard/settings">
+                <Button variant="ghost" size="icon" className="size-9 rounded-lg hover:bg-black/[0.03] text-black/40 hover:text-black transition-colors hidden lg:flex">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
             
             <div className="h-8 w-px bg-black/[0.05]" />

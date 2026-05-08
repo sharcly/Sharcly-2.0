@@ -40,12 +40,28 @@ export default function ProductDetailsPage() {
   // Derived Images
   const baseImages = useMemo(() => {
     if (!product) return [getImageUrl(null)];
-    if (product.imageUrls?.length > 0) {
-      return product.imageUrls.map((url: string) => getImageUrl(url));
-    }
+    
+    const variantImageIds = (product.variants || [])
+      .map((v: any) => v.image)
+      .filter(Boolean);
+
+    // If we have the full images array (with metadata), filter correctly
     if (product.images?.length > 0) {
-      return product.images.map((img: any) => getImageUrl(img));
+      const gallery = product.images
+        .filter((img: any) => !img.isThumbnail && img.order !== 999 && !variantImageIds.includes(img.id))
+        .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+        .map((img: any) => getImageUrl(img.id));
+      
+      if (gallery.length > 0) return gallery;
     }
+
+    // Fallback: If only imageUrls available, use them but try to exclude variant ones if they match
+    if (product.imageUrls?.length > 0) {
+      return product.imageUrls
+        .filter((url: string) => !variantImageIds.some(vid => url.includes(vid)))
+        .map((url: string) => getImageUrl(url));
+    }
+
     return [getImageUrl(product.image_url)];
   }, [product]);
 
@@ -73,28 +89,19 @@ export default function ProductDetailsPage() {
     fetchProduct();
   }, [slug]);
 
-  // Handle initial image selection once product/variants are loaded
+  // Sync main image with selected variant
   useEffect(() => {
-    if (product && !currentImageUrl) {
-      const firstV = product.variants?.[0];
-      if (firstV?.image) {
-        setCurrentImageUrl(getImageUrl(firstV.image));
-      } else if (baseImages.length > 0) {
-        setCurrentImageUrl(baseImages[0]);
-      }
+    if (selectedVariant?.image) {
+      setCurrentImageUrl(getImageUrl(selectedVariant.image));
+    } else if (baseImages.length > 0 && !currentImageUrl) {
+      setCurrentImageUrl(baseImages[0]);
     }
-  }, [product, baseImages, currentImageUrl]);
-
-  // Combine base gallery images and variant images for the thumbnails
-  const variantImages = useMemo(() => {
-    return (product?.variants || [])
-      .map((v: any) => v.image ? getImageUrl(v.image) : null)
-      .filter(Boolean);
-  }, [product]);
+  }, [selectedVariant, baseImages]);
 
   const allImages = useMemo(() => {
-    return Array.from(new Set([...baseImages, ...variantImages]));
-  }, [baseImages, variantImages]);
+    // Only show lifestyle/base images in the thumbnail gallery row
+    return baseImages;
+  }, [baseImages]);
 
   // Synchronize activeImageIndex when currentImageUrl changes
   useEffect(() => {
@@ -294,22 +301,17 @@ export default function ProductDetailsPage() {
                         if (v.image) {
                           setCurrentImageUrl(getImageUrl(v.image));
                         } else {
-                          // Fallback: If no image linked to variant, show the poster (first image)
+                          // Fallback: If no image linked to variant, show the first lifestyle image
                           setCurrentImageUrl(baseImages[0]);
                         }
                       }}
-                        className={cn("relative p-3.5 rounded-xl text-left transition-all duration-300 flex items-center gap-3",
+                        className={cn("relative p-3.5 rounded-xl text-left transition-all duration-300",
                           selectedVariant?.id === v.id ? "shadow-lg" : ""
                         )}
                         style={selectedVariant?.id === v.id
                           ? { backgroundColor: '#E8C547', color: '#082f1d' }
                           : { backgroundColor: 'rgba(239,248,238,0.04)', border: '1px solid rgba(239,248,238,0.08)', color: '#eff8ee' }}
                       >
-                        {v.image && (
-                          <div className="size-10 rounded-lg overflow-hidden shrink-0 border border-white/10">
-                            <img src={getImageUrl(v.image)} className="w-full h-full object-cover" alt={v.title} />
-                          </div>
-                        )}
                         <div>
                           <span className="text-[11px] font-bold block">{v.title}</span>
                           <span className="text-[10px] font-semibold" style={{ opacity: 0.8 }}>${Number(v.price).toFixed(2)}</span>
