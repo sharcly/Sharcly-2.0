@@ -39,7 +39,9 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { 
-  CardElement, 
+  CardNumberElement, 
+  CardExpiryElement, 
+  CardCvcElement, 
   useStripe, 
   useElements 
 } from "@stripe/react-stripe-js";
@@ -224,7 +226,7 @@ function CheckoutContent() {
 
         // 2. If online payment, confirm with Stripe
         if (formData.paymentMethod === 'online' && clientSecret) {
-          const cardElement = elements!.getElement(CardElement);
+          const cardElement = elements!.getElement(CardNumberElement);
           
           const { error, paymentIntent } = await stripe!.confirmCardPayment(clientSecret, {
             payment_method: {
@@ -578,7 +580,8 @@ function CheckoutContent() {
                                      </div>
                                   </div>
 
-                                  <div className="space-y-4">
+                                  <div className="space-y-6">
+                                     {/* Cardholder Name */}
                                      <div className="space-y-2">
                                         <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Cardholder Name</Label>
                                         <div className="relative group">
@@ -589,36 +592,80 @@ function CheckoutContent() {
                                              placeholder="Full name as on card"
                                              className="checkout-input pl-12 border border-gray-100 focus:border-[#062D1B] transition-all bg-gray-50/30"
                                            />
-                                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#062D1B]/20 group-focus-within:text-[#062D1B] transition-colors">
-                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#062D1B]/20 group-focus-within:text-[#062D1B] transition-colors pointer-events-none">
+                                              <CreditCard className="size-4" />
                                            </div>
                                         </div>
                                      </div>
 
+                                     {/* Card Number */}
                                      <div className="space-y-2">
-                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Card Details</Label>
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Card Number</Label>
                                         <div className={cn(
-                                          "relative p-5 rounded-2xl border bg-gray-50/30 transition-all duration-300 z-10",
-                                          cardFocus === 'card' ? "border-[#062D1B] bg-white shadow-[0_20px_40px_-15px_rgba(6,45,27,0.1)]" : "border-gray-100"
+                                          "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300 pointer-events-auto",
+                                          cardFocus === 'number' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100"
                                         )}>
                                            {(!stripe || !elements) ? (
-                                              <div className="flex items-center gap-3 py-1">
-                                                 <Zap className="size-3 animate-pulse text-[#EBB56B]" />
-                                                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/20">Initializing Secure System...</span>
-                                              </div>
+                                              <span className="text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/20 animate-pulse">Initializing...</span>
                                            ) : (
-                                              <div className="flex-1 pointer-events-auto">
-                                                <CardElement 
-                                                  options={{
-                                                    ...CARD_ELEMENT_OPTIONS,
-                                                    style: { base: { fontSize: '16px', color: '#062D1B', '::placeholder': { color: 'rgba(6,45,27,0.2)' } } }
-                                                  }}
+                                              <div className="flex-1">
+                                                <CardNumberElement 
+                                                  options={CARD_ELEMENT_OPTIONS}
                                                   className="w-full"
-                                                  onFocus={() => setCardFocus('card')}
+                                                  onFocus={() => setCardFocus('number')}
                                                   onBlur={() => setCardFocus(null)}
                                                 />
                                               </div>
                                            )}
+                                           <div className="shrink-0 ml-2 pointer-events-none">
+                                             <ShieldCheck className="size-4 text-[#062D1B]/10" />
+                                           </div>
+                                        </div>
+                                     </div>
+
+                                     {/* Expiry + CVC */}
+                                     <div className="grid grid-cols-2 gap-5">
+                                        <div className="space-y-2">
+                                           <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Expiry Date</Label>
+                                           <div className={cn(
+                                             "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300 pointer-events-auto",
+                                             cardFocus === 'expiry' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100"
+                                           )}>
+                                              {(!stripe || !elements) ? (
+                                                 <div className="size-1 bg-[#062D1B]/10 rounded-full animate-ping" />
+                                              ) : (
+                                                 <div className="flex-1">
+                                                   <CardExpiryElement 
+                                                     options={CARD_ELEMENT_OPTIONS}
+                                                     className="w-full"
+                                                     onFocus={() => setCardFocus('expiry')}
+                                                     onBlur={() => setCardFocus(null)}
+                                                   />
+                                                 </div>
+                                              )}
+                                              <Calendar className="size-4 text-[#062D1B]/10 ml-2 pointer-events-none" />
+                                           </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                           <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">CVV / CVC</Label>
+                                           <div className={cn(
+                                             "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300 pointer-events-auto",
+                                             cardFocus === 'cvc' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100"
+                                           )}>
+                                              {(!stripe || !elements) ? (
+                                                 <div className="size-1 bg-[#062D1B]/10 rounded-full animate-ping" />
+                                              ) : (
+                                                 <div className="flex-1">
+                                                   <CardCvcElement 
+                                                     options={CARD_ELEMENT_OPTIONS}
+                                                     className="w-full"
+                                                     onFocus={() => setCardFocus('cvc')}
+                                                     onBlur={() => setCardFocus(null)}
+                                                   />
+                                                 </div>
+                                              )}
+                                              <Lock className="size-4 text-[#062D1B]/10 ml-2 pointer-events-none" />
+                                           </div>
                                         </div>
                                      </div>
                                   </div>
