@@ -551,7 +551,9 @@ function CheckoutContent() {
                                    </div>
                                 </button>
                               ))}
-                               <AnimatePresence mode="wait">
+                           </div>
+
+                           <AnimatePresence mode="wait">
                                {formData.paymentMethod === 'online' ? (
                                  <motion.div 
                                    key="card" 
