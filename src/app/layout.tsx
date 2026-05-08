@@ -55,19 +55,21 @@ export default function RootLayout({
       <body className={`${inter.variable} ${cormorant.variable} ${dmSans.variable} font-sans antialiased bg-background text-foreground`}>
         <ReduxProvider>
           <ThemeProvider>
-            <AuthProvider>
-              <div className="min-h-screen flex flex-col">
-                {children}
-              </div>
-              <CartSync />
-              <AgeVerification />
-              <WelcomePopup />
-              <Toaster position="top-right" />
-              <CartDrawer />
-              <ChatwootWidget />
-              <GlobalSeoIntegrator />
-              <Analytics />
-            </AuthProvider>
+            <CartProvider>
+              <AuthProvider>
+                <div className="min-h-screen flex flex-col">
+                  {children}
+                </div>
+                <CartSync />
+                <AgeVerification />
+                <WelcomePopup />
+                <Toaster position="top-right" />
+                <CartDrawer />
+                <ChatwootWidget />
+                <GlobalSeoIntegrator />
+                <Analytics />
+              </AuthProvider>
+            </CartProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>
