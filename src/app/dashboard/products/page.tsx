@@ -149,12 +149,15 @@ export default function DashboardProductsPage() {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Are you sure? This action cannot be undone.")) return;
     try {
       await apiClient.delete(`/products/${id}`);
-      toast.success("Product deleted");
+      toast.success("Product deleted successfully");
       fetchData();
-    } catch (error) { toast.error("Delete failed"); }
+    } catch (error: any) { 
+      const msg = error.response?.data?.message || "Failed to delete product";
+      toast.error(msg); 
+    }
   };
 
   const updateStock = async (id: string, newStock: number) => {
@@ -271,6 +274,7 @@ export default function DashboardProductsPage() {
                       <TableHead className="pl-8 py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Image</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Product</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Category</TableHead>
+                      <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Status</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Price</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Stock</TableHead>
                       <TableHead className="pr-8 text-right py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Actions</TableHead>
@@ -302,6 +306,19 @@ export default function DashboardProductsPage() {
                             <span className="text-[10px] font-medium text-neutral-400">{p.type?.name || "Standard Type"}</span>
                           </div>
                         </TableCell>
+                        <TableCell className="py-6">
+                           <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "rounded-full px-3 py-0.5 text-[9px] font-bold border-0 capitalize",
+                              p.status === "PUBLISHED" ? "bg-green-100 text-green-600" : 
+                              p.status === "DRAFT" ? "bg-orange-100 text-orange-600" : 
+                              "bg-neutral-100 text-neutral-400"
+                            )}
+                          >
+                            • {p.status?.toLowerCase() || "draft"}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="py-6 font-black text-neutral-900 text-base">${Number(p.price).toFixed(2)}</TableCell>
                         <TableCell className="py-6">
                           <Badge variant={p.stock > 10 ? "secondary" : "destructive"} className="rounded-full px-4 py-1 font-black text-[10px] uppercase shadow-sm">
@@ -311,7 +328,7 @@ export default function DashboardProductsPage() {
                         <TableCell className="pr-8 text-right py-6">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-neutral-100 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-neutral-100 opacity-40 group-hover:opacity-100 transition-opacity">
                                 <MoreHorizontal className="h-5 w-5" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -685,17 +702,30 @@ export default function DashboardProductsPage() {
             // Images - Robust Detection
             const isFile = (obj: any) => obj && (obj instanceof File || (obj.name && obj.size && obj.type));
 
-            if (isFile(data.thumbnail)) {
-               formData.append("product_images", data.thumbnail);
+            // Track image order for existing images (IDs)
+            const existingImageOrder: string[] = [];
+            
+            if (data.thumbnail) {
+               if (isFile(data.thumbnail)) {
+                  formData.append("product_images", data.thumbnail);
+                  // We'll mark thumbnail position in backend if needed, 
+                  // but usually thumbnail is order 0
+               } else if (typeof data.thumbnail === 'string') {
+                  existingImageOrder.push(data.thumbnail);
+               }
             }
             
             if (Array.isArray(data.galleryFiles)) {
               data.galleryFiles.forEach((file: any) => {
                 if (isFile(file)) {
                   formData.append("product_images", file);
+                } else if (typeof file === 'string') {
+                  existingImageOrder.push(file);
                 }
               });
             }
+
+            formData.append("imageOrder", JSON.stringify(existingImageOrder));
 
             // Variant Images
             if (Array.isArray(data.variants)) {
