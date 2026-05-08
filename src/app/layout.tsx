@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 import { CartProvider } from "@/context/cart-context";
 import { Toaster } from "@/components/ui/sonner";
+import Script from "next/script";
 
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -70,6 +71,11 @@ export default function RootLayout({
             </CartProvider>
           </ThemeProvider>
         </ReduxProvider>
+        <script 
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4Iky795YynI3fyT9k_elsjk7dWEog3Ec&libraries=places" 
+          async 
+          defer
+        ></script>
       </body>
     </html>
   );

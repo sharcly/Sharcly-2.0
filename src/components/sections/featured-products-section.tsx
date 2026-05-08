@@ -22,7 +22,7 @@ export function FeaturedProductsSection() {
       else if (window.innerWidth >= 768) setItemsVisible(2.5)
       else setItemsVisible(1.2)
     }
-    
+
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -38,11 +38,21 @@ export function FeaturedProductsSection() {
     setCurrentIndex(prev => Math.max(prev - 1, 0))
   }
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (window.innerWidth >= 768) return
+    const scrollLeft = e.currentTarget.scrollLeft
+    const itemWidth = window.innerWidth * 0.85
+    const newIndex = Math.round(scrollLeft / itemWidth)
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex)
+    }
+  }
+
   if (isFetching && featuredProducts.length === 0) {
     return (
-      <section style={{ 
+      <section style={{
         background: 'linear-gradient(180deg, #040e07 0%, #082f1d 50%, #040e07 100%)',
-        padding: '110px 0' 
+        padding: '110px 0'
       }}>
         <div className="max-w-[1440px] mx-auto px-4 md:px-8">
           <div className="text-center mb-14">
@@ -63,7 +73,7 @@ export function FeaturedProductsSection() {
   if (featuredProducts.length === 0) return null
 
   return (
-    <section className="relative min-h-screen flex items-center py-24 overflow-hidden" style={{ 
+    <section className="relative md:min-h-screen flex items-center py-12 md:py-14 overflow-hidden" style={{
       background: 'linear-gradient(180deg, #040e07 0%, #082f1d 50%, #040e07 100%)',
     }}>
       <style jsx>{`
@@ -87,10 +97,10 @@ export function FeaturedProductsSection() {
         zIndex: 1
       }} />
 
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-[2]">
-        
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-[2] w-full">
+
         {/* SECTION HEADER */}
-        <div className="text-center mb-14" style={{ position: 'relative', zIndex: 2 }}>
+        <div className="text-center mb-8 md:mb-14" style={{ position: 'relative', zIndex: 2 }}>
           {/* Eyebrow */}
           <div className="flex items-center justify-center gap-2 mb-4">
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#E8C547', opacity: .5 }} />
@@ -137,19 +147,28 @@ export function FeaturedProductsSection() {
 
         {/* CAROUSEL CONTAINER */}
         <div className="relative group/carousel">
-          
+
           {/* Track */}
-          <div className="relative overflow-visible md:overflow-hidden" ref={containerRef}>
+          <div
+            className="relative overflow-x-auto md:overflow-hidden no-scrollbar snap-x snap-mandatory md:snap-none px-4 md:px-0"
+            ref={containerRef}
+            onScroll={handleScroll}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             <motion.div
-              className="flex gap-5 md:gap-6 overflow-x-auto md:overflow-x-visible no-scrollbar"
-              animate={{ x: `-${(currentIndex * (100 / itemsVisible))}%` }}
+              className="flex gap-4 md:gap-6"
+              animate={typeof window !== 'undefined' && window.innerWidth >= 768 ? { x: `-${(currentIndex * (100 / itemsVisible))}%` } : {}}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
               {featuredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="flex-shrink-0"
-                  style={{ width: `calc(${100 / itemsVisible}% - ${((Math.ceil(itemsVisible) - 1) * 24) / Math.ceil(itemsVisible)}px)` }}
+                  className="flex-shrink-0 snap-start"
+                  style={{
+                    width: typeof window !== 'undefined' && window.innerWidth >= 768
+                      ? `calc(${100 / itemsVisible}% - ${((Math.ceil(itemsVisible) - 1) * 24) / Math.ceil(itemsVisible)}px)`
+                      : '85vw' // Mobile width - 85% of viewport for peek
+                  }}
                 >
                   <FeaturedProductCard product={product} />
                 </div>
@@ -157,8 +176,8 @@ export function FeaturedProductsSection() {
             </motion.div>
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 z-20 pointer-events-none">
+          {/* Navigation Buttons - Hidden on mobile */}
+          <div className="hidden md:block absolute top-1/2 -translate-y-1/2 -left-6 z-20 pointer-events-none">
             <button
               onClick={scrollPrev}
               disabled={currentIndex === 0}
@@ -184,7 +203,7 @@ export function FeaturedProductsSection() {
             </button>
           </div>
 
-          <div className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 z-20 pointer-events-none">
+          <div className="hidden md:block absolute top-1/2 -translate-y-1/2 -right-6 z-20 pointer-events-none">
             <button
               onClick={scrollNext}
               disabled={currentIndex >= maxIndex}
@@ -212,7 +231,7 @@ export function FeaturedProductsSection() {
         </div>
 
         {/* Progress Dots */}
-        <div className="flex justify-center gap-2 mt-12">
+        <div className="flex justify-center gap-2 mt-8 md:mt-12">
           {Array.from({ length: Math.ceil(maxIndex) + 1 }).map((_, i) => (
             <button
               key={i}
@@ -228,7 +247,7 @@ export function FeaturedProductsSection() {
         </div>
 
         {/* BOTTOM CTA */}
-        <div className="mt-16 flex justify-center">
+        <div className="mt-6 md:mt-8 flex justify-center">
           <Link
             href="/products"
             style={{
@@ -259,8 +278,8 @@ export function FeaturedProductsSection() {
           >
             View All Products
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/>
-              <polyline points="12 5 19 12 12 19"/>
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
             </svg>
           </Link>
         </div>

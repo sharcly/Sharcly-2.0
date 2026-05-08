@@ -2,11 +2,11 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { 
-  ShieldCheck, 
-  Lock, 
-  MessageSquare, 
-  CheckCircle2, 
+import {
+  ShieldCheck,
+  Lock,
+  MessageSquare,
+  CheckCircle2,
   ArrowRight,
   Sprout,
   Leaf,
@@ -51,9 +51,8 @@ const TrustBar = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`flex flex-col items-center lg:items-start text-center lg:text-left px-4 lg:px-8 ${
-                index !== pillars.length - 1 ? "lg:border-r lg:border-[#E8C547]/30" : ""
-              }`}
+              className={`flex flex-col items-center lg:items-start text-center lg:text-left px-4 lg:px-8 ${index !== pillars.length - 1 ? "lg:border-r lg:border-[#E8C547]/30" : ""
+                }`}
             >
               <div className="mb-4">{pillar.icon}</div>
               <h3 className="text-[#eff8ee] font-serif text-lg font-semibold mb-1">
@@ -72,7 +71,7 @@ const TrustBar = () => {
 
 const WhySharclyFeature = () => {
   return (
-    <section className="relative w-full bg-[#082f1d] py-24 overflow-hidden">
+    <section className="relative w-full bg-[#082f1d] py-14 overflow-hidden">
       {/* Noise Texture Overlay */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay">
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -87,7 +86,7 @@ const WhySharclyFeature = () => {
         <div className="flex flex-col lg:flex-row items-center gap-16">
           {/* Left Side: Content */}
           <div className="w-full lg:w-[60%] space-y-8">
-            <motion.h2 
+            <motion.h2
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -98,16 +97,16 @@ const WhySharclyFeature = () => {
               a Promise.<br />
               It's Proof.
             </motion.h2>
-            
-            <motion.p 
+
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-[#eff8ee]/80 text-lg md:text-xl leading-relaxed max-w-2xl font-body"
             >
-              Every Sharcly product is crafted from organically grown US hemp, 
-              independently tested, and built for people who refuse to compromise 
+              Every Sharcly product is crafted from organically grown US hemp,
+              independently tested, and built for people who refuse to compromise
               on what they put in their bodies.
             </motion.p>
 
@@ -117,16 +116,16 @@ const WhySharclyFeature = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <a 
-                href="/lab-results" 
+              <a
+                href="/lab-results"
                 className="group inline-flex items-center text-[#E8C547] font-bold tracking-wider uppercase text-sm border-b border-transparent hover:border-[#E8C547] transition-all duration-300 pb-1"
               >
-                View Lab Reports 
+                View Lab Reports
                 <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-2" />
               </a>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -146,16 +145,16 @@ const WhySharclyFeature = () => {
           <div className="w-full lg:w-[40%] flex justify-center lg:justify-end">
             <div className="relative w-full max-w-[320px] aspect-[3/4]">
               {/* Back Card */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, rotate: 0, y: 20 }}
                 whileInView={{ opacity: 1, rotate: 2, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.5 }}
                 className="absolute inset-0 bg-[#eff8ee]/90 border border-[#082f1d]/10 shadow-2xl rounded-sm transform translate-y-4"
               />
-              
+
               {/* Front Card */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, rotate: 0, y: 20 }}
                 whileInView={{ opacity: 1, rotate: -3, y: 0 }}
                 viewport={{ once: true }}
@@ -164,7 +163,7 @@ const WhySharclyFeature = () => {
               >
                 {/* Paper Texture Overlay */}
                 <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/felt.png')]" />
-                
+
                 <div className="relative">
                   <div className="flex justify-between items-start mb-8">
                     <div>
@@ -249,7 +248,7 @@ const LoyaltyTeaser = () => {
   ];
 
   return (
-    <section className="relative w-full bg-[#082f1d] py-24 overflow-hidden border-t border-[#E8C547]/10">
+    <section className="relative w-full bg-[#082f1d] py-14 overflow-hidden border-t border-[#E8C547]/10">
       {/* Botanical Decorations */}
       <div className="absolute left-0 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none hidden lg:block">
         <svg width="400" height="600" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -291,9 +290,8 @@ const LoyaltyTeaser = () => {
               viewport={{ once: true }}
               whileHover={{ y: -8 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className={`relative p-8 rounded-2xl border transition-all duration-300 bg-[#eff8ee]/[0.06] hover:bg-[#eff8ee]/[0.1] ${
-                tier.active ? "border-[#E8C547]/60 shadow-[0_0_20px_rgba(232,197,71,0.1)]" : "border-[#E8C547]/20"
-              } hover:border-[#E8C547] group`}
+              className={`relative p-8 rounded-2xl border transition-all duration-300 bg-[#eff8ee]/[0.06] hover:bg-[#eff8ee]/[0.1] ${tier.active ? "border-[#E8C547]/60 shadow-[0_0_20px_rgba(232,197,71,0.1)]" : "border-[#E8C547]/20"
+                } hover:border-[#E8C547] group`}
             >
               <div className="flex flex-col items-center gap-6">
                 <div className="text-[#E8C547] transition-transform duration-500 group-hover:scale-110">
@@ -317,7 +315,7 @@ const LoyaltyTeaser = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <Button 
+          <Button
             className="bg-[#E8C547] text-[#082f1d] hover:bg-[#E8C547]/90 h-14 px-10 rounded-full font-bold text-sm uppercase tracking-widest transition-transform hover:scale-[1.03] shadow-lg shadow-[#E8C547]/10"
           >
             Join the Circle — It's Free

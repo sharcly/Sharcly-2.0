@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import {
@@ -83,14 +84,17 @@ export function Navbar() {
           )}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="size-8 rounded-lg bg-[#062D1B] flex items-center justify-center text-white font-black text-xs group-hover:scale-110 transition-transform">S</div>
-            <span className={cn(
-              "text-[11px] font-bold uppercase tracking-[0.35em] transition-colors",
-              !scrolled && isDarkPage ? "text-white" : "text-[#062D1B]"
-            )}>
-              Sharcly
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/assets/final-Logo-1.png"
+              alt="Sharcly"
+              width={150}
+              height={40}
+              className={cn(
+                "h-10 w-auto transition-all duration-300",
+                !scrolled && isDarkPage ? "brightness-0 invert" : ""
+              )}
+            />
           </Link>
 
           {/* Desktop Menu */}

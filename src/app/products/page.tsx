@@ -6,8 +6,8 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
-import { 
-  Search, 
+import {
+  Search,
   SlidersHorizontal,
   X,
   ChevronDown,
@@ -52,7 +52,7 @@ export default function ProductsPage() {
 function ProductsContent() {
   const searchParams = useSearchParams();
   const seriesParam = searchParams.get("series");
-  
+
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -76,7 +76,7 @@ function ProductsContent() {
       const fetched = response.data.products || [];
       let final = fetched;
       if (selectedSeries !== "all") {
-        final = final.filter((p: any) => 
+        final = final.filter((p: any) =>
           p.category?.name?.toLowerCase().includes(selectedSeries) ||
           p.name?.toLowerCase().includes(selectedSeries)
         );
@@ -114,8 +114,8 @@ function ProductsContent() {
                   onClick={() => setSelectedSeries(tab.id)}
                   className={cn(
                     "relative px-4 py-2 text-[11px] font-bold uppercase tracking-[0.08em] transition-all duration-300 whitespace-nowrap rounded-lg",
-                    selectedSeries === tab.id 
-                      ? "text-[#E8C547]" 
+                    selectedSeries === tab.id
+                      ? "text-[#E8C547]"
                       : "text-[#eff8ee]/80 hover:text-[#eff8ee]"
                   )}
                 >
@@ -137,7 +137,7 @@ function ProductsContent() {
               {/* Search */}
               <div className="relative hidden sm:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5" style={{ color: 'rgba(239,248,238,0.8)' }} />
-                <input 
+                <input
                   placeholder="Search..."
                   className="w-40 focus:w-56 h-9 pl-9 pr-3 rounded-lg transition-all text-[11px] font-semibold outline-none border"
                   style={{ backgroundColor: 'rgba(239,248,238,0.05)', borderColor: 'transparent', color: '#eff8ee', }}
@@ -234,17 +234,17 @@ function ProductsContent() {
       </div>
 
       <div className="container mx-auto px-6 md:px-12 py-10 md:py-14 flex flex-col lg:flex-row gap-12 lg:gap-16">
-        
+
         {/* ═══ LEFT SIDEBAR (DESKTOP) ═══ */}
         <aside className="hidden lg:block w-64 shrink-0">
           <div className="sticky top-32 space-y-12">
-            
+
             {/* Search */}
             <div className="space-y-4">
               <h3 className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'rgba(239,248,238,0.5)' }}>Search</h3>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4" style={{ color: 'rgba(239,248,238,0.6)' }} />
-                <input 
+                <input
                   placeholder="Find products..."
                   className="w-full h-12 pl-12 pr-4 rounded-xl transition-all text-sm font-semibold outline-none border"
                   style={{ backgroundColor: 'rgba(239,248,238,0.03)', borderColor: 'rgba(239,248,238,0.08)', color: '#eff8ee', }}
@@ -271,8 +271,8 @@ function ProductsContent() {
                     onClick={() => setSelectedSeries(tab.id)}
                     className={cn(
                       "relative px-4 py-3 text-xs font-bold tracking-wide transition-all duration-300 rounded-xl text-left flex items-center justify-between group",
-                      selectedSeries === tab.id 
-                        ? "text-[#E8C547]" 
+                      selectedSeries === tab.id
+                        ? "text-[#E8C547]"
                         : "text-[#eff8ee]/70 hover:text-[#eff8ee] hover:bg-[#eff8ee]/5"
                     )}
                   >
@@ -303,8 +303,8 @@ function ProductsContent() {
                     onClick={() => setSortOrder(opt.id)}
                     className={cn(
                       "px-4 py-2.5 text-xs font-semibold transition-all duration-300 rounded-lg text-left flex items-center gap-3",
-                      sortOrder === opt.id 
-                        ? "text-[#eff8ee] bg-[#eff8ee]/10" 
+                      sortOrder === opt.id
+                        ? "text-[#eff8ee] bg-[#eff8ee]/10"
                         : "text-[#eff8ee]/50 hover:text-[#eff8ee]/90 hover:bg-[#eff8ee]/5"
                     )}
                   >
@@ -355,6 +355,7 @@ function ProductsContent() {
             </div>
           )}
 
+
           {/* ═══ PRODUCT GRID ═══ */}
           <AnimatePresence mode="popLayout">
             {loading ? (
@@ -395,6 +396,7 @@ function ProductsContent() {
           </AnimatePresence>
         </main>
       </div>
+
 
       <Footer />
     </div>
