@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
-import { CartProvider } from "@/context/cart-context";
 import { Toaster } from "@/components/ui/sonner";
 
 
@@ -56,21 +55,19 @@ export default function RootLayout({
       <body className={`${inter.variable} ${cormorant.variable} ${dmSans.variable} font-sans antialiased bg-background text-foreground`}>
         <ReduxProvider>
           <ThemeProvider>
-            <CartProvider>
-              <AuthProvider>
-                <div className="min-h-screen flex flex-col">
-                  {children}
-                </div>
-                <CartSync />
-                <AgeVerification />
-                <WelcomePopup />
-                <Toaster position="top-right" />
-                <CartDrawer />
-                <ChatwootWidget />
-                <GlobalSeoIntegrator />
-                <Analytics />
-              </AuthProvider>
-            </CartProvider>
+            <AuthProvider>
+              <div className="min-h-screen flex flex-col">
+                {children}
+              </div>
+              <CartSync />
+              <AgeVerification />
+              <WelcomePopup />
+              <Toaster position="top-right" />
+              <CartDrawer />
+              <ChatwootWidget />
+              <GlobalSeoIntegrator />
+              <Analytics />
+            </AuthProvider>
           </ThemeProvider>
         </ReduxProvider>
       </body>
