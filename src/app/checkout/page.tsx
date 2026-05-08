@@ -28,7 +28,9 @@ import {
   PackageCheck,
   Calendar,
   Sparkles,
-  Ticket
+  Ticket,
+  ScanLine,
+  BadgeCheck
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -271,16 +273,20 @@ function CheckoutContent() {
     }
   };
 
+  const [cardFocus, setCardFocus] = useState<string | null>(null);
+  const [cardComplete, setCardComplete] = useState({ number: false, expiry: false, cvc: false });
+
   const CARD_ELEMENT_OPTIONS = {
     style: {
       base: {
-        fontSize: '14px',
+        fontSize: '15px',
         color: '#062D1B',
         fontFamily: 'Outfit, sans-serif',
-        '::placeholder': { color: 'rgba(6, 45, 27, 0.2)' },
+        '::placeholder': { color: 'rgba(6, 45, 27, 0.25)' },
         fontWeight: '500',
+        letterSpacing: '0.02em',
       },
-      invalid: { color: '#ef4444' },
+      invalid: { color: '#ef4444', iconColor: '#ef4444' },
     },
   };
 
@@ -518,7 +524,14 @@ function CheckoutContent() {
                          </div>
                      </motion.div>
                    ) : (
-                     <motion.div key="step2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-12">
+                     <motion.div 
+                       key="step2" 
+                       initial={{ opacity: 0, y: 10 }} 
+                       animate={{ opacity: 1, y: 0 }} 
+                       exit={{ opacity: 0, y: -10 }} 
+                       transition={{ duration: 0.3, ease: "easeOut" }} 
+                       className="space-y-12"
+                     >
                         <div className="p-10 rounded-[2.5rem] bg-white border border-gray-100 shadow-sm space-y-10">
                            <div className="flex items-center gap-3 border-b border-gray-50 pb-4">
                               <h3 className="text-[11px] font-bold uppercase tracking-widest text-[#062D1B]">Payment Method</h3>
@@ -548,27 +561,165 @@ function CheckoutContent() {
                            </div>
 
                            <AnimatePresence mode="wait">
-                              {formData.paymentMethod === 'online' ? (
-                                <motion.div key="card" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-6 pt-6 border-t border-gray-50">
-                                   <div className="space-y-2">
-                                      <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Cardholder Name</Label>
-                                      <Input required={formData.paymentMethod === 'online'} value={formData.cardHolderName} onChange={(e) => setFormData({...formData, cardHolderName: e.target.value})} placeholder="Full Name" className="checkout-input" />
-                                   </div>
-                                   <div className="space-y-2">
-                                      <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Card Details</Label>
-                                      <div className="checkout-input flex items-center px-4 border border-gray-100"><CardNumberElement options={CARD_ELEMENT_OPTIONS} className="w-full" /></div>
-                                   </div>
-                                   <div className="grid grid-cols-2 gap-4">
-                                      <div className="checkout-input flex items-center px-4 border border-gray-100"><CardExpiryElement options={CARD_ELEMENT_OPTIONS} className="w-full" /></div>
-                                      <div className="checkout-input flex items-center px-4 border border-gray-100"><CardCvcElement options={CARD_ELEMENT_OPTIONS} className="w-full" /></div>
-                                   </div>
-                                </motion.div>
-                              ) : (
-                                <motion.div key="cod" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="p-8 rounded-[2rem] bg-emerald-50/30 border border-emerald-100 text-center space-y-2">
-                                   <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Cash on Delivery</p>
-                                   <p className="text-[11px] text-emerald-800/60 font-medium italic">Cash on delivery is available for your order.</p>
-                                </motion.div>
-                              )}
+                             {formData.paymentMethod === 'online' ? (
+                               <motion.div 
+                                 key="card" 
+                                 initial={{ opacity: 0, y: 10 }} 
+                                 animate={{ opacity: 1, y: 0 }} 
+                                 exit={{ opacity: 0, y: -10 }} 
+                                 transition={{ duration: 0.3, ease: "easeOut" }} 
+                                 className="space-y-8 pt-8 border-t border-gray-100"
+                               >
+                                  <div className="flex items-center gap-3 mb-2">
+                                     <div className="size-8 rounded-lg bg-[#062D1B]/5 flex items-center justify-center">
+                                        <ScanLine className="size-4 text-[#062D1B]/40" />
+                                     </div>
+                                     <div>
+                                        <p className="text-[11px] font-bold uppercase tracking-widest text-[#062D1B]">Card Details</p>
+                                        <p className="text-[9px] text-[#062D1B]/30 font-medium">Safe & Encrypted Transaction</p>
+                                     </div>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                     <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Cardholder Name</Label>
+                                     <div className="relative group">
+                                        <Input
+                                          required={formData.paymentMethod === 'online'}
+                                          value={formData.cardHolderName}
+                                          onChange={(e) => setFormData({...formData, cardHolderName: e.target.value})}
+                                          placeholder="Full name as on card"
+                                          className="checkout-input pl-12 border border-gray-100 focus:border-[#062D1B] transition-all bg-gray-50/30"
+                                        />
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#062D1B]/20 group-focus-within:text-[#062D1B] transition-colors">
+                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        </div>
+                                     </div>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                     <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Card Number</Label>
+                                     <div className={cn(
+                                       "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300",
+                                       cardFocus === 'number' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100",
+                                       cardComplete.number ? "border-emerald-200" : ""
+                                     )}>
+                                        <CreditCard className={cn("size-4 mr-3 shrink-0 transition-colors", cardFocus === 'number' ? "text-[#062D1B]" : "text-[#062D1B]/20")} />
+                                        <div className="flex-1">
+                                          <CardNumberElement
+                                            options={{ ...CARD_ELEMENT_OPTIONS, showIcon: true, iconStyle: 'default' }}
+                                            className="w-full"
+                                            onFocus={() => setCardFocus('number')}
+                                            onBlur={() => setCardFocus(null)}
+                                            onChange={(e) => setCardComplete(p => ({ ...p, number: e.complete }))}
+                                          />
+                                        </div>
+                                        {cardComplete.number && (
+                                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="shrink-0 ml-2">
+                                            <BadgeCheck className="size-4 text-emerald-500" />
+                                          </motion.div>
+                                        )}
+                                     </div>
+                                  </div>
+
+                                  <div className="grid grid-cols-2 gap-5">
+                                     <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">Expiry Date</Label>
+                                        <div className={cn(
+                                          "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300",
+                                          cardFocus === 'expiry' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100",
+                                          cardComplete.expiry ? "border-emerald-200" : ""
+                                        )}>
+                                           <Calendar className={cn("size-4 mr-3 shrink-0 transition-colors", cardFocus === 'expiry' ? "text-[#062D1B]" : "text-[#062D1B]/20")} />
+                                           <div className="flex-1">
+                                             <CardExpiryElement
+                                               options={CARD_ELEMENT_OPTIONS}
+                                               className="w-full"
+                                               onFocus={() => setCardFocus('expiry')}
+                                               onBlur={() => setCardFocus(null)}
+                                               onChange={(e) => setCardComplete(p => ({ ...p, expiry: e.complete }))}
+                                             />
+                                           </div>
+                                        </div>
+                                     </div>
+                                     <div className="space-y-2">
+                                        <Label className="text-[10px] font-bold uppercase tracking-widest text-[#062D1B]/40 ml-1">CVV / CVC</Label>
+                                        <div className={cn(
+                                          "relative flex items-center h-14 px-4 rounded-xl border bg-gray-50/30 transition-all duration-300",
+                                          cardFocus === 'cvc' ? "border-[#062D1B] bg-white shadow-[0_10px_30px_-10px_rgba(6,45,27,0.1)]" : "border-gray-100",
+                                          cardComplete.cvc ? "border-emerald-200" : ""
+                                        )}>
+                                           <Lock className={cn("size-4 mr-3 shrink-0 transition-colors", cardFocus === 'cvc' ? "text-[#062D1B]" : "text-[#062D1B]/20")} />
+                                           <div className="flex-1">
+                                             <CardCvcElement
+                                               options={CARD_ELEMENT_OPTIONS}
+                                               className="w-full"
+                                               onFocus={() => setCardFocus('cvc')}
+                                               onBlur={() => setCardFocus(null)}
+                                               onChange={(e) => setCardComplete(p => ({ ...p, cvc: e.complete }))}
+                                             />
+                                           </div>
+                                        </div>
+                                     </div>
+                                  </div>
+
+                                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-gray-50">
+                                     <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/30 bg-gray-50 px-3 py-1.5 rounded-full">
+                                           <Lock className="size-3 text-emerald-600" /> SSL SECURED
+                                        </div>
+                                        <div className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/30 bg-gray-50 px-3 py-1.5 rounded-full">
+                                           <ShieldCheck className="size-3 text-emerald-600" /> PCI LEVEL 1
+                                        </div>
+                                     </div>
+                                     
+                                     <div className="flex items-center gap-3">
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/20">Powered by</span>
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" className="h-4 opacity-40 grayscale" />
+                                     </div>
+                                  </div>
+
+                                  <div className="flex flex-wrap items-center gap-2">
+                                     <span className="text-[9px] font-bold uppercase tracking-widest text-[#062D1B]/20 mr-1">Accepted:</span>
+                                     {['Visa', 'Mastercard', 'Amex', 'Discover', 'Apple Pay', 'Google Pay'].map(name => (
+                                       <div key={name} className="px-3 py-1.5 rounded-lg border border-gray-100 bg-white text-[8px] font-bold uppercase tracking-widest text-[#062D1B]/40">
+                                         {name}
+                                       </div>
+                                     ))}
+                                  </div>
+                               </motion.div>
+                             ) : (
+                               <motion.div 
+                                 key="cod" 
+                                 initial={{ opacity: 0, y: 8 }} 
+                                 animate={{ opacity: 1, y: 0 }} 
+                                 exit={{ opacity: 0, y: -8 }} 
+                                 transition={{ duration: 0.25 }} 
+                                 className="p-8 rounded-[2rem] bg-emerald-50/50 border border-emerald-100 space-y-4"
+                               >
+                                  <div className="flex items-center gap-3">
+                                     <div className="size-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                        <Truck className="size-5 text-emerald-600" />
+                                     </div>
+                                     <div>
+                                        <p className="text-[11px] font-bold uppercase tracking-widest text-emerald-700">Cash on Delivery</p>
+                                        <p className="text-[10px] text-emerald-600/60 font-medium">Pay when your order arrives</p>
+                                     </div>
+                                  </div>
+                                  <div className="h-px bg-emerald-100" />
+                                  <div className="space-y-2">
+                                     {[
+                                       "No advance payment required",
+                                       "Pay in cash when delivered",
+                                       "Order can be cancelled anytime before dispatch"
+                                     ].map((point, i) => (
+                                       <div key={i} className="flex items-center gap-2">
+                                         <CheckCircle2 className="size-3 text-emerald-500 shrink-0" />
+                                         <p className="text-[10px] text-emerald-700/70 font-medium">{point}</p>
+                                       </div>
+                                     ))}
+                                  </div>
+                               </motion.div>
+                             )}
                            </AnimatePresence>
                         </div>
 

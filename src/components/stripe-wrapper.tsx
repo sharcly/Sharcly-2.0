@@ -37,7 +37,7 @@ export function StripeWrapper({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <Elements stripe={stripePromise}>
+    <Elements stripe={stripePromise} options={options}>
       {children}
     </Elements>
   );
