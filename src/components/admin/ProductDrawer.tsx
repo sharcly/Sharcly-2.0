@@ -104,7 +104,8 @@ export default function ProductDrawer({
    categories = [],
    collections = [],
    tags = [],
-   types = []
+   types = [],
+   flavours = []
 }: any) {
    // Navigation State REMOVED
    const [isCreatingCategory, setIsCreatingCategory] = useState(false);
@@ -139,7 +140,8 @@ export default function ProductDrawer({
       keywords: [],
       canonicalUrl: "",
       ogImage: null,
-      changefreq: "monthly"
+      changefreq: "monthly",
+      flavours: []
    });
 
    const updateForm = (updates: any) => setForm((prev: any) => ({ ...prev, ...updates }));
@@ -204,7 +206,8 @@ export default function ProductDrawer({
                keywords: Array.isArray(initialData.keywords) ? initialData.keywords : (typeof initialData.keywords === 'string' ? initialData.keywords.split(',').map((s: string) => s.trim()) : []),
                canonicalUrl: initialData.canonicalUrl || "",
                ogImage: initialData.ogImage || null,
-               changefreq: initialData.changefreq || "monthly"
+               changefreq: initialData.changefreq || "monthly",
+               flavours: initialData.flavours?.map((f: any) => f.id) || []
             });
          } else {
             setForm({
@@ -239,7 +242,8 @@ export default function ProductDrawer({
                keywords: [],
                canonicalUrl: "",
                ogImage: null,
-               changefreq: "monthly"
+               changefreq: "monthly",
+               flavours: []
             });
          }
       }
@@ -359,17 +363,30 @@ export default function ProductDrawer({
                                  </button>
                               </div>
                            </Field>
-
-                           <Field label="Product Visibility & Status" hint="Controls where and how this product is shown.">
-                              <select
-                                 value={form.status?.toLowerCase()}
-                                 onChange={e => updateForm({ status: e.target.value.toUpperCase() })}
-                                 className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold appearance-none text-sm"
-                              >
-                                 <option value="draft">Draft (Private)</option>
-                                 <option value="published">Published (Live)</option>
-                                 <option value="archived">Archived (Hidden)</option>
-                              </select>
+                           <Field label="Flavours" hint="Select one or more flavours for this product.">
+                              <div className="flex flex-wrap gap-2">
+                                 {(flavours || []).map((f: any) => (
+                                    <button
+                                       key={f.id}
+                                       type="button"
+                                       onClick={() => {
+                                          const current = form.flavours || [];
+                                          const next = current.includes(f.id) 
+                                             ? current.filter((id: string) => id !== f.id)
+                                             : [...current, f.id];
+                                          updateForm({ flavours: next });
+                                       }}
+                                       className={cn(
+                                          "px-4 py-2 rounded-lg text-xs font-bold transition-all border",
+                                          (form.flavours || []).includes(f.id) 
+                                             ? "bg-[#0f2318] text-white border-[#0f2318]" 
+                                             : "bg-white text-neutral-500 border-neutral-200 hover:border-emerald-500"
+                                       )}
+                                    >
+                                       {f.name}
+                                    </button>
+                                 ))}
+                              </div>
                            </Field>
                         </div>
                      </FormSection>

@@ -7,7 +7,7 @@ export const FinalCTA = () => {
       <section
          style={{
             position: "relative",
-            padding: "120px 24px",
+            padding: "56px 24px",
             textAlign: "center",
             overflow: "hidden",
             background:

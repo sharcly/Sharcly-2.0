@@ -126,7 +126,7 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
         {/* Headline */}
         <motion.h1
           variants={itemVariants}
-          className="font-cormorant text-[clamp(38px,4.8vw,64px)] font-black leading-[1] tracking-[-0.025em] text-[#eff8ee] mb-5"
+          className="font-cormorant text-[clamp(32px,4.2vw,54px)] font-black leading-[1.05] tracking-[-0.025em] text-[#eff8ee] mb-5"
         >
           {hlLine1} <br />
           <span className="relative inline-block italic text-[#E8C547]">
