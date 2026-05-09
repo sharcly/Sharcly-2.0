@@ -1,5 +1,9 @@
 export const getImageUrl = (image: any): string => {
-  if (!image) return "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg";
+  const fallback = "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg";
+  
+  if (!image || image === "undefined" || image === "null") {
+    return fallback;
+  }
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "http://localhost:8181";
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api";
@@ -21,6 +25,7 @@ export const getImageUrl = (image: any): string => {
 
   // Case 4: Image object from Prisma (with id)
   if (typeof image === 'object' && image.id) {
+    if (image.id === "undefined" || image.id === "null") return fallback;
     return `${apiUrl}/images/${image.id}`;
   }
 
@@ -30,5 +35,5 @@ export const getImageUrl = (image: any): string => {
   }
 
   // Fallback
-  return "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg";
+  return fallback;
 };

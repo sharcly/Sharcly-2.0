@@ -31,10 +31,12 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
   const imageUrl = getImageUrl(product.imageUrls?.[0] || product.images?.[0])
   const price = typeof product.price === 'object' ? product.price.amount : product.price
   
-  // Find series tag for badge
-  const seriesTag = product.tags?.find((t: any) => 
+  // Find series for badge
+  const seriesName = product.tags?.find((t: any) => 
     Object.keys(seriesColors).includes(t.name.toLowerCase())
-  )
+  )?.name || product.category?.name;
+
+  const seriesColor = seriesColors[seriesName?.toLowerCase() || ''] || '#E8C547';
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -100,12 +102,12 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
         </AnimatePresence>
 
         {/* Series Badge */}
-        {seriesTag && (
+        {seriesName && (
           <div 
             className="absolute top-3 left-3 px-3 py-1.5 rounded-full shadow text-white font-black text-[9px] uppercase tracking-[0.2em] z-10"
-            style={{ backgroundColor: seriesColors[seriesTag.name.toLowerCase()] }}
+            style={{ backgroundColor: seriesColor }}
           >
-            {seriesTag.name}
+            {seriesName}
           </div>
         )}
       </div>
@@ -114,15 +116,22 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
       <div className="px-3 pb-4 flex flex-col gap-2">
         {/* Name + Price */}
         <div className="flex items-start justify-between gap-2">
-          <h3 
-            className="text-[15px] font-black uppercase tracking-tighter line-clamp-2 transition-colors"
-            style={{ 
-              fontFamily: 'var(--font-dm-sans), sans-serif',
-              color: hovered ? '#E8C547' : '#eff8ee'
-            }}
-          >
-            {product.name}
-          </h3>
+          <div className="flex flex-col flex-1 min-w-0">
+            <h3 
+              className="text-[15px] font-black uppercase tracking-tighter line-clamp-2 transition-colors"
+              style={{ 
+                fontFamily: 'var(--font-dm-sans), sans-serif',
+                color: hovered ? '#E8C547' : '#eff8ee'
+              }}
+            >
+              {product.name}
+            </h3>
+            {product.subtitle && (
+              <p className="text-[10px] font-bold text-[#eff8ee]/30 mt-0.5 tracking-wide uppercase">
+                {product.subtitle}
+              </p>
+            )}
+          </div>
           <div style={{
             fontSize: 16,
             fontWeight: 900,

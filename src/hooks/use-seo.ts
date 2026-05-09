@@ -51,8 +51,10 @@ export function useSeo(pageSlug: string, defaultData?: DefaultSeoData) {
           updateMetaTag('property', 'og:description', defaultData.description);
           updateMetaTag('property', 'og:image', defaultData.ogImage);
         }
-      } catch (err) {
-        console.error(`SEO hook failed for ${pageSlug}:`, err);
+      } catch (err: any) {
+        if (err.response?.status !== 404) {
+          console.error(`SEO hook failed for ${pageSlug}:`, err);
+        }
         if (defaultData?.title) document.title = defaultData.title;
       }
     };

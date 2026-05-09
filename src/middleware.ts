@@ -12,20 +12,21 @@ import { jwtVerify } from 'jose'
  */
 async function getRoleFromRequest(request: NextRequest): Promise<string | null> {
   const accessToken = request.cookies.get('access_token')?.value
+  const roleCookie = request.cookies.get('role')?.value || null
 
   if (accessToken) {
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET || '')
       const { payload } = await jwtVerify(accessToken, secret)
-      return (payload.role as string) || null
-    } catch {
-      // Token invalid/expired — treat as unauthenticated
-      return null
+      if (payload.role) return payload.role as string
+    } catch (err) {
+      // If JWT verification fails (e.g. missing secret in frontend), 
+      // we still check the role cookie as a fallback.
+      return roleCookie
     }
   }
 
-  // Fallback: plain cookie (only used as UX hint, real auth is always backend-verified)
-  return request.cookies.get('role')?.value || null
+  return roleCookie
 }
 
 export async function middleware(request: NextRequest) {

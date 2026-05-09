@@ -69,7 +69,15 @@ export default function DashboardProductsPage() {
   const [collections, setCollections] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [types, setTypes] = useState<any[]>([]);
+  const [flavours, setFlavours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Search and Pagination
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   // Modals
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -84,32 +92,46 @@ export default function DashboardProductsPage() {
 
   const [categoryForm, setCategoryForm] = useState({ name: "", slug: "", description: "" });
   const [collectionForm, setCollectionForm] = useState({ name: "", slug: "", description: "" });
+  const [flavourForm, setFlavourForm] = useState({ name: "", slug: "" });
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (page = currentPage, search = debouncedSearch) => {
     setLoading(true);
     try {
-      const [pRes, cRes, colRes, tRes, tyRes] = await Promise.all([
-        apiClient.get("/products"),
+      const [pRes, cRes, colRes, tRes, tyRes, fRes] = await Promise.all([
+        apiClient.get(`/products?page=${page}&limit=10${search ? `&search=${search}` : ""}`),
         apiClient.get("/products/categories"),
         apiClient.get("/products/collections"),
         apiClient.get("/products/tags"),
-        apiClient.get("/products/types")
+        apiClient.get("/products/types"),
+        apiClient.get("/products/flavours")
       ]);
       setProducts(pRes.data.products);
+      setTotalPages(pRes.data.pagination?.pages || 1);
+      setTotalProducts(pRes.data.pagination?.total || 0);
       setCategories(cRes.data.categories || []);
       setCollections(colRes.data.collections || []);
       setTags(tRes.data.tags || []);
       setTypes(tyRes.data.types || []);
+      setFlavours(fRes.data.flavours || []);
     } catch (error: any) {
       toast.error("Failed to load store data");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentPage, debouncedSearch]);
+
+  // Debounce search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1); // Reset to first page on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchData(currentPage, debouncedSearch);
+  }, [fetchData, currentPage, debouncedSearch]);
 
   // Product Actions
   const handleCreateProduct = async (e: React.FormEvent) => {
@@ -131,12 +153,15 @@ export default function DashboardProductsPage() {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Are you sure? This action cannot be undone.")) return;
     try {
       await apiClient.delete(`/products/${id}`);
-      toast.success("Product deleted");
+      toast.success("Product deleted successfully");
       fetchData();
-    } catch (error) { toast.error("Delete failed"); }
+    } catch (error: any) { 
+      const msg = error.response?.data?.message || "Failed to delete product";
+      toast.error(msg); 
+    }
   };
 
   const updateStock = async (id: string, newStock: number) => {
@@ -187,6 +212,26 @@ export default function DashboardProductsPage() {
     } catch (error) { toast.error("Removal failed"); }
   };
 
+  // Flavour Actions
+  const handleCreateFlavour = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiClient.post("/products/flavours", flavourForm);
+      toast.success("Flavour created");
+      setFlavourForm({ name: "", slug: "" });
+      fetchData();
+    } catch (error) { toast.error("Create failed"); }
+  };
+
+  const handleDeleteFlavour = async (id: string) => {
+    if (!confirm("Are you sure?")) return;
+    try {
+      await apiClient.delete(`/products/flavours/${id}`);
+      toast.success("Flavour removed");
+      fetchData();
+    } catch (error) { toast.error("Removal failed"); }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -225,6 +270,9 @@ export default function DashboardProductsPage() {
             <TabsTrigger value="collections" className="rounded-xl px-8 py-4 font-bold text-sm data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:text-primary transition-all gap-2">
               <Layers className="h-4 w-4" /> Collections
             </TabsTrigger>
+            <TabsTrigger value="flavours" className="rounded-xl px-8 py-4 font-bold text-sm data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:text-primary transition-all gap-2">
+              <RefreshCw className="h-4 w-4" /> Flavours
+            </TabsTrigger>
           </TabsList>
         </ScrollArea>
 
@@ -237,25 +285,30 @@ export default function DashboardProductsPage() {
               </div>
               <div className="relative w-80">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-300" />
-                <Input placeholder="Search products..." className="pl-12 h-12 rounded-2xl border-black/5 bg-neutral-50 font-medium" />
+                <Input 
+                  placeholder="Search products..." 
+                  className="pl-12 h-12 rounded-2xl border-black/5 bg-neutral-50 font-medium" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
             </CardHeader>
             <CardContent className="p-0">
               <ScrollArea className="w-full">
                 <Table>
-
                   <TableHeader className="bg-neutral-50/50">
                     <TableRow className="border-black/5 hover:bg-transparent">
                       <TableHead className="pl-8 py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Image</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Product</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Category</TableHead>
+                      <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Status</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Price</TableHead>
                       <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Stock</TableHead>
                       <TableHead className="pr-8 text-right py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {loading ? [1, 2, 3].map(i => <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-20 w-full rounded-2xl" /></TableCell></TableRow>) : products.map(p => (
+                    {loading ? [1, 2, 3].map(i => <TableRow key={i}><TableCell colSpan={6}><Skeleton className="h-20 w-full rounded-2xl" /></TableCell></TableRow>) : products.length > 0 ? products.map(p => (
                       <TableRow key={p.id} className="border-black/5 hover:bg-neutral-50/50 transition-all group">
                         <TableCell className="pl-8 py-6">
                           <div className="size-16 rounded-2xl bg-neutral-100 border border-black/5 overflow-hidden shadow-sm group-hover:scale-110 transition-transform duration-500">
@@ -280,6 +333,19 @@ export default function DashboardProductsPage() {
                             <span className="text-[10px] font-medium text-neutral-400">{p.type?.name || "Standard Type"}</span>
                           </div>
                         </TableCell>
+                        <TableCell className="py-6">
+                           <Badge 
+                            variant="outline" 
+                            className={cn(
+                              "rounded-full px-3 py-0.5 text-[9px] font-bold border-0 capitalize",
+                              p.status === "PUBLISHED" ? "bg-green-100 text-green-600" : 
+                              p.status === "DRAFT" ? "bg-orange-100 text-orange-600" : 
+                              "bg-neutral-100 text-neutral-400"
+                            )}
+                          >
+                            • {p.status?.toLowerCase() || "draft"}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="py-6 font-black text-neutral-900 text-base">${Number(p.price).toFixed(2)}</TableCell>
                         <TableCell className="py-6">
                           <Badge variant={p.stock > 10 ? "secondary" : "destructive"} className="rounded-full px-4 py-1 font-black text-[10px] uppercase shadow-sm">
@@ -289,7 +355,7 @@ export default function DashboardProductsPage() {
                         <TableCell className="pr-8 text-right py-6">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-neutral-100 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-neutral-100 opacity-40 group-hover:opacity-100 transition-opacity">
                                 <MoreHorizontal className="h-5 w-5" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -311,10 +377,46 @@ export default function DashboardProductsPage() {
                           </DropdownMenu>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="py-20 text-center text-neutral-400 font-medium">
+                          {debouncedSearch ? `No products found for "${debouncedSearch}"` : "No products available"}
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </ScrollArea>
+              
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="p-8 border-t border-black/5 flex items-center justify-between bg-neutral-50/30">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
+                    Showing page <span className="text-neutral-900">{currentPage}</span> of <span className="text-neutral-900">{totalPages}</span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1 || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Previous
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -346,7 +448,7 @@ export default function DashboardProductsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {products.map(p => (
+                    {products.length > 0 ? products.map(p => (
                       <TableRow key={p.id} className="border-black/5 hover:bg-neutral-50 transition-all group">
                         <TableCell className="pl-8 py-8">
                           <span className="font-bold text-neutral-900 text-base">{p.name}</span>
@@ -375,10 +477,46 @@ export default function DashboardProductsPage() {
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="py-20 text-center text-neutral-400 font-medium">
+                          No products found
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </ScrollArea>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="p-8 border-t border-black/5 flex items-center justify-between bg-neutral-50/30">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
+                    Showing page <span className="text-neutral-900">{currentPage}</span> of <span className="text-neutral-900">{totalPages}</span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1 || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Previous
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages || loading}
+                      className="rounded-xl font-bold gap-2"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -510,6 +648,69 @@ export default function DashboardProductsPage() {
             </Card>
           </div>
         </TabsContent>
+        <TabsContent value="flavours">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <Card className="lg:col-span-8 border-black/5 shadow-sharcly rounded-3xl overflow-hidden bg-white">
+              <CardHeader className="p-8 border-b border-black/5 bg-neutral-50/50">
+                <CardTitle className="text-2xl font-bold tracking-tight">Flavours</CardTitle>
+                <CardDescription className="text-xs font-medium">Manage product flavours and taste profiles.</CardDescription>
+              </CardHeader>
+              <ScrollArea className="w-full">
+                <Table>
+                  <TableHeader className="bg-neutral-50/50">
+                    <TableRow className="border-black/5">
+                      <TableHead className="pl-8 py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Flavour</TableHead>
+                      <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Identifier</TableHead>
+                      <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Products</TableHead>
+                      <TableHead className="pr-8 text-right py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Manage</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {flavours.length > 0 ? flavours.map(f => (
+                      <TableRow key={f.id} className="border-black/5 hover:bg-neutral-50 transition-all">
+                        <TableCell className="pl-8 py-6 font-bold text-lg">{f.name}</TableCell>
+                        <TableCell className="py-6 text-neutral-400 text-xs font-mono">{f.slug}</TableCell>
+                        <TableCell className="py-6 font-black text-xs">{f._count?.products || 0} Items</TableCell>
+                        <TableCell className="pr-8 text-right py-6">
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteFlavour(f.id)} className="hover:bg-rose-50 text-rose-500 h-10 w-10 rounded-xl">
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={4} className="py-20 text-center text-neutral-400 font-medium">No flavours created</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </Card>
+
+            <Card className="lg:col-span-4 border-black/5 shadow-sharcly rounded-3xl overflow-hidden bg-white h-fit">
+              <CardHeader className="p-8 border-b border-black/5 bg-neutral-900 text-white">
+                <CardTitle className="text-xl font-bold">New Flavour</CardTitle>
+                <CardDescription className="text-neutral-400 text-xs">Add a new product flavour.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8">
+                <form onSubmit={handleCreateFlavour} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-black text-black/40 tracking-widest">Flavour Name</Label>
+                    <Input required value={flavourForm.name} onChange={e => {
+                      const name = e.target.value;
+                      setFlavourForm({ ...flavourForm, name, slug: name.toLowerCase().replace(/ /g, '-') });
+                    }} className="h-12 rounded-xl bg-neutral-50 border-black/5 font-bold" placeholder="e.g. Strawberry" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-black text-black/40 tracking-widest">Slug</Label>
+                    <Input required value={flavourForm.slug} onChange={e => setFlavourForm({ ...flavourForm, slug: e.target.value })} className="h-12 rounded-xl bg-neutral-50 border-black/5 font-mono text-xs" />
+                  </div>
+                  <Button type="submit" className="w-full h-12 rounded-xl premium-gradient font-bold shadow-lg">Create Flavour</Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
 
       <ProductDrawer 
@@ -520,6 +721,7 @@ export default function DashboardProductsPage() {
         collections={collections}
         tags={tags}
         types={types}
+        flavours={flavours}
         onSave={async (data: any) => {
           console.log("🔥 Frontend Product Data:", data);
           const loadingToast = toast.loading(selectedProduct ? "Updating product..." : "Creating product...");
@@ -573,6 +775,7 @@ export default function DashboardProductsPage() {
             formData.append("typeId", data.typeId || data.organization?.type || "");
             formData.append("tags", JSON.stringify(data.tags || data.organization?.tags || []));
             formData.append("collections", JSON.stringify(data.collections || data.organization?.collections || []));
+            formData.append("flavours", JSON.stringify(data.flavours || []));
 
             // Complex Structures (MUST be stringified for multer)
             // Clean variants to remove File objects before stringifying
@@ -591,17 +794,30 @@ export default function DashboardProductsPage() {
             // Images - Robust Detection
             const isFile = (obj: any) => obj && (obj instanceof File || (obj.name && obj.size && obj.type));
 
-            if (isFile(data.thumbnail)) {
-               formData.append("product_images", data.thumbnail);
+            // Track image order for existing images (IDs)
+            const existingImageOrder: string[] = [];
+            
+            if (data.thumbnail) {
+               if (isFile(data.thumbnail)) {
+                  formData.append("product_images", data.thumbnail);
+                  // We'll mark thumbnail position in backend if needed, 
+                  // but usually thumbnail is order 0
+               } else if (typeof data.thumbnail === 'string') {
+                  existingImageOrder.push(data.thumbnail);
+               }
             }
             
             if (Array.isArray(data.galleryFiles)) {
               data.galleryFiles.forEach((file: any) => {
                 if (isFile(file)) {
                   formData.append("product_images", file);
+                } else if (typeof file === 'string') {
+                  existingImageOrder.push(file);
                 }
               });
             }
+
+            formData.append("imageOrder", JSON.stringify(existingImageOrder));
 
             // Variant Images
             if (Array.isArray(data.variants)) {

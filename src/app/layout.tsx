@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 import { CartProvider } from "@/context/cart-context";
 import { Toaster } from "@/components/ui/sonner";
+import Script from "next/script";
 
 
 import { ThemeProvider } from "@/components/theme-provider";
@@ -36,7 +37,8 @@ export const metadata: Metadata = {
   title: "Sharcly",
   description: "Discover our curated collection of products. Browse our latest featured items and shop with confidence.",
   icons: {
-    icon: "https://cdn.mignite.app/ws/works_01KM0WR2ZSKYNHV0ZE2MPNM9EF/final-Logo-1--01KM5Y2NCW8720B30G9G0XW18Y.png",
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
   }
 };
 
@@ -70,6 +72,11 @@ export default function RootLayout({
             </CartProvider>
           </ThemeProvider>
         </ReduxProvider>
+        <script 
+          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4Iky795YynI3fyT9k_elsjk7dWEog3Ec&libraries=places" 
+          async 
+          defer
+        ></script>
       </body>
     </html>
   );

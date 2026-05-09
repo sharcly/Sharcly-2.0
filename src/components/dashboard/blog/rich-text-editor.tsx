@@ -188,6 +188,18 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
               active={editor.isActive('blockquote')}
               icon={Quote}
             />
+            <ToolbarButton 
+              onClick={() => {
+                const url = window.prompt('URL');
+                if (url) {
+                  editor.chain().focus().setLink({ href: url }).run();
+                } else if (url === '') {
+                  editor.chain().focus().unsetLink().run();
+                }
+              }} 
+              active={editor.isActive('link')}
+              icon={LinkIcon}
+            />
          </div>
 
          <div className="flex items-center gap-1 bg-white p-1 rounded-xl shadow-sm border border-gray-100/50">

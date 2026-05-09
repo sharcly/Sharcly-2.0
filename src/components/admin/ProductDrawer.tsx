@@ -8,6 +8,9 @@ import {
    Image as ImageIcon,
    Plus,
    Trash2,
+   Pencil,
+   ChevronUp,
+   ChevronLeft,
    GripVertical,
    Star,
    Lock,
@@ -101,7 +104,8 @@ export default function ProductDrawer({
    categories = [],
    collections = [],
    tags = [],
-   types = []
+   types = [],
+   flavours = []
 }: any) {
    // Navigation State REMOVED
    const [isCreatingCategory, setIsCreatingCategory] = useState(false);
@@ -136,17 +140,50 @@ export default function ProductDrawer({
       keywords: [],
       canonicalUrl: "",
       ogImage: null,
-      changefreq: "monthly"
+      changefreq: "monthly",
+      flavours: []
    });
 
    const updateForm = (updates: any) => setForm((prev: any) => ({ ...prev, ...updates }));
+
+   const moveGalleryImage = (fromIndex: number, toIndex: number) => {
+      setForm((prev: any) => {
+         const newGallery = [...(prev.galleryFiles || [])];
+         const [movedItem] = newGallery.splice(fromIndex, 1);
+         newGallery.splice(toIndex, 0, movedItem);
+         return { ...prev, galleryFiles: newGallery };
+      });
+   };
+
+   const replaceGalleryImage = (index: number, file: File) => {
+      setForm((prev: any) => {
+         const newGallery = [...(prev.galleryFiles || [])];
+         newGallery[index] = file;
+         return { ...prev, galleryFiles: newGallery };
+      });
+   };
+
+   const moveVariant = (fromIndex: number, toIndex: number) => {
+      setForm((prev: any) => {
+         const newVariants = [...(prev.variants || [])];
+         if (toIndex < 0 || toIndex >= newVariants.length) return prev;
+         const [movedItem] = newVariants.splice(fromIndex, 1);
+         newVariants.splice(toIndex, 0, movedItem);
+         return { ...prev, variants: newVariants };
+      });
+   };
 
    // Sync logic
    useEffect(() => {
       if (isOpen) {
          if (initialData) {
+            const variantImageIds = initialData.variants?.map((v: any) => v.image).filter(Boolean) || [];
             const thumbnailImg = initialData.images?.find((img: any) => img.isThumbnail);
-            const galleryImgs = initialData.images?.filter((img: any) => !img.isThumbnail && img.order !== 999);
+            const galleryImgs = initialData.images?.filter((img: any) => 
+               !img.isThumbnail && 
+               img.order !== 999 && 
+               !variantImageIds.includes(img.id)
+            );
             
             setForm({
                ...initialData,
@@ -169,7 +206,8 @@ export default function ProductDrawer({
                keywords: Array.isArray(initialData.keywords) ? initialData.keywords : (typeof initialData.keywords === 'string' ? initialData.keywords.split(',').map((s: string) => s.trim()) : []),
                canonicalUrl: initialData.canonicalUrl || "",
                ogImage: initialData.ogImage || null,
-               changefreq: initialData.changefreq || "monthly"
+               changefreq: initialData.changefreq || "monthly",
+               flavours: initialData.flavours?.map((f: any) => f.id) || []
             });
          } else {
             setForm({
@@ -204,7 +242,8 @@ export default function ProductDrawer({
                keywords: [],
                canonicalUrl: "",
                ogImage: null,
-               changefreq: "monthly"
+               changefreq: "monthly",
+               flavours: []
             });
          }
       }
@@ -314,10 +353,39 @@ export default function ProductDrawer({
                                     onChange={e => updateForm({ categoryId: e.target.value })}
                                     className="flex-1 h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold appearance-none text-sm"
                                  >
-                                    <option value="">Select Category...</option>
-                                    {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    <option value="">Select category...</option>
+                                    {categories.map((c: any) => (
+                                       <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
                                  </select>
-                                 <button onClick={() => setIsCreatingCategory(true)} className="size-12 bg-neutral-100 rounded-xl flex items-center justify-center text-neutral-400 hover:text-emerald-500 transition-colors"><Plus size={16} /></button>
+                                 <button onClick={() => setIsCreatingCategory(true)} className="size-12 bg-neutral-100 rounded-xl flex items-center justify-center text-neutral-400 hover:text-emerald-500 transition-all border border-transparent hover:border-emerald-100">
+                                    <Plus size={20} />
+                                 </button>
+                              </div>
+                           </Field>
+                           <Field label="Flavours" hint="Select one or more flavours for this product.">
+                              <div className="flex flex-wrap gap-2">
+                                 {(flavours || []).map((f: any) => (
+                                    <button
+                                       key={f.id}
+                                       type="button"
+                                       onClick={() => {
+                                          const current = form.flavours || [];
+                                          const next = current.includes(f.id) 
+                                             ? current.filter((id: string) => id !== f.id)
+                                             : [...current, f.id];
+                                          updateForm({ flavours: next });
+                                       }}
+                                       className={cn(
+                                          "px-4 py-2 rounded-lg text-xs font-bold transition-all border",
+                                          (form.flavours || []).includes(f.id) 
+                                             ? "bg-[#0f2318] text-white border-[#0f2318]" 
+                                             : "bg-white text-neutral-500 border-neutral-200 hover:border-emerald-500"
+                                       )}
+                                    >
+                                       {f.name}
+                                    </button>
+                                 ))}
                               </div>
                            </Field>
                         </div>
@@ -336,9 +404,61 @@ export default function ProductDrawer({
                            <Field label="Lifestyle Gallery">
                               <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
                                  {(form.galleryFiles || []).map((f: any, i: number) => (
-                                    <div key={i} className="relative aspect-square bg-neutral-100 rounded-xl overflow-hidden border border-neutral-100 group">
-                                       <Image src={typeof f === 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/images/${f}` : URL.createObjectURL(f)} fill className="object-cover" alt="Gallery" />
-                                       <button onClick={() => updateForm({ galleryFiles: form.galleryFiles.filter((_: any, idx: number) => idx !== i) })} className="absolute top-2 right-2 p-1 bg-black/60 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
+                                    <div key={i} className="relative aspect-square bg-neutral-100 rounded-xl overflow-hidden border border-neutral-100 group shadow-sm hover:shadow-md transition-all">
+                                       <Image src={typeof f === 'string' ? getImageUrl(f) : URL.createObjectURL(f)} fill className="object-cover" alt="Gallery" />
+                                       
+                                       {/* Overlay Controls */}
+                                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+                                          <button 
+                                             type="button"
+                                             onClick={(e) => {
+                                                e.stopPropagation();
+                                                moveGalleryImage(i, i - 1);
+                                             }}
+                                             disabled={i === 0}
+                                             className="p-1.5 bg-white hover:bg-emerald-500 text-neutral-900 hover:text-white rounded-lg shadow-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                          >
+                                             <ChevronLeft size={14} />
+                                          </button>
+                                          <label className="p-1.5 bg-white hover:bg-emerald-500 text-neutral-900 hover:text-white rounded-lg shadow-sm cursor-pointer transition-all">
+                                             <Pencil size={14} />
+                                             <input 
+                                                type="file" 
+                                                className="hidden" 
+                                                onChange={e => {
+                                                   const file = e.target.files?.[0];
+                                                   if (file) replaceGalleryImage(i, file);
+                                                }} 
+                                             />
+                                          </label>
+                                          <button 
+                                             type="button"
+                                             onClick={(e) => {
+                                                e.stopPropagation();
+                                                const newGallery = (form.galleryFiles || []).filter((_: any, idx: number) => idx !== i);
+                                                updateForm({ galleryFiles: newGallery });
+                                             }}
+                                             className="p-1.5 bg-rose-500/80 hover:bg-rose-500 text-white rounded-lg"
+                                          >
+                                             <Trash2 size={14} />
+                                          </button>
+                                          <button 
+                                             type="button"
+                                             onClick={(e) => {
+                                                e.stopPropagation();
+                                                moveGalleryImage(i, i + 1);
+                                             }}
+                                             disabled={i === (form.galleryFiles || []).length - 1}
+                                             className="p-1.5 bg-white/20 hover:bg-white/40 text-white rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+                                          >
+                                             <ChevronRight size={14} />
+                                          </button>
+                                       </div>
+
+                                       {/* Order Badge */}
+                                       <div className="absolute bottom-1 right-1 size-5 bg-black/60 rounded flex items-center justify-center text-[10px] text-white font-bold">
+                                          {i + 1}
+                                       </div>
                                     </div>
                                  ))}
                                  <label className="aspect-square border-2 border-dashed border-neutral-200 rounded-xl flex items-center justify-center text-neutral-300 cursor-pointer hover:border-emerald-500 transition-all font-sans text-[10px] font-bold uppercase tracking-widest flex-col gap-1">
@@ -354,18 +474,44 @@ export default function ProductDrawer({
                         <div className="space-y-4">
                            {(form.variants || []).map((v: any, i: number) => (
                               <div key={i} className="p-4 bg-neutral-50 rounded-xl border border-neutral-100 flex gap-4 items-center relative group">
-                                 <button onClick={() => updateForm({ variants: form.variants.filter((_: any, idx: number) => idx !== i) })} className="absolute top-2 right-2 p-1.5 text-neutral-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"><Trash2 size={14} /></button>
+                                 {/* Variant Controls */}
+                                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                                    <button 
+                                       type="button" 
+                                       onClick={() => moveVariant(i, i - 1)} 
+                                       disabled={i === 0}
+                                       className="p-1.5 bg-white border border-neutral-200 text-neutral-400 hover:text-emerald-500 hover:border-emerald-500 rounded-lg shadow-sm disabled:opacity-30 transition-all"
+                                    >
+                                       <ChevronUp size={14} />
+                                    </button>
+                                    <button 
+                                       type="button" 
+                                       onClick={() => moveVariant(i, i + 1)} 
+                                       disabled={i === (form.variants || []).length - 1}
+                                       className="p-1.5 bg-white border border-neutral-200 text-neutral-400 hover:text-emerald-500 hover:border-emerald-500 rounded-lg shadow-sm disabled:opacity-30 transition-all"
+                                    >
+                                       <ChevronDown size={14} />
+                                    </button>
+                                    <button 
+                                       type="button" 
+                                       onClick={() => updateForm({ variants: form.variants.filter((_: any, idx: number) => idx !== i) })} 
+                                       className="p-1.5 bg-white border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-500 rounded-lg shadow-sm transition-all"
+                                    >
+                                       <Trash2 size={14} />
+                                    </button>
+                                 </div>
+
                                  <label className="relative size-16 bg-white border border-neutral-100 rounded-lg flex items-center justify-center cursor-pointer overflow-hidden shrink-0">
-                                    {v.image ? <Image src={typeof v.image === 'string' ? `${process.env.NEXT_PUBLIC_API_URL}/images/${v.image}` : URL.createObjectURL(v.image)} fill className="object-cover" alt="V" /> : <Plus size={16} className="text-neutral-200" />}
+                                    {v.image ? <Image src={typeof v.image === 'string' ? getImageUrl(v.image) : URL.createObjectURL(v.image)} fill className="object-cover" alt="V" /> : <Plus size={16} className="text-neutral-200" />}
                                     <input type="file" className="hidden" onChange={e => {
                                        const n = [...form.variants]; n[i].image = e.target.files?.[0]; updateForm({ variants: n });
                                     }} />
                                  </label>
-                                 <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <input value={v.title} onChange={e => { const n = [...form.variants]; n[i].title = e.target.value; updateForm({ variants: n }); }} placeholder="Pack of 1..." className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
+                                  <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <input value={v.title || ""} onChange={e => { const n = [...form.variants]; n[i].title = e.target.value; updateForm({ variants: n }); }} placeholder="Pack of 1..." className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
                                     <input value={v.sku || ""} onChange={e => { const n = [...form.variants]; n[i].sku = e.target.value; updateForm({ variants: n }); }} placeholder="SKU" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
-                                    <input type="number" value={v.price} onChange={e => { const n = [...form.variants]; n[i].price = e.target.value; updateForm({ variants: n }); }} placeholder="Price" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
-                                    <input type="number" value={v.stock} onChange={e => { const n = [...form.variants]; n[i].stock = e.target.value; updateForm({ variants: n }); }} placeholder="Stock" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
+                                    <input type="number" value={v.price ?? ""} onChange={e => { const n = [...form.variants]; n[i].price = e.target.value; updateForm({ variants: n }); }} placeholder="Price" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
+                                    <input type="number" value={v.stock ?? ""} onChange={e => { const n = [...form.variants]; n[i].stock = e.target.value; updateForm({ variants: n }); }} placeholder="Stock" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
                                  </div>
                               </div>
                            ))}

@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { apiClient } from "@/lib/api-client";
-import { 
-  Heart, Truck, ShieldCheck, RotateCcw, 
-  Plus, Minus, CheckCircle2, Share2,
-  ChevronLeft, Leaf, Zap
+import {
+  Heart, Truck, ShieldCheck, RotateCcw,
+  Plus, Minus, Share2, ChevronLeft, Leaf,
+  Zap, Star, ShoppingCart, Link as LinkIcon,
+  Instagram, Twitter, ExternalLink
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { toast } from "sonner";
 import { useSeo } from "@/hooks/use-seo";
 import { cn } from "@/lib/utils";
@@ -18,42 +19,121 @@ import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
 import { getImageUrl } from "@/lib/image-utils";
-import { ProductDetailSkeleton } from "@/components/ui/skeletons";
+import { ProductDetailSkeleton, ProductCardSkeleton } from "@/components/ui/skeletons";
+import { ProductCard } from "@/components/product-card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
+const containerVariants = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] }
+  }
+};
 
 export default function ProductDetailsPage() {
   const { slug } = useParams();
   const dispatch = useDispatch();
-  
+
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
   const [liked, setLiked] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [activeTab, setActiveTab] = useState<"details" | "specs" | "shipping">("details");
-  
-  // New Image States
+  const [activeTab, setActiveTab] = useState<"description" | "ingredients" | "lab" | "reviews">("description");
+
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [relatedLoading, setRelatedLoading] = useState(true);
+
   const [currentImageUrl, setCurrentImageUrl] = useState<string>("");
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Derived Images
+  const atcRef = useRef<HTMLDivElement>(null);
+  const [showMobileATC, setShowMobileATC] = useState(false);
+
+  // Intersection Observer for Mobile Sticky ATC
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowMobileATC(!entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+
+    if (atcRef.current) {
+      observer.observe(atcRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [loading, product]);
+
+  // Fetch Related/Featured Products
+  useEffect(() => {
+    const fetchRelated = async () => {
+      try {
+        const res = await apiClient.get('/products?featured=true');
+        setRelatedProducts(res.data.products || []);
+      } catch (err) {
+        console.error("Failed to fetch related products", err);
+      } finally {
+        setRelatedLoading(false);
+      }
+    };
+    fetchRelated();
+  }, []);
+
   const baseImages = useMemo(() => {
     if (!product) return [getImageUrl(null)];
-    if (product.imageUrls?.length > 0) {
-      return product.imageUrls.map((url: string) => getImageUrl(url));
-    }
+    
+    const variantImageIds = (product.variants || [])
+      .map((v: any) => v.image)
+      .filter(Boolean);
+
+    // If we have the full images array (with metadata), filter correctly
     if (product.images?.length > 0) {
-      return product.images.map((img: any) => getImageUrl(img));
+      const gallery = product.images
+        .filter((img: any) => !img.isThumbnail && img.order !== 999 && !variantImageIds.includes(img.id))
+        .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+        .map((img: any) => getImageUrl(img.id));
+      
+      if (gallery.length > 0) return gallery;
     }
+
+    // Fallback: If only imageUrls available, use them but try to exclude variant ones if they match
+    if (product.imageUrls?.length > 0) {
+      return product.imageUrls
+        .filter((url: string) => !variantImageIds.some(vid => url.includes(vid)))
+        .map((url: string) => getImageUrl(url));
+    }
+
     return [getImageUrl(product.image_url)];
   }, [product]);
 
-  useSeo(`product/${slug}`, {
-    title: product ? `${product.name} | Sharcly` : "Loading...",
-    description: product?.description,
-    ogImage: product?.image_url
-  });
+  const variantImages = useMemo(() => {
+    return (product?.variants || [])
+      .map((v: any) => v.image ? getImageUrl(v.image) : null)
+      .filter(Boolean);
+  }, [product]);
+
+  const allImages = useMemo(() => {
+    return Array.from(new Set([...baseImages, ...variantImages]));
+  }, [baseImages, variantImages]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -73,36 +153,33 @@ export default function ProductDetailsPage() {
     fetchProduct();
   }, [slug]);
 
-  // Handle initial image selection once product/variants are loaded
   useEffect(() => {
-    if (product && !currentImageUrl) {
-      const firstV = product.variants?.[0];
-      if (firstV?.image) {
-        setCurrentImageUrl(getImageUrl(firstV.image));
-      } else if (baseImages.length > 0) {
-        setCurrentImageUrl(baseImages[0]);
-      }
+    if (selectedVariant?.image) {
+      setCurrentImageUrl(getImageUrl(selectedVariant.image));
+    } else if (baseImages.length > 0 && !currentImageUrl) {
+      setCurrentImageUrl(baseImages[0]);
     }
   }, [product, baseImages, currentImageUrl]);
 
-  // Combine base gallery images and variant images for the thumbnails
-  const variantImages = useMemo(() => {
-    return (product?.variants || [])
-      .map((v: any) => v.image ? getImageUrl(v.image) : null)
-      .filter(Boolean);
-  }, [product]);
-
-  const allImages = useMemo(() => {
-    return Array.from(new Set([...baseImages, ...variantImages]));
-  }, [baseImages, variantImages]);
-
-  // Synchronize activeImageIndex when currentImageUrl changes
   useEffect(() => {
     const idx = allImages.findIndex(img => img === currentImageUrl);
     if (idx !== -1) {
       setActiveImageIndex(idx);
     }
   }, [currentImageUrl, allImages]);
+
+  // Switch image when variant is selected
+  useEffect(() => {
+    if (selectedVariant?.image) {
+      setCurrentImageUrl(getImageUrl(selectedVariant.image));
+    }
+  }, [selectedVariant]);
+
+  useSeo(`product/${slug}`, {
+    title: product ? `${product.name} | Sharcly` : "Loading...",
+    description: product?.description,
+    ogImage: product?.image_url
+  });
 
   const displayPrice = selectedVariant ? Number(selectedVariant.price) : Number(product?.price || 0);
   const isOutOfStock = (selectedVariant ? selectedVariant.inventoryQuantity : product?.stock) === 0;
@@ -122,36 +199,19 @@ export default function ProductDetailsPage() {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const handleShare = async () => {
+    setIsShareModalOpen(true);
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen antialiased" style={{ background: 'linear-gradient(175deg, #040e07 0%, #082f1d 50%, #040e07 100%)', color: '#eff8ee' }}>
+      <div className="min-h-screen bg-[#040e07] text-[#eff8ee]">
         <Navbar />
         <main className="pt-28 pb-20">
           <div className="container mx-auto px-6 md:px-12">
-
-            {/* Breadcrumb skeleton */}
-            <div className="flex items-center gap-3 mb-10">
-              <div className="h-3 w-28 rounded-lg" style={{ background: 'rgba(239,248,238,0.06)' }} />
-              <div className="h-3 w-3 rounded-full" style={{ background: 'rgba(239,248,238,0.04)' }} />
-              <div className="h-3 w-20 rounded-lg" style={{ background: 'rgba(239,248,238,0.06)' }} />
-            </div>
-
             <ProductDetailSkeleton />
-
-            {/* Tabs skeleton */}
-            <div className="mt-20 md:mt-28 max-w-4xl mx-auto space-y-8">
-              <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'rgba(239,248,238,0.04)', border: '1px solid rgba(239,248,238,0.06)' }}>
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="flex-1 h-11 rounded-lg" style={{ background: i === 1 ? 'rgba(232,197,71,0.1)' : 'transparent' }} />
-                ))}
-              </div>
-              <div className="space-y-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-4 rounded-lg" style={{ background: 'rgba(239,248,238,0.04)', width: i === 3 ? '60%' : '100%' }} />
-                ))}
-              </div>
-            </div>
-
           </div>
         </main>
         <Footer />
@@ -161,314 +221,582 @@ export default function ProductDetailsPage() {
 
   if (!product) return null;
 
-  const PROMISE_ITEMS = [
-    { icon: ShieldCheck, label: "Lab Verified", sub: "COA every batch" },
-    { icon: Truck, label: "Free Shipping", sub: "Orders $50+" },
-    { icon: RotateCcw, label: "30-Day Returns", sub: "No questions" },
-    { icon: Leaf, label: "Organic Hemp", sub: "USDA certified" },
-  ];
+  const seriesName = product.tags?.find((t: any) => t.value.toLowerCase().includes("series"))?.value || "Vape";
+  const productType = product.type || "Disposable";
+  const cannabinoid = product.tags?.find((t: any) => t.value.includes("-"))?.value || "Delta-8 THC";
 
   return (
-    <div className="min-h-screen antialiased" style={{ background: 'linear-gradient(175deg, #040e07 0%, #082f1d 50%, #040e07 100%)', color: '#eff8ee' }}>
+    <div className="min-h-screen bg-[#040e07] text-[#eff8ee] selection:bg-[#E8C547]/20 selection:text-[#E8C547]">
       <Navbar />
-      
-      <main className="pt-28 pb-20">
-        <div className="container mx-auto px-6 md:px-12">
-          
-          {/* Breadcrumb */}
-          <motion.nav initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-2 mb-10">
-            <Link href="/products" className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest transition-colors group" style={{ color: 'rgba(239,248,238,0.7)' }}>
-              <ChevronLeft className="size-3 group-hover:-translate-x-0.5 transition-transform" />
-              Back to Products
+
+      <main className="pt-24 md:pt-[120px] pb-12 md:pb-16">
+        <div className="container mx-auto px-4 md:px-12">
+
+          {/* 🍞 BREADCRUMB */}
+          <nav className="mb-6 md:mb-8 flex items-center gap-2 overflow-x-auto no-scrollbar whitespace-nowrap py-1">
+            <Link href="/products" className="text-[10px] md:text-[11px] font-medium font-body uppercase tracking-[0.08em] text-[rgba(239,248,238,0.5)] hover:text-[#E8C547] transition-colors flex items-center gap-1">
+              <ChevronLeft className="size-3" /> Back
             </Link>
-            <span style={{ color: 'rgba(239,248,238,0.5)' }}>·</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(239,248,238,0.6)' }}>{product.category?.name || "Collection"}</span>
-          </motion.nav>
+            <span className="text-[rgba(239,248,238,0.2)]">·</span>
+            <Link href={`/products?series=${seriesName}`} className="text-[10px] md:text-[11px] font-medium font-body uppercase tracking-[0.08em] text-[rgba(239,248,238,0.5)] hover:text-[#E8C547] transition-colors">
+              {seriesName} Series
+            </Link>
+            <span className="text-[rgba(239,248,238,0.2)]">·</span>
+            <span className="text-[10px] md:text-[11px] font-medium font-body uppercase tracking-[0.08em] text-[#E8C547] truncate max-w-[120px] md:max-w-[300px]">
+              {product.name}
+            </span>
+          </nav>
 
-          {/* Main Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-            
-            {/* LEFT: Gallery */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-3">
-              <div className="relative aspect-square max-h-[calc(100vh-160px)] rounded-[20px] overflow-hidden group" style={{ backgroundColor: '#0d2518', border: '1px solid rgba(239,248,238,0.06)', boxShadow: '0 30px 80px rgba(0,0,0,0.5)' }}>
-                <AnimatePresence mode="wait">
-                  <motion.img key={currentImageUrl} src={currentImageUrl} alt={product.name}
-                    initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.4 }} className="absolute inset-0 w-full h-full object-cover" />
-                </AnimatePresence>
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(4,14,7,0.4) 0%, transparent 50%)' }} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
 
-                {/* Top actions */}
-                <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-                  {product.category?.name && (
-                    <span className="inline-flex items-center px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.2em]"
-                      style={{ 
-                        backgroundColor: '#E8C547', 
-                        color: '#040e07', 
-                        borderRadius: '2px',
-                        boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
-                      }}
-                    >
-                      {product.category.name}
-                    </span>
-                  )}
-                  <button onClick={() => setLiked(!liked)} className={cn("size-10 rounded-xl flex items-center justify-center backdrop-blur-md transition-all active:scale-90", liked ? "bg-rose-500 text-white" : "text-[#eff8ee]/40 hover:text-rose-400")} style={!liked ? { backgroundColor: 'rgba(239,248,238,0.08)' } : {}}>
-                    <Heart className={cn("size-4", liked && "fill-current")} />
-                  </button>
-                </div>
+            {/* 🖼️ LEFT PANEL — IMAGE GALLERY */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="lg:col-span-7 flex flex-col md:flex-row gap-4 lg:sticky lg:top-[120px]"
+            >
 
-                {isOutOfStock && (
-                  <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'rgba(4,14,7,0.7)', backdropFilter: 'blur(2px)' }}>
-                    <span className="px-6 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest" style={{ backgroundColor: '#E8C547', color: '#082f1d' }}>Sold Out</span>
-                  </div>
-                )}
-
-                {/* Restore Navigation Dots (Floating on top of image) */}
-                {allImages.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 px-2 py-1 rounded-full backdrop-blur-md" style={{ backgroundColor: 'rgba(4,14,7,0.3)' }}>
-                    {allImages.map((_, idx) => (
-                      <div key={idx} className={cn("size-1.5 rounded-full transition-all duration-300", 
-                        (currentImageUrl === allImages[idx] || activeImageIndex === idx) ? "w-4 bg-[#E8C547]" : "bg-white/40"
-                      )} />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Thumbnails BELOW the image, centered */}
-              {allImages.length > 1 && (
-                <div className="flex justify-center gap-3 overflow-x-auto no-scrollbar pt-4">
-                  {allImages.map((img, idx) => (
-                    <button 
-                      key={idx} 
-                      onClick={() => {
-                        setCurrentImageUrl(img);
-                        setActiveImageIndex(idx);
-                      }} 
-                      className={cn("relative size-16 md:size-20 rounded-xl overflow-hidden shrink-0 transition-all duration-300 border-2", 
-                        (currentImageUrl === img || activeImageIndex === idx) ? "border-[#E8C547] opacity-100 scale-105" : "border-transparent opacity-40 hover:opacity-100"
-                      )}
-                    >
-                      <img src={img} alt={`Gallery ${idx}`} className="absolute inset-0 w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-
-            {/* RIGHT: Product Info */}
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }} className="lg:sticky lg:top-28 space-y-8">
-              
-              {/* Title + Price */}
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="size-1.5 rounded-full bg-[#E8C547] animate-pulse shadow-[0_0_8px_#E8C547]" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#E8C547' }}>In Stock · Lab Verified</span>
-                  </div>
-                  <h1 className="font-black leading-[1.1]" style={{ fontFamily: 'var(--font-cormorant), serif', fontSize: 'clamp(28px, 3.5vw, 42px)', color: '#eff8ee' }}>
-                    {product.name}
-                  </h1>
-                  {selectedVariant && <span className="text-[13px] font-semibold" style={{ color: 'rgba(239,248,238,0.7)' }}>{selectedVariant.title}</span>}
-                </div>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-black tabular-nums tracking-tight" style={{ color: '#E8C547' }}>${displayPrice.toFixed(2)}</span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: 'rgba(239,248,238,0.6)' }}>USD</span>
-                </div>
-              </div>
-
-              <p className="text-[13px] leading-[1.7] font-medium" style={{ color: 'rgba(239,248,238,0.85)' }}>
-                {product.description || "Thoughtfully designed and clinically synthesized. Our signature product represents the pinnacle of hemp science."}
-              </p>
-
-              <div className="h-px" style={{ backgroundColor: 'rgba(239,248,238,0.06)' }} />
-
-              {/* Variants */}
-              {product.variants && product.variants.length > 0 && (
-                <div className="space-y-3">
-                  <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(239,248,238,0.7)' }}>Configuration</span>
-                  <div className="grid grid-cols-2 gap-2">
-                    {product.variants.map((v: any) => (
-                      <button key={v.id} onClick={() => {
-                        setSelectedVariant(v);
-                        if (v.image) {
-                          setCurrentImageUrl(getImageUrl(v.image));
-                        } else {
-                          // Fallback: If no image linked to variant, show the poster (first image)
-                          setCurrentImageUrl(baseImages[0]);
-                        }
-                      }}
-                        className={cn("relative p-3.5 rounded-xl text-left transition-all duration-300 flex items-center gap-3",
-                          selectedVariant?.id === v.id ? "shadow-lg" : ""
-                        )}
-                        style={selectedVariant?.id === v.id
-                          ? { backgroundColor: '#E8C547', color: '#082f1d' }
-                          : { backgroundColor: 'rgba(239,248,238,0.04)', border: '1px solid rgba(239,248,238,0.08)', color: '#eff8ee' }}
-                      >
-                        {v.image && (
-                          <div className="size-10 rounded-lg overflow-hidden shrink-0 border border-white/10">
-                            <img src={getImageUrl(v.image)} className="w-full h-full object-cover" alt={v.title} />
-                          </div>
-                        )}
-                        <div>
-                          <span className="text-[11px] font-bold block">{v.title}</span>
-                          <span className="text-[10px] font-semibold" style={{ opacity: 0.8 }}>${Number(v.price).toFixed(2)}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Quantity + Add to Cart */}
-              <div className="space-y-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(239,248,238,0.7)' }}>Quantity</span>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center h-13 rounded-xl overflow-hidden" style={{ backgroundColor: 'rgba(239,248,238,0.05)', border: '1px solid rgba(239,248,238,0.08)' }}>
-                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-12 h-full flex items-center justify-center transition-colors active:scale-90" style={{ color: 'rgba(239,248,238,0.8)' }}>
-                      <Minus className="size-3" />
-                    </button>
-                    <span className="w-12 text-center text-[13px] font-black tabular-nums" style={{ borderLeft: '1px solid rgba(239,248,238,0.08)', borderRight: '1px solid rgba(239,248,238,0.08)', color: '#eff8ee' }}>{quantity}</span>
-                    <button onClick={() => setQuantity(quantity + 1)} className="w-12 h-full flex items-center justify-center transition-colors active:scale-90" style={{ color: 'rgba(239,248,238,0.8)' }}>
-                      <Plus className="size-3" />
-                    </button>
-                  </div>
-
-                  <button onClick={handleAddToCart} disabled={isOutOfStock}
-                    className={cn("flex-1 h-13 rounded-xl font-bold text-[11px] uppercase tracking-[0.12em] transition-all duration-300 active:scale-[0.98]",
-                      addedToCart ? "shadow-lg shadow-emerald-500/20" : "shadow-lg"
+              {/* Thumbnail Strip */}
+              <div className="hidden md:flex flex-col gap-2.5">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setCurrentImageUrl(img);
+                      setActiveImageIndex(idx);
+                    }}
+                    className={cn(
+                      "w-[72px] h-[72px] rounded-xl overflow-hidden cursor-pointer border transition-all duration-300 bg-[#082f1d]/50",
+                      activeImageIndex === idx
+                        ? "border-[#E8C547] shadow-[0_0_0_1px_#E8C547]"
+                        : "border-[rgba(239,248,238,0.08)] hover:border-[rgba(232,197,71,0.3)]"
                     )}
-                    style={addedToCart
-                      ? { backgroundColor: '#22c55e', color: 'white' }
-                      : { backgroundColor: '#E8C547', color: '#082f1d', boxShadow: '0 10px 30px rgba(232,197,71,0.2)' }}
                   >
-                    {addedToCart ? (
-                      <motion.span initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center justify-center gap-2">
-                        <CheckCircle2 className="size-4" /> Added!
-                      </motion.span>
-                    ) : isOutOfStock ? "Sold Out" : "Add to Cart"}
+                    <img src={img} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
                   </button>
-                </div>
-                {quantity > 1 && (
-                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-[11px] font-semibold tabular-nums" style={{ color: 'rgba(232,197,71,0.5)' }}>
-                    Total: ${(displayPrice * quantity).toFixed(2)}
-                  </motion.p>
-                )}
-              </div>
-
-              {/* Promises */}
-              <div className="grid grid-cols-2 gap-3">
-                {PROMISE_ITEMS.map((item, i) => (
-                  <div key={i} className="flex items-center gap-2.5 p-3 rounded-xl group transition-colors" style={{ backgroundColor: 'rgba(239,248,238,0.03)', border: '1px solid rgba(239,248,238,0.06)' }}>
-                    <div className="size-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(232,197,71,0.08)' }}>
-                      <item.icon className="size-3.5" style={{ color: '#E8C547' }} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold leading-tight" style={{ color: 'rgba(239,248,238,0.9)' }}>{item.label}</p>
-                      <p className="text-[9px] font-medium" style={{ color: 'rgba(239,248,238,0.7)' }}>{item.sub}</p>
-                    </div>
-                  </div>
                 ))}
               </div>
 
-              <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-colors" style={{ color: 'rgba(239,248,238,0.6)' }}>
-                <Share2 className="size-3" /> Share this product
-              </button>
+              {/* Main Image Card */}
+              <div className="flex-1 relative aspect-[1/1.1] rounded-[24px] overflow-hidden border border-[rgba(239,248,238,0.08)] bg-linear-to-br from-[#082f1d]/60 to-[#040e07]/90 shadow-[0_40px_100px_rgba(0,0,0,0.5),0_0_0_1px_rgba(232,197,71,0.04)] group">
+
+                {/* 1. Radial gold glow */}
+                <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(232,197,71,0.08),transparent_65%)]" />
+
+                {/* 3. Glossy sheen */}
+                <div className="absolute top-0 left-0 right-0 h-[45%] bg-linear-to-b from-white/5 to-transparent z-10 pointer-events-none" />
+
+                {/* 5. Four gold corner brackets */}
+                <div className="absolute top-6 left-6 w-7 h-7 border-t-[1.5px] border-l-[1.5px] border-[#E8C547]/45 z-10" />
+                <div className="absolute top-6 right-6 w-7 h-7 border-t-[1.5px] border-r-[1.5px] border-[#E8C547]/45 z-10" />
+                <div className="absolute bottom-6 left-6 w-7 h-7 border-b-[1.5px] border-l-[1.5px] border-[#E8C547]/45 z-10" />
+                <div className="absolute bottom-6 right-6 w-7 h-7 border-b-[1.5px] border-r-[1.5px] border-[#E8C547]/45 z-10" />
+
+                {/* 4. Series badge */}
+                <div className="absolute top-5 left-5 z-20">
+                  <span className="bg-[#E8C547]/90 text-[#082f1d] text-[9px] font-bold font-body uppercase tracking-[0.18em] px-3 py-1.5 rounded-full shadow-lg">
+                    {seriesName} Series
+                  </span>
+                </div>
+
+                {/* 2. Product image */}
+                <div className="absolute inset-0 p-12 flex items-center justify-center">
+                  <AnimatePresence mode="wait">
+                    {currentImageUrl ? (
+                      <motion.img
+                        key={currentImageUrl}
+                        src={currentImageUrl}
+                        alt={product.name}
+                        initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        className="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)] group-hover:scale-[1.04] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white/5 rounded-2xl animate-pulse" />
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* 6. Image counter badge */}
+                <div className="absolute bottom-5 right-5 z-20 bg-[#082f1d]/75 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
+                  <span className="text-[11px] font-semibold font-body text-[rgba(239,248,238,0.55)]">
+                    {activeImageIndex + 1} / {allImages.length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Mobile Thumbnail Row */}
+              <div className="flex md:hidden gap-2.5 overflow-x-auto no-scrollbar pb-2">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setCurrentImageUrl(img);
+                      setActiveImageIndex(idx);
+                    }}
+                    className={cn(
+                      "w-16 h-16 rounded-xl overflow-hidden shrink-0 border transition-all duration-300 bg-[#082f1d]/50",
+                      activeImageIndex === idx
+                        ? "border-[#E8C547]"
+                        : "border-[rgba(239,248,238,0.08)]"
+                    )}
+                  >
+                    <img src={img} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* ℹ️ RIGHT PANEL — PRODUCT INFO */}
+            <motion.div
+              variants={containerVariants}
+              initial="initial"
+              animate="animate"
+              className="lg:col-span-5 space-y-8"
+            >
+
+              {/* 1. Status Row */}
+              <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-5">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#4ade80]/8 border border-[#4ade80]/20 text-[#4ade80] text-[10px] font-bold font-body uppercase tracking-[0.14em]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80] shadow-[0_0_8px_#4ade80] animate-pulse" />
+                  In Stock
+                </div>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E8C547]/8 border border-[#E8C547]/20 text-[#E8C547] text-[10px] font-bold font-body uppercase tracking-[0.14em]">
+                  <ShieldCheck className="size-[11px]" />
+                  Lab Verified
+                </div>
+              </motion.div>
+
+              {/* 2. Product Name */}
+              <motion.div variants={itemVariants} className="space-y-1.5">
+                <h1 className="font-serif font-bold text-[clamp(32px,3.5vw,52px)] leading-[1.06] tracking-[-0.02em] text-[#eff8ee]">
+                  {product.name}
+                </h1>
+                <p className="text-[13px] font-body text-[#eff8ee]/52 tracking-[0.04em]">
+                  Sharcly · {seriesName} Series · {productType} · {cannabinoid}
+                </p>
+              </motion.div>
+
+              {/* 3. Rating Row */}
+              <motion.div variants={itemVariants} className="flex items-center gap-2.5 pb-7 border-b border-[rgba(239,248,238,0.08)]">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map(s => <Star key={s} className="size-3.5 fill-[#E8C547] text-[#E8C547]" />)}
+                </div>
+                <span className="font-serif font-semibold text-lg text-[#eff8ee]">4.9</span>
+                <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
+                <span className="text-[12px] text-[#eff8ee]/52">48 Reviews</span>
+                <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
+                <button className="text-[12px] text-[#E8C547] hover:underline transition-all">Read Reviews</button>
+              </motion.div>
+
+              {/* 4. Price Block */}
+              <motion.div variants={itemVariants} className="space-y-2">
+                <div className="flex items-baseline gap-2.5">
+                  <span className="font-serif font-bold text-[36px] md:text-[48px] text-[#E8C547] tracking-[-0.02em]">
+                    ${displayPrice}
+                  </span>
+                  <span className="text-[14px] md:text-[16px] font-semibold font-body text-[#eff8ee]/52">USD</span>
+                </div>
+                <p className="text-[10px] md:text-[11px] text-[#eff8ee]/40">
+                  Free shipping on orders over $50 · Ships within 24h
+                </p>
+              </motion.div>
+
+              {/* 5. Description Card */}
+              <motion.div variants={itemVariants} className="relative p-5 rounded-[14px] bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] before:absolute before:top-0 before:left-5 before:right-5 before:h-[1px] before:bg-linear-to-r before:from-transparent before:via-[#E8C547]/15 before:to-transparent">
+                <p className="text-[14.5px] leading-[1.78] text-[#eff8ee]/52">
+                  {product.description || "Experience zesty relief with Sharcly's premium Delta-8. Our extra-large tank is lab-tested and pure. Get your long-lasting, legal chill today."}
+                </p>
+              </motion.div>
+
+              {/* 6. Configuration Selector */}
+              <motion.div variants={itemVariants} className="space-y-3">
+                <span className="text-[10px] font-bold font-body uppercase tracking-[0.18em] text-[#eff8ee]/52">
+                  CONFIGURATION
+                </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                  {(product.variants && product.variants.length > 0 ? product.variants : [
+                    { id: '1', title: 'Pack of 1', price: product.price },
+                    { id: '3', title: 'Pack of 3', price: (Number(product.price) * 3 * 0.9).toFixed(2), save: '10%' },
+                    { id: '5', title: 'Pack of 5', price: (Number(product.price) * 5 * 0.85).toFixed(2), save: '15%' },
+                    { id: '10', title: 'Pack of 10', price: (Number(product.price) * 10 * 0.8).toFixed(2), save: '20%' }
+                  ]).map((variant: any) => {
+                    const isSelected = selectedVariant?.id === variant.id;
+                    return (
+                      <button
+                        key={variant.id}
+                        onClick={() => setSelectedVariant(variant)}
+                        className={cn(
+                          "relative p-[16px_18px] rounded-[14px] text-left transition-all duration-300 group overflow-hidden",
+                          isSelected
+                            ? "bg-[#E8C547]/7 border-[#E8C547] shadow-[0_0_0_1px_rgba(232,197,71,0.2),0_8px_24px_rgba(232,197,71,0.1)]"
+                            : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] hover:border-[#E8C547]/25 hover:-translate-y-[1px]"
+                        )}
+                      >
+                        {/* Hover radial glow */}
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(232,197,71,0.12),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                        <div className="relative z-10">
+                          <p className="text-[13px] font-bold font-body text-[#eff8ee] mb-1">{variant.title}</p>
+                          <p className="text-[14px] font-bold font-body text-[#E8C547]">${variant.price}</p>
+                        </div>
+
+                        {variant.save && (
+                          <div className="absolute top-2 right-2.5 bg-[#E8C547] text-[#082f1d] text-[9px] font-bold font-body uppercase tracking-[0.1em] px-2 py-0.5 rounded-full">
+                            SAVE {variant.save}
+                          </div>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </motion.div>
+
+              {/* 7. Qty + Add to Cart + Wishlist */}
+              <motion.div variants={itemVariants} className="flex items-center gap-3" ref={atcRef}>
+                <div className="flex items-center bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] rounded-[14px] overflow-hidden">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-[44px] h-[52px] flex items-center justify-center text-[#eff8ee] hover:bg-[#E8C547]/8 hover:text-[#E8C547] transition-all"
+                  >
+                    <Minus className="size-3.5" />
+                  </button>
+                  <div className="min-w-[44px] h-[52px] flex items-center justify-center font-serif font-semibold text-[20px] text-[#eff8ee] border-x border-[rgba(239,248,238,0.08)]">
+                    {quantity}
+                  </div>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-[44px] h-[52px] flex items-center justify-center text-[#eff8ee] hover:bg-[#E8C547]/8 hover:text-[#E8C547] transition-all"
+                  >
+                    <Plus className="size-3.5" />
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={isOutOfStock}
+                  className="flex-1 h-[52px] relative overflow-hidden bg-[#E8C547] text-[#082f1d] rounded-[14px] font-bold font-body text-[13px] uppercase tracking-[0.1em] shadow-[0_8px_28px_rgba(232,197,71,0.28)] hover:bg-[#f0cf55] hover:-translate-y-[1px] active:translate-y-0 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  <ShoppingCart className="size-4" />
+                  {addedToCart ? "Added!" : "Add to Cart"}
+
+                  {/* Shimmer Effect */}
+                  <div className="absolute top-0 -left-full w-full h-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-all duration-700 ease-in-out group-hover:left-full" />
+                </button>
+
+                <button
+                  onClick={() => setLiked(!liked)}
+                  className={cn(
+                    "w-[52px] h-[52px] rounded-[14px] border flex items-center justify-center transition-all",
+                    liked
+                      ? "bg-[#E8C547]/10 border-[#E8C547] text-[#E8C547]"
+                      : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] text-[#eff8ee]/50 hover:border-[#E8C547]/30 hover:text-[#E8C547]"
+                  )}
+                >
+                  <Heart className={cn("size-[18px]", liked && "fill-current")} />
+                </button>
+
+                <button
+                  onClick={handleShare}
+                  className="w-[52px] h-[52px] rounded-[14px] border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.04)] text-[#eff8ee]/50 flex items-center justify-center hover:border-[#E8C547]/30 hover:text-[#E8C547] transition-all"
+                >
+                  <Share2 className="size-[18px]" />
+                </button>
+              </motion.div>
+
+              {/* 8. Trust Chips */}
+              <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                {[
+                  { icon: ShieldCheck, title: "Lab Verified", sub: "COA every batch" },
+                  { icon: Truck, title: "Free Shipping", sub: "Orders $50+" },
+                  { icon: RotateCcw, title: "30-Day Returns", sub: "No questions asked" },
+                  { icon: Leaf, title: "Organic Hemp", sub: "USDA certified" }
+                ].map((chip, i) => (
+                  <div key={i} className="flex items-center gap-2.5 p-[12px_14px] rounded-xl bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] hover:border-[#E8C547]/18 transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-[#E8C547]/10 border border-[#E8C547]/15 text-[#E8C547] flex items-center justify-center">
+                      <chip.icon className="size-[15px]" />
+                    </div>
+                    <div>
+                      <p className="text-[12px] font-bold font-body text-[#eff8ee] leading-tight mb-0.5">{chip.title}</p>
+                      <p className="text-[10.5px] font-body text-[#eff8ee]/50">{chip.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* 9. Share Row */}
+              <motion.div variants={itemVariants} className="pt-5 border-t border-[rgba(239,248,238,0.08)] flex items-center gap-2.5">
+                <span className="text-[11px] font-body font-bold text-[#eff8ee]/40 uppercase tracking-[0.06em]">SHARE</span>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={handleShare}
+                    className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] text-[#eff8ee]/40 hover:border-[#E8C547]/30 hover:text-[#E8C547] transition-all"
+                  >
+                    <LinkIcon className="size-[14px]" />
+                  </button>
+                  {[Instagram, Twitter].map((Icon, i) => (
+                    <button key={i} className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] text-[#eff8ee]/40 hover:border-[#E8C547]/30 hover:text-[#E8C547] transition-all">
+                      <Icon className="size-[14px]" />
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+
             </motion.div>
           </div>
 
-          {/* ═══ TABS ═══ */}
-          <div className="mt-20 md:mt-28 max-w-4xl mx-auto">
-            <div className="flex gap-1 p-1 rounded-xl" style={{ backgroundColor: 'rgba(239,248,238,0.04)', border: '1px solid rgba(239,248,238,0.06)' }}>
-              {(["details", "specs", "shipping"] as const).map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)}
-                  className={cn("flex-1 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest transition-all duration-300",
-                    activeTab === tab ? "" : ""
+          {/* 📑 TABS SECTION */}
+          <div className="mt-20 border-t border-[rgba(239,248,238,0.08)]">
+            <div className="flex overflow-x-auto no-scrollbar">
+              {["description", "ingredients", "lab", "reviews"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab as any)}
+                  className={cn(
+                    "px-4 md:px-7 py-4 text-[10px] md:text-[12px] font-bold font-body uppercase tracking-[0.12em] transition-all relative",
+                    activeTab === tab ? "text-[#eff8ee]" : "text-[#eff8ee]/45 hover:text-[#eff8ee]"
                   )}
-                  style={activeTab === tab
-                    ? { backgroundColor: '#E8C547', color: '#082f1d', boxShadow: '0 4px 15px rgba(232,197,71,0.2)' }
-                    : { color: 'rgba(239,248,238,0.6)' }}
                 >
-                  {tab === "details" ? "Details" : tab === "specs" ? "Specifications" : "Shipping"}
+                  {tab === "lab" ? "Lab Results" : tab}
+                  {activeTab === tab && (
+                    <motion.div
+                      layoutId="tab-underline"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#E8C547]"
+                    />
+                  )}
                 </button>
               ))}
             </div>
 
-            <AnimatePresence mode="wait">
-              {activeTab === "details" && (
-                <motion.div key="details" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }} className="pt-10">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div className="space-y-6">
-                      <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'var(--font-cormorant), serif', color: '#eff8ee' }}>Precision Crafted</h2>
-                      <p className="text-[13px] leading-[1.8] font-medium" style={{ color: 'rgba(239,248,238,0.85)' }}>
-                        Our process begins with heirloom botanical selection and ends in a climate-controlled laboratory. We remove 100% of the distortion to ensure every drop carries the pure intended frequency of the plant.
+            <div className="py-12">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {activeTab === "description" && (
+                    <div className="max-w-[700px] space-y-8">
+                      <div className="space-y-4">
+                        <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">Pure Potency, Refined Pleasure</h3>
+                        <p className="text-[15px] leading-[1.8] text-[#eff8ee]/60">
+                          {product.description || "Our signature formula represents the culmination of years of botanical research. By leveraging state-of-the-art CO2 extraction, we ensure that every molecule of Delta-8 THC is delivered in its most bioavailable form."}
+                        </p>
+                      </div>
+
+                      <div className="overflow-hidden rounded-xl border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.02)]">
+                        <table className="w-full text-left text-[13px]">
+                          <tbody>
+                            {[
+                              { label: "SKU", value: product.sku },
+                              ...(product.metadata || []).map((m: any) => ({ label: m.key, value: m.value }))
+                            ].filter(spec => spec.value).map((spec, i) => (
+                              <tr key={i} className="border-b border-[rgba(239,248,238,0.08)] last:border-0">
+                                <td className="py-3 px-5 font-bold text-[#eff8ee]/40">{spec.label}</td>
+                                <td className="py-3 px-5 text-[#eff8ee]/70">{spec.value}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === "ingredients" && (
+                    <div className="max-w-[700px] space-y-4">
+                      <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">Transparency in every drop</h3>
+                      <p className="text-[15px] leading-[1.8] text-[#eff8ee]/60">
+                        Hemp-Derived Delta-8 THC Distillate, Organic Terpene Blend, Natural Flavorings. No PG, VG, PEG, Vitamin E Acetate, or heavy metals. Just the essentials for a clean, elevated experience.
                       </p>
-                      <div className="space-y-3 pt-2">
-                        {["99.8% Synthesis Purity", "Ethanol-Free Extraction", "Terpene Matrix Locked", "Certified Organic Base"].map((check, i) => (
-                          <div key={i} className="flex items-center gap-3">
-                            <div className="size-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(232,197,71,0.1)' }}>
-                              <CheckCircle2 className="size-3" style={{ color: '#E8C547' }} />
+                    </div>
+                  )}
+
+                  {activeTab === "lab" && (
+                    <div className="space-y-8">
+                      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div className="space-y-2">
+                          <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">COA Available for Every Batch</h3>
+                          <p className="text-[14px] text-[#eff8ee]/50">Third-party lab results ensure potency and purity.</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { id: "B-8422", date: "Jan 12, 2026", status: "PASSED" },
+                          { id: "B-8421", date: "Dec 05, 2025", status: "PASSED" },
+                          { id: "B-8398", date: "Nov 18, 2025", status: "PASSED" }
+                        ].map((batch, i) => (
+                          <div key={i} className="flex items-center justify-between p-5 rounded-xl border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.02)]">
+                            <div className="space-y-1">
+                              <p className="text-[11px] font-bold text-[#eff8ee]/40 uppercase">BATCH {batch.id}</p>
+                              <p className="text-[14px] text-[#eff8ee] font-medium">Tested on {batch.date}</p>
                             </div>
-                            <span className="text-[12px] font-bold" style={{ color: 'rgba(239,248,238,0.8)' }}>{check}</span>
+                            <div className="flex items-center gap-4">
+                              <span className="px-2.5 py-0.5 rounded-full bg-[#4ade80]/10 text-[#4ade80] text-[10px] font-bold tracking-wider">{batch.status}</span>
+                              <button className="text-[12px] font-bold text-[#E8C547] hover:underline flex items-center gap-1.5">
+                                <ExternalLink className="size-3" /> PDF
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
-                    <div className="aspect-[4/5] rounded-[20px] overflow-hidden" style={{ backgroundColor: '#0d2518', border: '1px solid rgba(239,248,238,0.06)', boxShadow: '0 30px 60px rgba(0,0,0,0.4)' }}>
-                      <img src="https://i.postimg.cc/mrCnYW4B/Calming-balance-with-Sharcly.jpg" className="w-full h-full object-cover" alt="Process" />
+                  )}
+
+                  {activeTab === "reviews" && (
+                    <div className="space-y-10">
+                      <div className="flex flex-col md:flex-row gap-10">
+                        <div className="space-y-4">
+                          <div className="text-5xl font-serif font-bold text-[#eff8ee]">4.9</div>
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map(s => <Star key={s} className="size-4 fill-[#E8C547] text-[#E8C547]" />)}
+                          </div>
+                          <p className="text-[14px] text-[#eff8ee]/50">Based on 48 verified reviews</p>
+                        </div>
+
+                        <div className="flex-1 max-w-[400px] space-y-2.5">
+                          {[5, 4, 3, 2, 1].map((rating, i) => (
+                            <div key={i} className="flex items-center gap-4">
+                              <span className="text-[11px] font-bold text-[#eff8ee]/40 w-3">{rating}</span>
+                              <div className="flex-1 h-1.5 rounded-full bg-[rgba(239,248,238,0.04)] overflow-hidden">
+                                <div className="h-full bg-[#E8C547]" style={{ width: rating === 5 ? '92%' : rating === 4 ? '6%' : '1%' }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { name: "Julian R.", date: "2 days ago", text: "Absolute game changer. The flavor is incredibly clean and the effects are exactly as described. Best I've had.", rating: 5 },
+                          { name: "Sarah M.", date: "1 week ago", text: "I was skeptical about the price but honestly, it's worth every penny. You can really feel the quality difference.", rating: 5 }
+                        ].map((rev, i) => (
+                          <div key={i} className="p-6 rounded-2xl bg-[rgba(239,248,238,0.03)] border border-[rgba(239,248,238,0.08)] space-y-3">
+                            <div className="flex justify-between items-start">
+                              <div className="space-y-0.5">
+                                <p className="font-bold text-[#eff8ee]">{rev.name}</p>
+                                <p className="text-[11px] text-[#eff8ee]/40">{rev.date}</p>
+                              </div>
+                              <div className="flex gap-0.5">
+                                {[1, 2, 3, 4, 5].map(s => <Star key={s} className={cn("size-3", s <= rev.rating ? "fill-[#E8C547] text-[#E8C547]" : "text-[#eff8ee]/10")} />)}
+                              </div>
+                            </div>
+                            <p className="text-[14px] leading-relaxed text-[#eff8ee]/60">"{rev.text}"</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </motion.div>
-              )}
+              </AnimatePresence>
+            </div>
+          </div>
 
-              {activeTab === "specs" && (
-                <motion.div key="specs" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }} className="pt-10">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {[
-                      { k: "Product ID", v: `SC-${(slug as string || "").substring(0,6).toUpperCase()}` },
-                      { k: "Sourcing", v: "Oregon Heritage Organic" },
-                      { k: "Potency", v: "1500mg Matrix" },
-                      { k: "Carrier", v: "MCT / Coconut Pure" },
-                      { k: "Verification", v: "QR-Batch v2.4" },
-                      { k: "Shelf Life", v: "24 Months" }
-                    ].map((spec, i) => (
-                      <div key={i} className="p-5 rounded-xl space-y-1.5 transition-colors" style={{ backgroundColor: 'rgba(239,248,238,0.03)', border: '1px solid rgba(239,248,238,0.06)' }}>
-                        <span className="text-[9px] font-bold uppercase tracking-widest block" style={{ color: 'rgba(239,248,238,0.6)' }}>{spec.k}</span>
-                        <span className="text-[12px] font-bold" style={{ color: '#eff8ee' }}>{spec.v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
+          {/* 🎡 RELATED PRODUCTS */}
+          <div className="mt-20">
+            <div className="flex items-center justify-between mb-10">
+              <h2 className="font-serif text-3xl font-bold text-[#eff8ee]">You May Also Like</h2>
+              <Link href="/products" className="text-[12px] font-bold text-[#E8C547] uppercase tracking-wider hover:underline">View All</Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {relatedLoading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))
+              ) : (
+                relatedProducts
+                  .filter((p: any) => p.slug !== slug)
+                  .slice(0, 4)
+                  .map((p: any) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))
               )}
-
-              {activeTab === "shipping" && (
-                <motion.div key="shipping" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }} className="pt-10">
-                  <div className="space-y-4">
-                    {[
-                      { icon: Truck, title: "Free Shipping", desc: "Complimentary standard shipping on all orders over $50. Express options available at checkout." },
-                      { icon: RotateCcw, title: "30-Day Returns", desc: "Not satisfied? Return any unopened product within 30 days for a full refund." },
-                      { icon: Zap, title: "Express Delivery", desc: "Need it fast? Select express shipping at checkout for 2-3 business day delivery." },
-                    ].map((item, i) => (
-                      <div key={i} className="flex gap-4 p-5 rounded-xl" style={{ backgroundColor: 'rgba(239,248,238,0.03)', border: '1px solid rgba(239,248,238,0.06)' }}>
-                        <div className="size-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(232,197,71,0.08)' }}>
-                          <item.icon className="size-4" style={{ color: '#E8C547' }} />
-                        </div>
-                        <div>
-                          <h4 className="text-[12px] font-bold mb-1" style={{ color: '#eff8ee' }}>{item.title}</h4>
-                          <p className="text-[11px] leading-relaxed font-medium" style={{ color: 'rgba(239,248,238,0.8)' }}>{item.desc}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            </div>
           </div>
 
         </div>
       </main>
 
+      {/* 📱 STICKY MOBILE ATC BAR */}
+      <AnimatePresence>
+        {showMobileATC && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#082f1d]/95 backdrop-blur-2xl border-t border-[#E8C547]/15 p-3.5 flex items-center justify-between gap-4"
+          >
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-bold text-[#eff8ee] truncate">{product.name}</p>
+              <p className="text-[12px] font-bold text-[#E8C547]">${displayPrice}</p>
+            </div>
+            <button
+              onClick={handleAddToCart}
+              className="h-[44px] px-6 bg-[#E8C547] text-[#082f1d] rounded-xl font-bold text-[11px] uppercase tracking-wider shadow-lg active:scale-95 transition-all"
+            >
+              Add to Cart
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
+        <DialogContent className="bg-[#040e07] border border-[#eff8ee]/10 text-[#eff8ee] max-w-[90vw] sm:max-w-md p-6 rounded-[24px] shadow-[0_32px_64px_rgba(0,0,0,0.8)] overflow-hidden">
+          {/* Subtle gold glow behind */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[150px] bg-[radial-gradient(ellipse_at_top,rgba(232,197,71,0.08),transparent_70%)] pointer-events-none" />
+
+          <DialogHeader className="relative z-10 text-left">
+            <DialogTitle className="font-serif text-2xl font-bold text-[#E8C547] mb-1">Share this product</DialogTitle>
+            <DialogDescription className="text-[#eff8ee]/50 text-[13px] leading-relaxed">
+              Spread the word. Copy the link below to share the premium Sharcly experience with your circle.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="relative z-10 mt-6 flex items-center gap-2 p-1.5 pl-4 rounded-2xl bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] transition-all focus-within:border-[#E8C547]/30">
+            <input 
+              readOnly 
+              value={typeof window !== 'undefined' ? window.location.href : ''}
+              className="bg-transparent border-none outline-none text-[13px] flex-1 text-[#eff8ee]/80 font-medium font-body truncate"
+            />
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                toast.success("Link copied to clipboard!");
+                setIsShareModalOpen(false);
+              }}
+              className="h-11 px-5 bg-[#E8C547] text-[#082f1d] rounded-xl text-[12px] font-bold uppercase tracking-wider hover:bg-[#f0cf55] transition-all active:scale-95 flex items-center gap-2"
+            >
+              Copy
+            </button>
+          </div>
+
+          <div className="relative z-10 mt-8 pt-6 border-t border-[rgba(239,248,238,0.08)]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eff8ee]/30 mb-4">Quick Share</p>
+            <div className="flex gap-3">
+               {[
+                 { name: 'Twitter', icon: Twitter, color: '#1DA1F2' },
+                 { name: 'Instagram', icon: Instagram, color: '#E4405F' }
+               ].map((social) => (
+                 <button 
+                   key={social.name}
+                   className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] hover:bg-[rgba(239,248,238,0.08)] transition-all group"
+                 >
+                   <social.icon className="size-4 text-[#eff8ee]/60 group-hover:text-[#eff8ee] transition-colors" />
+                   <span className="text-[11px] font-bold text-[#eff8ee]/40 group-hover:text-[#eff8ee] transition-colors">{social.name}</span>
+                 </button>
+               ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
 }
+

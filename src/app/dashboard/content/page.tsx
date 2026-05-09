@@ -29,10 +29,12 @@ import {
   EyeOff,
   Plus,
   Trash2,
-  LayoutGrid
+  LayoutGrid,
+  ShieldCheck
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
+import { RichTextEditor } from "@/components/dashboard/blog/rich-text-editor";
 
 const PAGES = [
   { id: "home", label: "Home Page", path: "/" },
@@ -401,7 +403,7 @@ function ContentManagementContent() {
               <TabsContent value="content" className="space-y-10 focus-visible:outline-none">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                   {/* Hero Settings */}
-                  {activePage !== "home" && (
+                  {activePage !== "home" && !["privacy", "terms", "cookies"].includes(activePage) && (
                     <Card className="rounded-[3rem] border-none shadow-organic bg-white/80 backdrop-blur-xl overflow-hidden">
                       <CardHeader className="bg-sage/5 border-b border-black/5 p-10">
                         <div className="size-16 rounded-3xl bg-white shadow-sharcly flex items-center justify-center mb-6">
@@ -923,11 +925,9 @@ function ContentManagementContent() {
                       <CardContent className="p-10 space-y-10">
                         <div className="space-y-4">
                           <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Main Policy Content</Label>
-                          <Textarea
-                            value={cmsContent.legal?.body || ""}
-                            onChange={(e) => handleCmsUpdate("legal", "body", e.target.value)}
-                            placeholder="Paste your legal text here... You can use line breaks for structure."
-                            className="min-h-[600px] rounded-[2rem] bg-sage/5 border-none font-medium text-base px-10 py-10 focus:bg-white transition-all text-primary/70 leading-relaxed"
+                          <RichTextEditor
+                            content={cmsContent.legal?.body || ""}
+                            onChange={(val) => handleCmsUpdate("legal", "body", val)}
                           />
                         </div>
                       </CardContent>
