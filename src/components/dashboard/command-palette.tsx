@@ -38,8 +38,14 @@ export function CommandPalette() {
       }
     };
 
+    const toggle = () => setOpen((open) => !open);
+
     document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
+    window.addEventListener("toggle-command-palette", toggle);
+    return () => {
+      document.removeEventListener("keydown", down);
+      window.removeEventListener("toggle-command-palette", toggle);
+    };
   }, []);
 
   const handleSearch = useCallback(async (searchQuery: string) => {

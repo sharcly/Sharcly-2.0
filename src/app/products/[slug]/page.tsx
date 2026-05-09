@@ -100,12 +100,28 @@ export default function ProductDetailsPage() {
 
   const baseImages = useMemo(() => {
     if (!product) return [getImageUrl(null)];
-    if (product.imageUrls?.length > 0) {
-      return product.imageUrls.map((url: string) => getImageUrl(url));
-    }
+    
+    const variantImageIds = (product.variants || [])
+      .map((v: any) => v.image)
+      .filter(Boolean);
+
+    // If we have the full images array (with metadata), filter correctly
     if (product.images?.length > 0) {
-      return product.images.map((img: any) => getImageUrl(img));
+      const gallery = product.images
+        .filter((img: any) => !img.isThumbnail && img.order !== 999 && !variantImageIds.includes(img.id))
+        .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
+        .map((img: any) => getImageUrl(img.id));
+      
+      if (gallery.length > 0) return gallery;
     }
+
+    // Fallback: If only imageUrls available, use them but try to exclude variant ones if they match
+    if (product.imageUrls?.length > 0) {
+      return product.imageUrls
+        .filter((url: string) => !variantImageIds.some(vid => url.includes(vid)))
+        .map((url: string) => getImageUrl(url));
+    }
+
     return [getImageUrl(product.image_url)];
   }, [product]);
 
@@ -138,13 +154,10 @@ export default function ProductDetailsPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (product && !currentImageUrl) {
-      const firstV = product.variants?.[0];
-      if (firstV?.image) {
-        setCurrentImageUrl(getImageUrl(firstV.image));
-      } else if (baseImages.length > 0) {
-        setCurrentImageUrl(baseImages[0]);
-      }
+    if (selectedVariant?.image) {
+      setCurrentImageUrl(getImageUrl(selectedVariant.image));
+    } else if (baseImages.length > 0 && !currentImageUrl) {
+      setCurrentImageUrl(baseImages[0]);
     }
   }, [product, baseImages, currentImageUrl]);
 
