@@ -70,7 +70,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    if (error.response?.status === 404) {
+    if (error.response?.status === 404 && !originalRequest.url?.includes('/seo/')) {
       console.error("🔥 AXIOS 404 ERROR! URL:", originalRequest?.method?.toUpperCase(), originalRequest?.url);
     }
 

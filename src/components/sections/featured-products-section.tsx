@@ -3,23 +3,39 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { useFeaturedProducts } from "@/hooks/use-featured-products"
+import { apiClient } from "@/lib/api-client"
 import { Skeleton } from "@/components/ui/skeleton"
 import { FeaturedProductCard } from "@/components/product/featured-product-card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export function FeaturedProductsSection() {
-  const { data, isFetching } = useFeaturedProducts()
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
+  const [isFetching, setIsFetching] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [itemsVisible, setItemsVisible] = useState(4)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const featuredProducts = data?.products || []
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsFetching(true)
+      try {
+        const response = await apiClient.get("/products?featured=true")
+        setFeaturedProducts(response.data.products || [])
+      } catch (err) {
+        console.error("Failed to fetch featured products:", err)
+      } finally {
+        setIsFetching(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1280) setItemsVisible(4)
-      else if (window.innerWidth >= 768) setItemsVisible(2.5)
+      else if (window.innerWidth >= 1024) setItemsVisible(3)
+      else if (window.innerWidth >= 768) setItemsVisible(2)
       else setItemsVisible(1.2)
     }
 
@@ -50,19 +66,22 @@ export function FeaturedProductsSection() {
 
   if (isFetching && featuredProducts.length === 0) {
     return (
-      <section style={{
+      <section className="py-24 relative overflow-hidden" style={{
         background: 'linear-gradient(180deg, #040e07 0%, #082f1d 50%, #040e07 100%)',
-        padding: '110px 0'
       }}>
         <div className="max-w-[1440px] mx-auto px-4 md:px-8">
-          <div className="text-center mb-14">
-            <div className="h-4 w-32 bg-white/5 rounded mx-auto mb-4 animate-pulse" />
-            <div className="h-12 w-64 bg-white/5 rounded mx-auto mb-3 animate-pulse" />
-            <div className="h-4 w-80 bg-white/5 rounded mx-auto animate-pulse" />
+          <div className="flex flex-col items-center mb-16">
+            <Skeleton className="h-4 w-32 bg-white/5 rounded-full mb-6" />
+            <Skeleton className="h-14 w-80 bg-white/5 rounded-2xl mb-4" />
+            <Skeleton className="h-4 w-64 bg-white/5 rounded-full" />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="aspect-[4/5] bg-white/5 rounded-[24px] animate-pulse" />
+              <div key={i} className="aspect-[4/5] bg-white/5 rounded-[32px] border border-white/5 p-4 flex flex-col gap-4 animate-pulse">
+                <div className="flex-1 bg-white/5 rounded-[24px]" />
+                <div className="h-6 w-3/4 bg-white/5 rounded-lg" />
+                <div className="h-4 w-1/2 bg-white/5 rounded-lg" />
+              </div>
             ))}
           </div>
         </div>
@@ -70,7 +89,7 @@ export function FeaturedProductsSection() {
     )
   }
 
-  if (featuredProducts.length === 0) return null
+  if (featuredProducts.length === 0 && !isFetching) return null
 
   return (
     <section className="relative md:min-h-screen flex items-center py-12 md:py-14 overflow-hidden" style={{
@@ -158,7 +177,12 @@ export function FeaturedProductsSection() {
             <motion.div
               className="flex gap-4 md:gap-6"
               animate={typeof window !== 'undefined' && window.innerWidth >= 768 ? { x: `-${(currentIndex * (100 / itemsVisible))}%` } : {}}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 45, 
+                damping: 14,
+                mass: 0.8
+              }}
             >
               {featuredProducts.map((product) => (
                 <div
