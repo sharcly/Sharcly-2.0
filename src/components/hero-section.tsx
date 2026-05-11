@@ -67,7 +67,7 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
   const [activeSeries, setActiveSeries] = useState(seriesList[0]);
 
   return (
-    <section className="relative h-[calc(100vh-40px)] flex flex-col lg:grid lg:grid-cols-2 overflow-hidden bg-[#040e07] selection:bg-[#E8C547] selection:text-[#040e07]">
+    <section className="relative min-h-[80vh] lg:h-[calc(100vh-40px)] flex flex-col lg:grid lg:grid-cols-2 overflow-hidden bg-[#040e07] selection:bg-[#E8C547] selection:text-[#040e07]">
       {/* Mesh Gradient & Texture Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div
@@ -99,10 +99,10 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="relative z-10 flex flex-col justify-center px-6 pt-24 pb-16 lg:pt-0 lg:pb-0 lg:pl-20 lg:pr-12"
+        className="relative z-10 flex flex-col justify-center items-center text-center lg:items-start lg:text-left px-6 pt-32 pb-20 lg:pt-0 lg:pb-0 lg:pl-20 lg:pr-12"
       >
         {/* Age / Compliance Pill */}
-        <motion.div variants={itemVariants} className="mb-6 self-start">
+        <motion.div variants={itemVariants} className="mb-6 self-center lg:self-start">
           <div className="inline-flex items-center gap-3 px-3 py-1.5 rounded-full bg-[#E8C547]/[0.08] border border-[#E8C547]/20">
             <motion.div
               animate={{ opacity: [0.4, 1, 0.4] }}
@@ -151,7 +151,7 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
         </motion.p>
 
         {/* CTA Row */}
-        <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mb-8">
+        <motion.div variants={itemVariants} className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8">
           <Button
             asChild
             className="group h-auto px-8 py-4 rounded-full bg-[#E8C547] text-[#082f1d] hover:bg-[#f0cf55] transition-all duration-300 shadow-[0_8px_28px_rgba(232,197,71,0.28)] hover:-translate-y-0.5 active:scale-95"
@@ -174,7 +174,7 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
         </motion.div>
 
         {/* Trust Micro-Row */}
-        <motion.div variants={itemVariants} className="flex items-center gap-5">
+        <motion.div variants={itemVariants} className="flex flex-wrap justify-center lg:justify-start items-center gap-x-5 gap-y-3">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-[#E8C547]/60" />
             <span className="text-[11px] font-medium text-[#eff8ee]/50">Third-Party Lab Tested</span>
@@ -192,8 +192,8 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
         </motion.div>
       </motion.div>
 
-      {/* RIGHT PANEL */}
-      <div className="relative z-10 flex items-center justify-center lg:justify-start px-6 pb-24 lg:pb-0 lg:pl-10 lg:pr-20 lg:py-16">
+      {/* RIGHT PANEL - Hidden on Mobile */}
+      <div className="hidden lg:flex relative z-10 items-center justify-start lg:pl-10 lg:pr-20 lg:py-16">
         <div className="relative w-full max-w-[580px] aspect-square">
           {/* Main Visual Container */}
           <motion.div

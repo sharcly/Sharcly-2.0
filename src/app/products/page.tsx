@@ -28,12 +28,12 @@ import { useSeo } from "@/hooks/use-seo";
 
 const SERIES_TABS = [
   { id: "all", name: "All Products", color: "var(--gold)" },
-  { id: "chill", name: "Chill Series", color: "rgba(220,38,38,0.85)" },
-  { id: "lift", name: "Lift Series", color: "rgba(124,58,237,0.85)" },
-  { id: "sleep", name: "Sleep Series", color: "rgba(30,64,175,0.85)" },
-  { id: "balance", name: "Balance Series", color: "rgba(217,119,6,0.85)" },
-  { id: "entourage", name: "Entourage Series", color: "rgba(234,88,12,0.85)" },
-  { id: "vape", name: "Vape Series", color: "rgba(15,23,42,0.9)" },
+  { id: "series-chill", name: "Chill Series", color: "rgba(220,38,38,0.85)" },
+  { id: "series-lift", name: "Lift Series", color: "rgba(124,58,237,0.85)" },
+  { id: "series-sleep", name: "Sleep Series", color: "rgba(30,64,175,0.85)" },
+  { id: "series-balance", name: "Balance Series", color: "rgba(217,119,6,0.85)" },
+  { id: "series-entourage", name: "Entourage Series", color: "rgba(234,88,12,0.85)" },
+  { id: "series-vape", name: "Vape Series", color: "rgba(15,23,42,0.9)" },
 ];
 
 const SORT_OPTIONS = [
@@ -235,23 +235,6 @@ function ProductsContent() {
         <aside className="hidden lg:block w-[280px] sticky top-0 h-screen bg-[rgba(4,14,7,0.6)] backdrop-blur-[8px] border-r border-[var(--border)] px-[28px] py-[36px] overflow-y-auto no-scrollbar">
           <div className="space-y-12">
 
-            {/* Search */}
-            <section className="space-y-4">
-              <label className="block text-[9px] font-bold uppercase tracking-[0.22em] text-[#eff8ee]/30 pb-[10px] border-b border-[var(--border)] relative after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-[var(--gold)]/30 after:to-transparent">
-                Search
-              </label>
-              <div className="relative group">
-                <Search className="absolute left-[12px] top-1/2 -translate-y-1/2 size-[15px] text-[#eff8ee]/30 transition-colors group-focus-within:text-[var(--gold)]/50" />
-                <input
-                  type="text"
-                  placeholder="Find products..."
-                  className="w-full bg-[rgba(239,248,238,0.035)] border border-[var(--border)] rounded-[12px] pl-[38px] pr-[14px] py-[11px] text-[13px] text-[#eff8ee] placeholder:text-[#eff8ee]/25 outline-none transition-all focus:border-[var(--gold)]/35 focus:ring-[3px] focus:ring-[var(--gold)]/10"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-            </section>
-
             {/* Collections */}
             <section className="space-y-4">
               <label className="block text-[9px] font-bold uppercase tracking-[0.22em] text-[#eff8ee]/30 pb-[10px] border-b border-[var(--border)] relative after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-[var(--gold)]/30 after:to-transparent">
@@ -283,32 +266,6 @@ function ProductsContent() {
               </div>
             </section>
 
-            {/* Sort By */}
-            <section className="space-y-4">
-              <label className="block text-[9px] font-bold uppercase tracking-[0.22em] text-[#eff8ee]/30 pb-[10px] border-b border-[var(--border)] relative after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:w-1/2 after:h-[1px] after:bg-gradient-to-r after:from-[var(--gold)]/30 after:to-transparent">
-                Sort By
-              </label>
-              <div className="space-y-1">
-                {SORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => setSortOrder(opt.id)}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-[14px] py-[9px] rounded-[10px] text-[13px] transition-all",
-                      sortOrder === opt.id ? "text-[#eff8ee]" : "text-[#eff8ee]/50"
-                    )}
-                  >
-                    <div className={cn(
-                      "size-4 rounded-full border-[1.5px] flex items-center justify-center transition-all",
-                      sortOrder === opt.id ? "border-[var(--gold)] bg-[var(--gold)]/10" : "border-[#eff8ee]/20"
-                    )}>
-                      {sortOrder === opt.id && <div className="size-1.5 rounded-full bg-[var(--gold)]" />}
-                    </div>
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </section>
 
             {/* Flavours */}
             <section className="space-y-4">
@@ -358,65 +315,41 @@ function ProductsContent() {
         <main className="flex-1 p-8 md:p-[48px] pt-[28px]">
 
           {/* Top Bar */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8 pb-5 border-b border-[var(--border)]">
-            <div className="text-[12px] text-[#eff8ee]/50 font-medium">
-              <strong className="text-[#eff8ee]">{products.length}</strong> products found
+          <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-10 pb-6 border-b border-[var(--border)]">
+            {/* Search Input - Replaces "X products found" */}
+            <div className="flex-1 max-w-md relative group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#eff8ee]/30 group-focus-within:text-[var(--gold)] transition-colors" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-[rgba(239,248,238,0.035)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-2.5 text-[13px] text-[#eff8ee] outline-none transition-all focus:border-[var(--gold)]/30"
+              />
             </div>
 
-            {/* Active Chips */}
-            <div className="flex flex-wrap items-center gap-2">
-              <AnimatePresence>
-                {selectedSeries !== "all" && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    onClick={() => setSelectedSeries("all")}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--gold)]/10 border border-[var(--gold)]/25 text-[11px] font-bold text-[var(--gold)] uppercase tracking-wider"
-                  >
-                    × {SERIES_TABS.find(s => s.id === selectedSeries)?.name}
-                  </motion.button>
-                )}
-                {search && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    onClick={() => setSearch("")}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#eff8ee]/5 border border-[#eff8ee]/10 text-[11px] font-medium text-[#eff8ee]/70"
-                  >
-                    × &ldquo;{search}&rdquo;
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <div className="flex items-center gap-2">
+            {/* Controls */}
+            <div className="flex items-center gap-3">
+              {/* Price Sort Toggle - Replaces View Toggles */}
               <button
-                onClick={() => setViewMode("grid")}
+                onClick={() => setSortOrder(sortOrder === 'price-asc' ? 'price-desc' : 'price-asc')}
                 className={cn(
-                  "size-[34px] flex items-center justify-center rounded-[8px] transition-all",
-                  viewMode === "grid" ? "bg-[var(--gold)]/15 text-[var(--gold)]" : "bg-[rgba(239,248,238,0.035)] text-[#eff8ee]/40"
+                  "flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[12px] font-bold uppercase tracking-wider transition-all",
+                  sortOrder.startsWith('price') ? "bg-[var(--gold)]/10 border-[var(--gold)]/20 text-[var(--gold)]" : "bg-white/5 border-transparent text-[#eff8ee]/50 hover:bg-white/10"
                 )}
               >
-                <LayoutGrid size={18} />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={cn(
-                  "size-[34px] flex items-center justify-center rounded-[8px] transition-all",
-                  viewMode === "list" ? "bg-[var(--gold)]/15 text-[var(--gold)]" : "bg-[rgba(239,248,238,0.035)] text-[#eff8ee]/40"
-                )}
-              >
-                <List size={18} />
+                Price
+                {sortOrder === 'price-asc' ? '↑' : sortOrder === 'price-desc' ? '↓' : ''}
               </button>
 
-              {/* Mobile Filter Trigger Icon */}
+              <div className="h-4 w-px bg-[var(--border)] mx-1 hidden md:block" />
+
+              {/* Mobile Filter Trigger */}
               <button
                 onClick={() => setIsFilterOpen(true)}
-                className="lg:hidden size-[34px] flex items-center justify-center rounded-[8px] bg-[rgba(239,248,238,0.035)] text-[#eff8ee]/40 hover:text-[var(--gold)] transition-all"
+                className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-[#eff8ee]/50 text-[12px] font-bold uppercase tracking-wider border border-transparent hover:text-[var(--gold)]"
               >
-                <Filter size={18} />
+                <Filter size={14} /> Filter
               </button>
             </div>
           </div>
