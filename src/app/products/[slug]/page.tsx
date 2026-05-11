@@ -100,7 +100,7 @@ export default function ProductDetailsPage() {
 
   const baseImages = useMemo(() => {
     if (!product) return [getImageUrl(null)];
-    
+
     const variantImageIds = (product.variants || [])
       .map((v: any) => v.image)
       .filter(Boolean);
@@ -111,7 +111,7 @@ export default function ProductDetailsPage() {
         .filter((img: any) => !img.isThumbnail && img.order !== 999 && !variantImageIds.includes(img.id))
         .sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
         .map((img: any) => getImageUrl(img.id));
-      
+
       if (gallery.length > 0) return gallery;
     }
 
@@ -153,14 +153,18 @@ export default function ProductDetailsPage() {
     fetchProduct();
   }, [slug]);
 
+  // Set initial image when product loads
   useEffect(() => {
-    if (selectedVariant?.image) {
-      setCurrentImageUrl(getImageUrl(selectedVariant.image));
-    } else if (baseImages.length > 0 && !currentImageUrl) {
-      setCurrentImageUrl(baseImages[0]);
+    if (product && !currentImageUrl) {
+      if (selectedVariant?.image) {
+        setCurrentImageUrl(getImageUrl(selectedVariant.image));
+      } else if (baseImages.length > 0) {
+        setCurrentImageUrl(baseImages[0]);
+      }
     }
-  }, [product, baseImages, currentImageUrl]);
+  }, [product, baseImages, selectedVariant]);
 
+  // Synchronize active index whenever image URL changes
   useEffect(() => {
     const idx = allImages.findIndex(img => img === currentImageUrl);
     if (idx !== -1) {
@@ -168,12 +172,12 @@ export default function ProductDetailsPage() {
     }
   }, [currentImageUrl, allImages]);
 
-  // Switch image when variant is selected
+  // Switch image ONLY when variant is changed manually
   useEffect(() => {
     if (selectedVariant?.image) {
       setCurrentImageUrl(getImageUrl(selectedVariant.image));
     }
-  }, [selectedVariant]);
+  }, [selectedVariant?.id]); // Depend on ID specifically to avoid unnecessary triggers
 
   useSeo(`product/${slug}`, {
     title: product ? `${product.name} | Sharcly` : "Loading...",
@@ -254,7 +258,7 @@ export default function ProductDetailsPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="lg:col-span-7 flex flex-col md:flex-row gap-4 lg:sticky lg:top-[120px]"
+              className="lg:col-span-6 flex flex-col md:flex-row gap-4 lg:sticky lg:top-[120px]"
             >
 
               {/* Thumbnail Strip */}
@@ -279,7 +283,7 @@ export default function ProductDetailsPage() {
               </div>
 
               {/* Main Image Card */}
-              <div className="flex-1 relative aspect-[1/1.1] rounded-[24px] overflow-hidden border border-[rgba(239,248,238,0.08)] bg-linear-to-br from-[#082f1d]/60 to-[#040e07]/90 shadow-[0_40px_100px_rgba(0,0,0,0.5),0_0_0_1px_rgba(232,197,71,0.04)] group">
+              <div className="flex-1 relative aspect-[1/1.05] rounded-[24px] overflow-hidden border border-[rgba(239,248,238,0.08)] bg-linear-to-br from-[#082f1d]/60 to-[#040e07]/90 shadow-[0_40px_100px_rgba(0,0,0,0.5),0_0_0_1px_rgba(232,197,71,0.04)] group">
 
                 {/* 1. Radial gold glow */}
                 <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(232,197,71,0.08),transparent_65%)]" />
@@ -301,7 +305,7 @@ export default function ProductDetailsPage() {
                 </div>
 
                 {/* 2. Product image */}
-                <div className="absolute inset-0 p-12 flex items-center justify-center">
+                <div className="absolute inset-0 p-8 flex items-center justify-center">
                   <AnimatePresence mode="wait">
                     {currentImageUrl ? (
                       <motion.img
@@ -355,7 +359,7 @@ export default function ProductDetailsPage() {
               variants={containerVariants}
               initial="initial"
               animate="animate"
-              className="lg:col-span-5 space-y-8"
+              className="lg:col-span-6 space-y-8"
             >
 
               {/* 1. Status Row */}
@@ -531,7 +535,7 @@ export default function ProductDetailsPage() {
               <motion.div variants={itemVariants} className="pt-5 border-t border-[rgba(239,248,238,0.08)] flex items-center gap-2.5">
                 <span className="text-[11px] font-body font-bold text-[#eff8ee]/40 uppercase tracking-[0.06em]">SHARE</span>
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={handleShare}
                     className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] text-[#eff8ee]/40 hover:border-[#E8C547]/30 hover:text-[#E8C547] transition-all"
                   >
@@ -758,12 +762,12 @@ export default function ProductDetailsPage() {
           </DialogHeader>
 
           <div className="relative z-10 mt-6 flex items-center gap-2 p-1.5 pl-4 rounded-2xl bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] transition-all focus-within:border-[#E8C547]/30">
-            <input 
-              readOnly 
+            <input
+              readOnly
               value={typeof window !== 'undefined' ? window.location.href : ''}
               className="bg-transparent border-none outline-none text-[13px] flex-1 text-[#eff8ee]/80 font-medium font-body truncate"
             />
-            <button 
+            <button
               onClick={() => {
                 navigator.clipboard.writeText(window.location.href);
                 toast.success("Link copied to clipboard!");
@@ -778,18 +782,18 @@ export default function ProductDetailsPage() {
           <div className="relative z-10 mt-8 pt-6 border-t border-[rgba(239,248,238,0.08)]">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#eff8ee]/30 mb-4">Quick Share</p>
             <div className="flex gap-3">
-               {[
-                 { name: 'Twitter', icon: Twitter, color: '#1DA1F2' },
-                 { name: 'Instagram', icon: Instagram, color: '#E4405F' }
-               ].map((social) => (
-                 <button 
-                   key={social.name}
-                   className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] hover:bg-[rgba(239,248,238,0.08)] transition-all group"
-                 >
-                   <social.icon className="size-4 text-[#eff8ee]/60 group-hover:text-[#eff8ee] transition-colors" />
-                   <span className="text-[11px] font-bold text-[#eff8ee]/40 group-hover:text-[#eff8ee] transition-colors">{social.name}</span>
-                 </button>
-               ))}
+              {[
+                { name: 'Twitter', icon: Twitter, color: '#1DA1F2' },
+                { name: 'Instagram', icon: Instagram, color: '#E4405F' }
+              ].map((social) => (
+                <button
+                  key={social.name}
+                  className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] hover:bg-[rgba(239,248,238,0.08)] transition-all group"
+                >
+                  <social.icon className="size-4 text-[#eff8ee]/60 group-hover:text-[#eff8ee] transition-colors" />
+                  <span className="text-[11px] font-bold text-[#eff8ee]/40 group-hover:text-[#eff8ee] transition-colors">{social.name}</span>
+                </button>
+              ))}
             </div>
           </div>
         </DialogContent>
