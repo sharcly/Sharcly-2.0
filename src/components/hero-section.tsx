@@ -154,7 +154,7 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
         <motion.div variants={itemVariants} className="flex flex-wrap justify-center lg:justify-start gap-4 mb-8">
           <Button
             asChild
-            className="group h-auto px-8 py-4 rounded-full bg-[#E8C547] text-[#082f1d] hover:bg-[#f0cf55] transition-all duration-300 shadow-[0_8px_28px_rgba(232,197,71,0.28)] hover:-translate-y-0.5 active:scale-95"
+            className="group h-auto px-8 py-4 rounded-full bg-[#E8C547] text-[#082f1d] hover:bg-[#082f1d] hover:text-[#E8C547] border border-transparent hover:border-[#E8C547] transition-all duration-300 shadow-[0_8px_28px_rgba(232,197,71,0.28)] hover:-translate-y-0.5 active:scale-95"
           >
             <a href={ctaPrimary.link}>
               <span className="text-[12px] font-bold uppercase tracking-[0.08em]">{ctaPrimary.label}</span>
@@ -165,7 +165,7 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
           <Button
             asChild
             variant="outline"
-            className="h-auto px-8 py-4 rounded-full border-[#eff8ee]/18 bg-transparent text-[#eff8ee] hover:bg-[#eff8ee]/05 hover:border-[#eff8ee]/35 transition-all"
+            className="h-auto px-8 py-4 rounded-full border-[#eff8ee]/18 bg-transparent text-[#eff8ee] hover:bg-[#E8C547] hover:text-[#082f1d] hover:border-[#E8C547] transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
           >
             <a href={ctaSecondary.link}>
               <span className="text-[12px] font-bold uppercase tracking-[0.08em]">{ctaSecondary.label}</span>

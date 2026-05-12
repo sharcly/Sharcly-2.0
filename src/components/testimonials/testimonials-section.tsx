@@ -133,8 +133,8 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
   return (
     <section
       className="px-6 md:px-12 overflow-hidden flex flex-col justify-center items-center relative"
-      style={{ 
-        minHeight: 'calc(100vh - 72px)', 
+      style={{
+        minHeight: 'calc(100vh - 72px)',
         padding: '80px 24px',
         background: "linear-gradient(160deg, #040e07 0%, #082f1d 50%, #040e07 100%)",
         color: "#eff8ee"
@@ -187,7 +187,7 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
               transition={{ duration: 0.6 }}
               className="text-3xl md:text-5xl font-bold text-white mb-0 tracking-tight leading-[1.1] font-serif"
             >
-              Shared Success <br className="hidden md:block" /> 
+              Shared Success <br className="hidden md:block" />
               <span style={{ fontStyle: "italic", color: "#E8C547" }}>with Sharcly.</span>
             </motion.h2>
           </div>
@@ -234,7 +234,7 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
           </div>
         )}
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -244,7 +244,7 @@ export const TestimonialsSection = ({ featuredOnly = false, limit }: Testimonial
           <button className="bg-[#E8C547] text-[#082f1d] px-10 py-4 rounded-full font-bold text-base hover:opacity-90 transition-all duration-300 shadow-xl shadow-[#E8C547]/20 active:scale-95 uppercase tracking-wider">
             Read All Reviews
           </button>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );
