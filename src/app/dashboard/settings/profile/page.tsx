@@ -32,7 +32,7 @@ export default function ProfilePage() {
 
     try {
       setSaving(true);
-      await apiClient.post("/auth/change-password", {
+      await apiClient.patch("/auth/change-password", {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });
