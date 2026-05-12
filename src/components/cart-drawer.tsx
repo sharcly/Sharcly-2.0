@@ -164,7 +164,7 @@ export function CartDrawer() {
                   </div>
                </div>
 
-               <Button className="w-full h-14 rounded-full bg-[#E8C547] text-[#040e07] hover:bg-[#E8C547]/90 font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-[#E8C547]/20 gap-3 transition-all" asChild>
+               <Button className="w-full h-14 rounded-full bg-[#E8C547] text-[#040e07] hover:bg-transparent hover:text-[#E8C547] border border-transparent hover:border-[#E8C547] font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-[#E8C547]/20 gap-3 transition-all" asChild>
                   <Link href="/checkout" onClick={() => dispatch(toggleCart(false))}>
                      Continue to Checkout <ArrowRight className="size-4" />
                   </Link>

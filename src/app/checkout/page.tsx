@@ -125,12 +125,10 @@ function CheckoutContent() {
    const suggestionsRef = useRef<HTMLDivElement>(null);
 
    useEffect(() => {
-      console.log("use-places-autocomplete status:", { ready, status, dataCount: data.length });
    }, [ready, status, data]);
 
    const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value;
-      console.log("Manual Typing:", val);
 
       // Update local form state
       setFormData(prev => ({
@@ -144,17 +142,14 @@ function CheckoutContent() {
 
    const handleSelect = async (suggestion: any) => {
       const addressStr = suggestion.description;
-      console.log("Selected Suggestion:", addressStr);
 
       setValue(addressStr, false);
       clearSuggestions();
 
       try {
          const results = await getGeocode({ address: addressStr });
-         console.log("Geocode results:", results[0]);
 
          const mapped = mapGooglePlaceToAddress(results[0]);
-         console.log("Mapped from geocode:", mapped);
 
          if (mapped) {
             setFormData(prev => ({
@@ -166,7 +161,8 @@ function CheckoutContent() {
             }));
          }
       } catch (error) {
-         console.error("Error geocoding selected address:", error);
+         console.error("[GOOGLE-MAPS] Geocoding Error:", error);
+         toast.error("Failed to fetch address details. Please fill manually.");
       }
    };
 
