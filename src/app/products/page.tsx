@@ -55,13 +55,28 @@ export default function ProductsPage() {
 function ProductsContent() {
   const searchParams = useSearchParams();
   const seriesParam = searchParams.get("series");
+  const categoryParam = searchParams.get("category");
+  const rawParam = seriesParam || categoryParam;
+
+  // Normalize slugs to match database values (e.g., 'vapes' -> 'series-vape')
+  const normalizeSeries = (slug: string | null) => {
+    if (!slug || slug === "all") return "all";
+    const s = slug.toLowerCase();
+    if (s === "vape" || s === "vapes") return "series-vape";
+    if (s === "chill") return "series-chill";
+    if (s === "lift") return "series-lift";
+    if (s === "sleep") return "series-sleep";
+    if (s === "balance") return "series-balance";
+    if (s === "entourage" || s === "full-spectrum") return "series-entourage";
+    return slug;
+  };
 
   const [products, setProducts] = useState<any[]>([]);
   const [flavours, setFlavours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState("");
-  const [selectedSeries, setSelectedSeries] = useState(seriesParam || "all");
+  const [selectedSeries, setSelectedSeries] = useState(normalizeSeries(rawParam));
   const [sortOrder, setSortOrder] = useState("newest");
   const [selectedFlavour, setSelectedFlavour] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -72,13 +87,15 @@ function ProductsContent() {
   useSeo("products");
 
   useEffect(() => {
-    if (seriesParam) setSelectedSeries(seriesParam);
+    if (rawParam) {
+      setSelectedSeries(normalizeSeries(rawParam));
+    }
     
     // Fetch flavours
     apiClient.get("/products/flavours")
       .then(res => setFlavours(res.data.flavours || []))
       .catch(() => setFlavours([]));
-  }, [seriesParam]);
+  }, [rawParam]);
 
   const fetchProducts = async (pageNum = 1, isLoadMore = false) => {
     if (isLoadMore) setLoadingMore(true);

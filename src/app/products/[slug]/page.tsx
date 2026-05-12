@@ -9,7 +9,7 @@ import {
   Heart, Truck, ShieldCheck, RotateCcw,
   Plus, Minus, Share2, ChevronLeft, Leaf,
   Zap, Star, ShoppingCart, Link as LinkIcon,
-  Instagram, Twitter, ExternalLink
+  Instagram, Twitter, ExternalLink, AlertTriangle
 } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { toast } from "sonner";
@@ -529,6 +529,21 @@ export default function ProductDetailsPage() {
                     </div>
                   </div>
                 ))}
+              </motion.div>
+
+              {/* ⚠️ Prop 65 Warning */}
+              <motion.div 
+                variants={itemVariants}
+                className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 flex gap-3 items-start"
+              >
+                <div className="shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-md bg-red-500/10 flex items-center justify-center text-red-500">
+                    <AlertTriangle className="size-3.5" />
+                  </div>
+                </div>
+                <p className="text-[11px] leading-relaxed text-red-500/90">
+                  <span className="font-bold">WARNING:</span> Consuming this product during pregnancy exposes your child to delta-9-THC, which can affect your child&apos;s behavior and learning ability. For more information go to <a href="https://www.p65warnings.ca.gov/cannabis" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-400 transition-colors">www.p65warnings.ca.gov/cannabis</a>
+                </p>
               </motion.div>
 
               {/* 9. Share Row */}

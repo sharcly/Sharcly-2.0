@@ -106,7 +106,7 @@ export function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "nav-link transition-colors text-[10.5px] font-bold uppercase tracking-[0.18em]",
+                  "nav-link transition-colors text-[13px] font-bold uppercase tracking-[0.1em]",
                   !scrolled && isDarkPage
                     ? "text-white/60 hover:text-white"
                     : "text-[#062D1B]/60 hover:text-[#062D1B]"

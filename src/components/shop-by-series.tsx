@@ -36,7 +36,7 @@ const seriesData = [
     tag: "Full Spectrum",
     description: "Whole plant, full effect.",
     imageUrl: "https://i.postimg.cc/jdQdX2HN/Full-Spectrum-Lifestyle.jpg",
-    to: "/products?series=full-spectrum",
+    to: "/products?series=entourage",
     number: "04"
   },
   {
@@ -253,7 +253,8 @@ export const ShopBySeries = ({ dynamicData }: ShopBySeriesProps = {}) => {
             WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
           }}
         >
-          <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
+          <style dangerouslySetInnerHTML={{
+            __html: sanitizeHtml(`
             @keyframes marquee {
               0% { transform: translateX(0); }
               100% { transform: translateX(-33.333%); }
@@ -266,8 +267,9 @@ export const ShopBySeries = ({ dynamicData }: ShopBySeriesProps = {}) => {
             .marquee-container:hover {
               animation-play-state: paused;
             }
-          `)}} />
-          
+          `)
+          }} />
+
           <div className="marquee-container py-2 md:py-4 gap-6 md:gap-10">
             {[...dataList, ...dataList, ...dataList].map((item, index) => (
               <div key={`${item.number}-${index}`} className="w-[180px] md:w-[280px] shrink-0">

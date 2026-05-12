@@ -90,15 +90,15 @@ export default function AboutPage() {
         {/* 1. HERO SECTION */}
         <section className="relative min-h-[90vh] flex items-center justify-center pt-32 pb-24 px-6 overflow-hidden">
           {/* Animated Glass Blobs */}
-          <motion.div 
+          <motion.div
             animate={{ x: [0, 40, 0], y: [0, 24, 0] }}
             transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/4 -left-20 w-[480px] h-[480px] bg-white/5 rounded-full blur-[120px] pointer-events-none" 
+            className="absolute top-1/4 -left-20 w-[480px] h-[480px] bg-white/5 rounded-full blur-[120px] pointer-events-none"
           />
-          <motion.div 
+          <motion.div
             animate={{ x: [0, -32, 0], y: [0, 48, 0] }}
             transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-1/4 -right-20 w-[560px] h-[560px] bg-[#E8C547]/10 rounded-full blur-[140px] pointer-events-none" 
+            className="absolute bottom-1/4 -right-20 w-[560px] h-[560px] bg-[#E8C547]/10 rounded-full blur-[140px] pointer-events-none"
           />
 
           <div className="container max-w-[1280px] mx-auto relative z-10">
@@ -116,29 +116,31 @@ export default function AboutPage() {
 
               <motion.h1
                 variants={fadeInUp}
-                className="text-5xl md:text-[96px] font-bold tracking-tighter leading-[1.05] md:leading-[0.95] mb-12"
+                className="text-2xl md:text-[56px] font-bold tracking-tighter leading-[1.05] md:leading-[0.95] mb-12"
               >
-                CRAFTING <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-white/80 to-white">
+                CRAFTING PURE FLOW.
+                {/* <span className="text-transparent bg-clip-text bg-gradient-to-br from-white via-white/80 to-white">
                   PURE FLOW.
-                </span>
+                </span> */}
               </motion.h1>
 
               <motion.p
                 variants={fadeInUp}
-                className="text-[20px] md:text-[28px] font-medium text-white/60 max-w-[800px] mx-auto leading-tight mb-16"
+                className="text-[14px] md:text-[20px] font-medium text-white/60 max-w-[800px] mx-auto leading-tight mb-16"
               >
                 Precision-engineered botanical essentials. We blend elite science with organic purity to elevate your daily ritual.
               </motion.p>
 
               <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <Button size="lg" className="h-16 md:h-20 px-12 rounded-full bg-[#E8C547] text-[#082f1d] hover:bg-[#E8C547]/90 font-bold text-[18px] md:text-[20px] group transition-all duration-500 shadow-xl relative overflow-hidden">
-                  <span className="relative z-10 flex items-center gap-3">
-                    Explore Our Story <ArrowRight className="size-6 group-hover:translate-x-2 transition-transform" />
-                  </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                <Button asChild size="lg" className="h-16 md:h-20 px-12 rounded-full bg-[#082f1d] text-[#E8C547] border border-[#E8C547]/20 hover:bg-[#E8C547] hover:text-white font-bold text-[18px] md:text-[20px] group transition-all duration-500 shadow-xl relative overflow-hidden">
+                  <Link href="/products">
+                    <span className="relative z-10 flex items-center gap-3">
+                      Explore Our Products <ArrowRight className="size-6 group-hover:translate-x-2 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                  </Link>
                 </Button>
-                
+
                 <div className="flex items-center gap-4 px-8 py-4 md:py-5 bg-white/5 backdrop-blur-2xl rounded-full border border-white/10 cursor-pointer hover:bg-white/10 transition-all duration-300 shadow-sm">
                   <div className="size-10 md:size-12 rounded-full bg-[#E8C547] flex items-center justify-center text-[#082f1d]">
                     <Star className="size-5 md:size-6 fill-current" />
@@ -154,11 +156,11 @@ export default function AboutPage() {
         </section>
 
         {/* 2. BRAND STORY */}
-        <section className="py-24 md:py-40 relative">
+        <section className="py-14 md:py-16 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none" />
           <div className="container max-w-[1280px] mx-auto px-6 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 lg:gap-32">
-              <motion.div 
+              <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -183,7 +185,7 @@ export default function AboutPage() {
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -223,7 +225,7 @@ export default function AboutPage() {
         </section>
 
         {/* 3. TRUST & QUALITY */}
-        <section className="py-24 md:py-32 relative overflow-hidden">
+        <section className="py-14 md:py-16 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-tr from-[#082f1d]/20 via-transparent to-transparent pointer-events-none" />
           <div className="container max-w-[1280px] mx-auto px-6 relative z-10">
             <div className="text-center max-w-[800px] mx-auto mb-20">
@@ -288,9 +290,9 @@ export default function AboutPage() {
                 priority
               />
             </motion.div>
-            
+
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80 z-10" />
-            
+
             <div className="absolute bottom-0 left-0 w-full p-10 md:p-20 z-20">
               <motion.div
                 initial={{ opacity: 0, y: 32 }}
@@ -309,16 +311,16 @@ export default function AboutPage() {
               </motion.div>
             </div>
 
-            <motion.div 
+            <motion.div
               animate={{ x: ["-100%", "200%"], opacity: [0, 0.3, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", repeatDelay: 4 }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-25deg] z-30 pointer-events-none" 
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-25deg] z-30 pointer-events-none"
             />
           </motion.div>
         </section>
 
         {/* 5. BRAND PILLARS */}
-        <section className="py-24 md:py-40">
+        <section className="py-14 md:py-16">
           <div className="container max-w-[1280px] mx-auto px-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-12">
               {[
@@ -359,7 +361,7 @@ export default function AboutPage() {
         </section>
 
         {/* 6. PROCESS / CRAFT */}
-        <section className="py-24 md:py-40 relative overflow-hidden">
+        <section className="py-14 md:py-16 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-transparent pointer-events-none" />
           <div className="container max-w-[1280px] mx-auto px-6 relative z-10">
             <div className="flex flex-col lg:flex-row gap-20 md:gap-32 items-start">
@@ -369,7 +371,7 @@ export default function AboutPage() {
                 <p className="text-[18px] md:text-[22px] text-white/60 font-medium leading-relaxed">
                   We deliberate over every molecule. True luxury isn't found in speed, but in the unwavering commitment to the slow, precise process.
                 </p>
-                
+
                 <div className="mt-16 p-6 md:p-8 rounded-[32px] bg-white/[0.03] backdrop-blur-xl border border-white/10 inline-flex items-center gap-6 shadow-sm">
                   <div className="size-14 md:size-16 rounded-2xl bg-[#E8C547] flex items-center justify-center text-[#082f1d]">
                     <FlaskConical className="size-7 md:size-8" />
@@ -432,7 +434,7 @@ export default function AboutPage() {
         </section>
 
         {/* 7. SOCIAL PROOF */}
-        <section className="py-24 md:py-32 text-white relative overflow-hidden">
+        <section className="py-14 md:py-16 text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/20 pointer-events-none" />
           <div className="container max-w-[1280px] mx-auto px-6 relative z-10">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 md:gap-20 text-center mb-32">
@@ -475,8 +477,8 @@ export default function AboutPage() {
         </section>
 
         {/* 8. CTA */}
-        <section className="py-24 md:py-40 px-6 md:px-12">
-          <motion.div 
+        <section className="py-14 md:py-16 px-6 md:px-12">
+          <motion.div
             initial={{ opacity: 0, y: 48 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -486,17 +488,17 @@ export default function AboutPage() {
             <div className="absolute bottom-0 left-0 w-[480px] h-[480px] bg-white/5 rounded-full blur-[120px] -ml-40 -mb-40 pointer-events-none" />
 
             <div className="max-w-[800px] mx-auto space-y-12 relative z-10">
-              <h2 className="text-5xl md:text-[104px] font-bold tracking-tighter leading-[1] md:leading-[0.85] italic">
+              <h2 className="text-2xl md:text-[32px] font-bold tracking-tighter leading-[1] md:leading-[0.85] italic">
                 JOIN THE <br />
                 <span className="text-white/40">COLLECTIVE.</span>
               </h2>
-              <p className="text-[18px] md:text-[24px] text-white/50 font-medium max-w-[600px] mx-auto leading-relaxed">
+              <p className="text-[14px] md:text-[20px] text-white/50 font-medium max-w-[600px] mx-auto leading-relaxed">
                 Access the future of botanical performance. Redefine your baseline with the Sharcly collection.
               </p>
               <div className="pt-8">
-                <Button size="lg" className="h-20 md:h-24 px-16 md:px-20 rounded-full bg-[#E8C547] text-[#082f1d] hover:bg-[#E8C547]/90 font-bold text-[20px] md:text-[24px] shadow-2xl group transition-all duration-500" asChild>
+                <Button size="md" className="h-16 md:h-20 px-16 md:px-20 rounded-full bg-[#E8C547] text-[#082f1d] hover:bg-[#E8C547]/90 font-bold text-[14px] md:text-[20px] shadow-2xl group transition-all duration-500" asChild>
                   <Link href="/products" className="flex items-center gap-4">
-                    Shop the Catalog <TrendingUp className="size-8 md:size-10 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                    Shop the Catalog <TrendingUp className="size-5 md:size-6 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
                   </Link>
                 </Button>
               </div>

@@ -309,7 +309,7 @@ const LoyaltyTeaser = () => {
           ))}
         </div>
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -320,7 +320,7 @@ const LoyaltyTeaser = () => {
           >
             Join the Circle — It's Free
           </Button>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

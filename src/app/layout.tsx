@@ -73,7 +73,7 @@ export default function RootLayout({
           </ThemeProvider>
         </ReduxProvider>
         <script 
-          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC4Iky795YynI3fyT9k_elsjk7dWEog3Ec&libraries=places" 
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`} 
           async 
           defer
         ></script>
