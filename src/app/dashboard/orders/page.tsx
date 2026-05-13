@@ -1,21 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Eye, 
-  Truck, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Eye,
+  Truck,
+  CheckCircle2,
+  Clock,
   XCircle,
   Search,
   Download,
@@ -33,11 +33,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
@@ -161,8 +161,8 @@ export default function DashboardOrdersPage() {
     }
   };
 
-  const filteredOrders = orders.filter(order => 
-    order.id.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredOrders = orders.filter(order =>
+    order.id.toLowerCase().includes(search.toLowerCase()) ||
     order.user.name.toLowerCase().includes(search.toLowerCase()) ||
     order.user.email.toLowerCase().includes(search.toLowerCase())
   );
@@ -171,13 +171,13 @@ export default function DashboardOrdersPage() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-           <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <ShoppingBag className="size-5" />
-           </div>
-           <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Customer Orders</h1>
-              <p className="text-muted-foreground text-sm font-medium">Track and fulfill your shop's latest sales and shipments.</p>
-           </div>
+          <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <ShoppingBag className="size-5" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Customer Orders</h1>
+            <p className="text-muted-foreground text-sm font-medium">Track and fulfill your shop's latest sales and shipments.</p>
+          </div>
         </div>
         <Button variant="outline" className="gap-2 rounded-xl h-12 px-6 border-black/5 hover:bg-black/5 font-bold text-xs uppercase tracking-widest">
           <Download className="h-4 w-4" /> Export List
@@ -186,19 +186,19 @@ export default function DashboardOrdersPage() {
 
       <Card className="border-black/5 shadow-sharcly rounded-3xl overflow-hidden bg-white">
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-black/5 p-8">
-           <div>
-              <CardTitle className="text-xl font-bold">Recent Sales</CardTitle>
-              <CardDescription className="text-[10px] uppercase font-bold tracking-widest opacity-40 mt-1">Live order activity</CardDescription>
-           </div>
-           <div className="relative w-full md:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40" />
-              <Input 
-                placeholder="Search orders..." 
-                className="pl-10 h-11 rounded-xl bg-neutral-50 border-black/5 font-medium" 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-           </div>
+          <div>
+            <CardTitle className="text-xl font-bold">Recent Sales</CardTitle>
+            <CardDescription className="text-[10px] uppercase font-bold tracking-widest opacity-40 mt-1">Live order activity</CardDescription>
+          </div>
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40" />
+            <Input
+              placeholder="Search orders..."
+              className="pl-10 h-11 rounded-xl bg-neutral-50 border-black/5 font-medium"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
@@ -225,10 +225,10 @@ export default function DashboardOrdersPage() {
                     </TableCell>
                     <TableCell><Skeleton className="h-4 w-24 rounded-full" /></TableCell>
                     <TableCell>
-                       <div className="flex flex-col gap-1.5">
-                          <Skeleton className="h-4 w-16 rounded-full" />
-                          <Skeleton className="h-3 w-12 rounded-full" />
-                       </div>
+                      <div className="flex flex-col gap-1.5">
+                        <Skeleton className="h-4 w-16 rounded-full" />
+                        <Skeleton className="h-3 w-12 rounded-full" />
+                      </div>
                     </TableCell>
                     <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
                     <TableCell className="pr-8 text-right"><Skeleton className="h-10 w-10 ml-auto rounded-xl" /></TableCell>
@@ -242,7 +242,7 @@ export default function DashboardOrdersPage() {
                 filteredOrders.map((order) => (
                   <TableRow key={order.id} className="border-black/5 group hover:bg-neutral-50 transition-all duration-300">
                     <TableCell className="pl-8 py-5">
-                       <span className="font-bold text-xs text-primary tracking-tight truncate max-w-[80px] block">#{order.id.split('-')[0]}</span>
+                      <span className="font-bold text-xs text-primary tracking-tight truncate max-w-[80px] block">#{order.id.split('-')[0]}</span>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
@@ -252,23 +252,23 @@ export default function DashboardOrdersPage() {
                     </TableCell>
                     <TableCell className="text-muted-foreground text-xs font-medium italic">{format(new Date(order.createdAt), "MMM d, h:mm a")}</TableCell>
                     <TableCell>
-                       <div className="flex flex-col">
-                          <span className="font-black text-sm tracking-tight">${Number(order.totalAmount).toFixed(2)}</span>
-                          <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">({order.items.length} items)</span>
-                       </div>
+                      <div className="flex flex-col">
+                        <span className="font-black text-sm tracking-tight">${Number(order.totalAmount).toFixed(2)}</span>
+                        <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">({order.items.length} items)</span>
+                      </div>
                     </TableCell>
                     <TableCell>
                       {getStatusBadge(order.status)}
                     </TableCell>
                     <TableCell className="text-right pr-8">
-                       <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-10 w-10 rounded-xl hover:bg-black/5 transition-all opacity-0 group-hover:opacity-100"
                         onClick={() => router.push(`/dashboard/orders/${order.id}`)}
-                       >
-                          <Eye className="h-4 w-4 text-primary" />
-                       </Button>
+                      >
+                        <Eye className="h-4 w-4 text-primary" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -288,33 +288,33 @@ export default function DashboardOrdersPage() {
           <div className="space-y-6 pt-4">
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shipping Carrier</label>
-              <Input 
-                placeholder="e.g. UPS, FedEx, DHL" 
+              <Input
+                placeholder="e.g. UPS, FedEx, DHL"
                 className="h-12 rounded-xl bg-neutral-50 border-black/5 font-bold"
                 value={shipData.carrier}
-                onChange={(e) => setShipData({...shipData, carrier: e.target.value})}
+                onChange={(e) => setShipData({ ...shipData, carrier: e.target.value })}
               />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Tracking Number</label>
-              <Input 
-                placeholder="Enter tracking ID" 
+              <Input
+                placeholder="Enter tracking ID"
                 className="h-12 rounded-xl bg-neutral-50 border-black/5 font-bold"
                 value={shipData.trackingNumber}
-                onChange={(e) => setShipData({...shipData, trackingNumber: e.target.value})}
+                onChange={(e) => setShipData({ ...shipData, trackingNumber: e.target.value })}
               />
             </div>
           </div>
-          <DialogFooter className="mt-8 flex-col sm:flex-row gap-3">
-            <Button 
-              variant="outline" 
-              className="w-full rounded-xl h-12 font-bold uppercase tracking-widest"
+          <DialogFooter className="mt-8 flex flex-col sm:flex-row gap-3 !p-0 !-mx-0 !-mb-0 !bg-transparent !border-t-0">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-xl h-12 font-bold uppercase tracking-widest"
               onClick={() => setIsShipFormOpen(false)}
             >
               Cancel
             </Button>
-            <Button 
-              className="w-full rounded-xl h-12 bg-primary font-bold uppercase tracking-widest shadow-lg text-white"
+            <Button
+              className="flex-1 rounded-xl h-12 bg-primary font-bold uppercase tracking-widest shadow-lg text-white"
               disabled={updating || !shipData.trackingNumber}
               onClick={() => selectedOrderForShip && updateStatus(selectedOrderForShip.id, "SHIPPED", shipData)}
             >

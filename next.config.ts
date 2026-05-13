@@ -29,6 +29,10 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: '207.2.123.86',
         port: '8181',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sharcly-2-0-b.vercel.app',
       }
     ],
   },

@@ -14,13 +14,15 @@ import {
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { toast } from "sonner";
 import { useSeo } from "@/hooks/use-seo";
+import { useLensZoom } from "@/hooks/use-lens-zoom";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/store/slices/cartSlice";
 import { getImageUrl } from "@/lib/image-utils";
-import { ProductDetailSkeleton, ProductCardSkeleton } from "@/components/ui/skeletons";
+import { ProductDetailSkeleton, ProductCardSkeleton, FeaturedProductCardSkeleton } from "@/components/ui/skeletons";
 import { ProductCard } from "@/components/product-card";
+import { FeaturedProductCard } from "@/components/product/featured-product-card";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +68,13 @@ export default function ProductDetailsPage() {
 
   const atcRef = useRef<HTMLDivElement>(null);
   const [showMobileATC, setShowMobileATC] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  const zoom = useLensZoom(3);
+
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  }, []);
 
   // Intersection Observer for Mobile Sticky ATC
   useEffect(() => {
@@ -141,8 +150,12 @@ export default function ProductDetailsPage() {
         const response = await apiClient.get(`/products/${slug}`);
         const productData = response.data.product;
         setProduct(productData);
+        
         if (productData?.variants?.length > 0) {
           setSelectedVariant(productData.variants[0]);
+        } else {
+          // Fallback sequential variants
+          setSelectedVariant({ id: '1', title: 'Pack of 1', price: productData.price });
         }
       } catch (error: any) {
         toast.error("Failed to load product");
@@ -269,6 +282,7 @@ export default function ProductDetailsPage() {
                     onClick={() => {
                       setCurrentImageUrl(img);
                       setActiveImageIndex(idx);
+                      zoom.setIsHovering(false);
                     }}
                     className={cn(
                       "w-[72px] h-[72px] rounded-xl overflow-hidden cursor-pointer border transition-all duration-300 bg-[#082f1d]/50",
@@ -283,7 +297,14 @@ export default function ProductDetailsPage() {
               </div>
 
               {/* Main Image Card */}
-              <div className="flex-1 relative aspect-[1/1.05] rounded-[24px] overflow-hidden border border-[rgba(239,248,238,0.08)] bg-linear-to-br from-[#082f1d]/60 to-[#040e07]/90 shadow-[0_40px_100px_rgba(0,0,0,0.5),0_0_0_1px_rgba(232,197,71,0.04)] group">
+              <div 
+                ref={zoom.imgRef}
+                onMouseEnter={zoom.onMouseEnter}
+                onMouseLeave={zoom.onMouseLeave}
+                onMouseMove={zoom.onMouseMove}
+                style={{ cursor: (!isTouchDevice && zoom.isHovering) ? 'none' : 'default' }}
+                className="flex-1 relative aspect-[1/1.05] rounded-[24px] overflow-hidden border border-[rgba(239,248,238,0.08)] bg-linear-to-br from-[#082f1d]/60 to-[#040e07]/90 shadow-[0_40px_100px_rgba(0,0,0,0.5),0_0_0_1px_rgba(232,197,71,0.04)] group"
+              >
 
                 {/* 1. Radial gold glow */}
                 <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle,rgba(232,197,71,0.08),transparent_65%)]" />
@@ -324,6 +345,60 @@ export default function ProductDetailsPage() {
                   </AnimatePresence>
                 </div>
 
+                {/* ZOOM LENS — renders on top when hovering */}
+                {!isTouchDevice && (
+                  <AnimatePresence>
+                    {zoom.isHovering && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.85 }}
+                        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                        style={{
+                          position: 'absolute',
+                          width: zoom.lensSize,
+                          height: zoom.lensSize,
+                          borderRadius: '50%',
+                          border: '2px solid rgba(232,197,71,0.6)',
+                          boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(232,197,71,0.2), inset 0 0 20px rgba(232,197,71,0.05)',
+                          pointerEvents: 'none',
+                          zIndex: 30,
+                          overflow: 'hidden',
+                          left: zoom.lensPos.x - zoom.lensSize / 2,
+                          top: zoom.lensPos.y - zoom.lensSize / 2,
+                          backgroundImage: `url(${currentImageUrl})`,
+                          backgroundSize: `${zoom.zoomFactor * 100}%`,
+                          backgroundPosition: `${zoom.bgPos.x}% ${zoom.bgPos.y}%`,
+                          backgroundRepeat: 'no-repeat',
+                          backdropFilter: 'brightness(1.1) contrast(1.05)',
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+                )}
+
+                {/* Hover to zoom hint */}
+                {!isTouchDevice && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 14,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    fontSize: 9,
+                    fontWeight: 600,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(239,248,238,0.28)',
+                    pointerEvents: 'none',
+                    zIndex: 25,
+                    opacity: zoom.isHovering ? 0 : 1,
+                    transition: 'opacity 0.3s',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    Hover to zoom
+                  </div>
+                )}
+
                 {/* 6. Image counter badge */}
                 <div className="absolute bottom-5 right-5 z-20 bg-[#082f1d]/75 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
                   <span className="text-[11px] font-semibold font-body text-[rgba(239,248,238,0.55)]">
@@ -340,6 +415,7 @@ export default function ProductDetailsPage() {
                     onClick={() => {
                       setCurrentImageUrl(img);
                       setActiveImageIndex(idx);
+                      zoom.setIsHovering(false);
                     }}
                     className={cn(
                       "w-16 h-16 rounded-xl overflow-hidden shrink-0 border transition-all duration-300 bg-[#082f1d]/50",
@@ -422,40 +498,50 @@ export default function ProductDetailsPage() {
                   CONFIGURATION
                 </span>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                  {(product.variants && product.variants.length > 0 ? product.variants : [
-                    { id: '1', title: 'Pack of 1', price: product.price },
-                    { id: '3', title: 'Pack of 3', price: (Number(product.price) * 3 * 0.9).toFixed(2), save: '10%' },
-                    { id: '5', title: 'Pack of 5', price: (Number(product.price) * 5 * 0.85).toFixed(2), save: '15%' },
-                    { id: '10', title: 'Pack of 10', price: (Number(product.price) * 10 * 0.8).toFixed(2), save: '20%' }
-                  ]).map((variant: any) => {
-                    const isSelected = selectedVariant?.id === variant.id;
-                    return (
-                      <button
-                        key={variant.id}
-                        onClick={() => setSelectedVariant(variant)}
-                        className={cn(
-                          "relative p-[16px_18px] rounded-[14px] text-left transition-all duration-300 group overflow-hidden",
-                          isSelected
-                            ? "bg-[#E8C547]/7 border-[#E8C547] shadow-[0_0_0_1px_rgba(232,197,71,0.2),0_8px_24px_rgba(232,197,71,0.1)]"
-                            : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] hover:border-[#E8C547]/25 hover:-translate-y-[1px]"
-                        )}
-                      >
-                        {/* Hover radial glow */}
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(232,197,71,0.12),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                  {(() => {
+                    const variants = product.variants && product.variants.length > 0 
+                      ? [...product.variants].sort((a: any, b: any) => {
+                          const aNum = parseInt(a.title.match(/\d+/)?.[0] || "0");
+                          const bNum = parseInt(b.title.match(/\d+/)?.[0] || "0");
+                          return aNum - bNum;
+                        })
+                      : [
+                          { id: '1', title: 'Pack of 1', price: product.price },
+                          { id: '2', title: 'Pack of 2', price: (Number(product.price) * 2 * 0.95).toFixed(2), save: '5%' },
+                          { id: '3', title: 'Pack of 3', price: (Number(product.price) * 3 * 0.9).toFixed(2), save: '10%' },
+                          { id: '4', title: 'Pack of 4', price: (Number(product.price) * 4 * 0.85).toFixed(2), save: '15%' }
+                        ];
+                    
+                    return variants.map((variant: any) => {
+                      const isSelected = selectedVariant?.id === variant.id;
+                      return (
+                        <button
+                          key={variant.id}
+                          onClick={() => setSelectedVariant(variant)}
+                          className={cn(
+                            "relative p-[16px_18px] rounded-[14px] text-left transition-all duration-300 group overflow-hidden",
+                            isSelected
+                              ? "bg-[#E8C547]/7 border-[#E8C547] shadow-[0_0_0_1px_rgba(232,197,71,0.2),0_8px_24px_rgba(232,197,71,0.1)]"
+                              : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] hover:border-[#E8C547]/25 hover:-translate-y-[1px]"
+                          )}
+                        >
+                          {/* Hover radial glow */}
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(232,197,71,0.12),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-                        <div className="relative z-10">
-                          <p className="text-[13px] font-bold font-body text-[#eff8ee] mb-1">{variant.title}</p>
-                          <p className="text-[14px] font-bold font-body text-[#E8C547]">${variant.price}</p>
-                        </div>
-
-                        {variant.save && (
-                          <div className="absolute top-2 right-2.5 bg-[#E8C547] text-[#082f1d] text-[9px] font-bold font-body uppercase tracking-[0.1em] px-2 py-0.5 rounded-full">
-                            SAVE {variant.save}
+                          <div className="relative z-10">
+                            <p className="text-[13px] font-bold font-body text-[#eff8ee] mb-1">{variant.title}</p>
+                            <p className="text-[14px] font-bold font-body text-[#E8C547]">${variant.price}</p>
                           </div>
-                        )}
-                      </button>
-                    )
-                  })}
+
+                          {variant.save && (
+                            <div className="absolute top-2 right-2.5 bg-[#E8C547] text-[#082f1d] text-[9px] font-bold font-body uppercase tracking-[0.1em] px-2 py-0.5 rounded-full">
+                              SAVE {variant.save}
+                            </div>
+                          )}
+                        </button>
+                      );
+                    });
+                  })()}
                 </div>
               </motion.div>
 
@@ -725,14 +811,14 @@ export default function ProductDetailsPage() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {relatedLoading ? (
                 Array.from({ length: 4 }).map((_, i) => (
-                  <ProductCardSkeleton key={i} />
+                  <FeaturedProductCardSkeleton key={i} />
                 ))
               ) : (
                 relatedProducts
                   .filter((p: any) => p.slug !== slug)
                   .slice(0, 4)
                   .map((p: any) => (
-                    <ProductCard key={p.id} product={p} />
+                    <FeaturedProductCard key={p.id} product={p} />
                   ))
               )}
             </div>

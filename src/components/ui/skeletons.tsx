@@ -80,6 +80,37 @@ export function ProductCardSkeleton({ viewMode = "grid" }: { viewMode?: "grid" |
 }
 
 /* ─────────────────────────────────────────
+   Featured Product Card Skeleton
+   Matches FeaturedProductCard layout
+ ───────────────────────────────────────── */
+export function FeaturedProductCardSkeleton() {
+  return (
+    <div className="flex flex-col bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] rounded-[24px] p-2 h-full">
+      {/* Image zone */}
+      <div className="relative aspect-square rounded-[20px] overflow-hidden mb-5 bg-[rgba(8,47,29,0.5)]">
+        <Shimmer className="absolute inset-0 rounded-none opacity-40" />
+      </div>
+
+      {/* Content Area */}
+      <div className="px-3 pb-4 flex flex-col gap-3">
+        <div className="flex justify-between items-start gap-2">
+          <Shimmer className="h-4 w-2/3 rounded-lg" />
+          <Shimmer className="h-7 w-16 rounded-xl" />
+        </div>
+        
+        <div className="flex justify-between items-center mt-2">
+          <div className="space-y-1.5">
+            <Shimmer className="h-3 w-16 rounded" />
+            <Shimmer className="h-2 w-12 rounded" />
+          </div>
+          <Shimmer className="h-8 w-24 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
    Product Grid Skeleton
  ───────────────────────────────────────── */
 export function ProductGridSkeleton({ count = 8, viewMode = "grid" }: { count?: number; viewMode?: "grid" | "list" }) {

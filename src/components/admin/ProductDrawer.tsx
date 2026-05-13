@@ -179,12 +179,12 @@ export default function ProductDrawer({
          if (initialData) {
             const variantImageIds = initialData.variants?.map((v: any) => v.image).filter(Boolean) || [];
             const thumbnailImg = initialData.images?.find((img: any) => img.isThumbnail);
-            const galleryImgs = initialData.images?.filter((img: any) => 
-               !img.isThumbnail && 
-               img.order !== 999 && 
+            const galleryImgs = initialData.images?.filter((img: any) =>
+               !img.isThumbnail &&
+               img.order !== 999 &&
                !variantImageIds.includes(img.id)
             );
-            
+
             setForm({
                ...initialData,
                name: initialData.name || "",
@@ -304,7 +304,7 @@ export default function ProductDrawer({
                                     value={form.name}
                                     onChange={e => updateForm({ name: e.target.value })}
                                     placeholder="Product name..."
-                                    className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm" 
+                                    className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl focus:border-emerald-500 outline-none font-bold text-sm"
                                  />
                               </Field>
                            </div>
@@ -371,15 +371,15 @@ export default function ProductDrawer({
                                        type="button"
                                        onClick={() => {
                                           const current = form.flavours || [];
-                                          const next = current.includes(f.id) 
+                                          const next = current.includes(f.id)
                                              ? current.filter((id: string) => id !== f.id)
                                              : [...current, f.id];
                                           updateForm({ flavours: next });
                                        }}
                                        className={cn(
                                           "px-4 py-2 rounded-lg text-xs font-bold transition-all border",
-                                          (form.flavours || []).includes(f.id) 
-                                             ? "bg-[#0f2318] text-white border-[#0f2318]" 
+                                          (form.flavours || []).includes(f.id)
+                                             ? "bg-[#0f2318] text-white border-[#0f2318]"
                                              : "bg-white text-neutral-500 border-neutral-200 hover:border-emerald-500"
                                        )}
                                     >
@@ -406,10 +406,10 @@ export default function ProductDrawer({
                                  {(form.galleryFiles || []).map((f: any, i: number) => (
                                     <div key={i} className="relative aspect-square bg-neutral-100 rounded-xl overflow-hidden border border-neutral-100 group shadow-sm hover:shadow-md transition-all">
                                        <Image src={typeof f === 'string' ? getImageUrl(f) : URL.createObjectURL(f)} fill className="object-cover" alt="Gallery" />
-                                       
+
                                        {/* Overlay Controls */}
                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
-                                          <button 
+                                          <button
                                              type="button"
                                              onClick={(e) => {
                                                 e.stopPropagation();
@@ -422,16 +422,16 @@ export default function ProductDrawer({
                                           </button>
                                           <label className="p-1.5 bg-white hover:bg-emerald-500 text-neutral-900 hover:text-white rounded-lg shadow-sm cursor-pointer transition-all">
                                              <Pencil size={14} />
-                                             <input 
-                                                type="file" 
-                                                className="hidden" 
+                                             <input
+                                                type="file"
+                                                className="hidden"
                                                 onChange={e => {
                                                    const file = e.target.files?.[0];
                                                    if (file) replaceGalleryImage(i, file);
-                                                }} 
+                                                }}
                                              />
                                           </label>
-                                          <button 
+                                          <button
                                              type="button"
                                              onClick={(e) => {
                                                 e.stopPropagation();
@@ -442,7 +442,7 @@ export default function ProductDrawer({
                                           >
                                              <Trash2 size={14} />
                                           </button>
-                                          <button 
+                                          <button
                                              type="button"
                                              onClick={(e) => {
                                                 e.stopPropagation();
@@ -476,25 +476,25 @@ export default function ProductDrawer({
                               <div key={i} className="p-4 bg-neutral-50 rounded-xl border border-neutral-100 flex gap-4 items-center relative group">
                                  {/* Variant Controls */}
                                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
-                                    <button 
-                                       type="button" 
-                                       onClick={() => moveVariant(i, i - 1)} 
+                                    <button
+                                       type="button"
+                                       onClick={() => moveVariant(i, i - 1)}
                                        disabled={i === 0}
                                        className="p-1.5 bg-white border border-neutral-200 text-neutral-400 hover:text-emerald-500 hover:border-emerald-500 rounded-lg shadow-sm disabled:opacity-30 transition-all"
                                     >
                                        <ChevronUp size={14} />
                                     </button>
-                                    <button 
-                                       type="button" 
-                                       onClick={() => moveVariant(i, i + 1)} 
+                                    <button
+                                       type="button"
+                                       onClick={() => moveVariant(i, i + 1)}
                                        disabled={i === (form.variants || []).length - 1}
                                        className="p-1.5 bg-white border border-neutral-200 text-neutral-400 hover:text-emerald-500 hover:border-emerald-500 rounded-lg shadow-sm disabled:opacity-30 transition-all"
                                     >
                                        <ChevronDown size={14} />
                                     </button>
-                                    <button 
-                                       type="button" 
-                                       onClick={() => updateForm({ variants: form.variants.filter((_: any, idx: number) => idx !== i) })} 
+                                    <button
+                                       type="button"
+                                       onClick={() => updateForm({ variants: form.variants.filter((_: any, idx: number) => idx !== i) })}
                                        className="p-1.5 bg-white border border-neutral-200 text-neutral-400 hover:text-rose-500 hover:border-rose-500 rounded-lg shadow-sm transition-all"
                                     >
                                        <Trash2 size={14} />
@@ -507,7 +507,7 @@ export default function ProductDrawer({
                                        const n = [...form.variants]; n[i].image = e.target.files?.[0]; updateForm({ variants: n });
                                     }} />
                                  </label>
-                                  <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
+                                 <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <input value={v.title || ""} onChange={e => { const n = [...form.variants]; n[i].title = e.target.value; updateForm({ variants: n }); }} placeholder="Pack of 1..." className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
                                     <input value={v.sku || ""} onChange={e => { const n = [...form.variants]; n[i].sku = e.target.value; updateForm({ variants: n }); }} placeholder="SKU" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
                                     <input type="number" value={v.price ?? ""} onChange={e => { const n = [...form.variants]; n[i].price = e.target.value; updateForm({ variants: n }); }} placeholder="Price" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
