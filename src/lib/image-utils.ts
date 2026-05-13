@@ -5,8 +5,8 @@ export const getImageUrl = (image: any): string => {
     return fallback;
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "http://localhost:8181";
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api";
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "https://sharcly-2-0-b.vercel.app";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://sharcly-2-0-b.vercel.app/api";
 
   // Case 1: Already a full URL (external)
   if (typeof image === 'string' && (image.startsWith('http://') || image.startsWith('https://'))) {
