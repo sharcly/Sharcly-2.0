@@ -227,7 +227,7 @@ export const ShopBySeries = ({ dynamicData }: ShopBySeriesProps = {}) => {
               color: '#eff8ee'
             }}
           >
-            Find Your <span className="italic" style={{ color: '#E8C547' }}>Series.</span>
+            Find your kind of <span className="italic" style={{ color: '#E8C547' }}>Balance.</span>
           </motion.h2>
 
           <motion.p
@@ -241,7 +241,7 @@ export const ShopBySeries = ({ dynamicData }: ShopBySeriesProps = {}) => {
               color: 'rgba(239,248,238,0.52)'
             }}
           >
-            Six carefully crafted lines — each built around a feeling, a moment, a state of being.
+            Your daily reset, across every series.
           </motion.p>
         </div>
 
@@ -253,7 +253,8 @@ export const ShopBySeries = ({ dynamicData }: ShopBySeriesProps = {}) => {
             WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
           }}
         >
-          <style dangerouslySetInnerHTML={{ __html: sanitizeHtml(`
+          <style dangerouslySetInnerHTML={{
+            __html: sanitizeHtml(`
             @keyframes marquee {
               0% { transform: translateX(0); }
               100% { transform: translateX(-33.333%); }
@@ -266,8 +267,9 @@ export const ShopBySeries = ({ dynamicData }: ShopBySeriesProps = {}) => {
             .marquee-container:hover {
               animation-play-state: paused;
             }
-          `)}} />
-          
+          `)
+          }} />
+
           <div className="marquee-container py-2 md:py-4 gap-6 md:gap-10">
             {[...dataList, ...dataList, ...dataList].map((item, index) => (
               <div key={`${item.number}-${index}`} className="w-[180px] md:w-[280px] shrink-0">
