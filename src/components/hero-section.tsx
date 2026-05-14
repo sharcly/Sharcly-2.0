@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, Variants } from "framer-motion";
-import { ShieldCheck, Leaf, TrendingUp, ArrowRight, Star } from "lucide-react";
+import { Target, Sprout, Sparkles, ArrowRight, Star, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -42,27 +42,27 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
   const hlHighlight = dynamicData?.headline?.highlight || "Better Living";
   const hlLine2 = dynamicData?.headline?.line2 || "Begins.";
   const subheadline = dynamicData?.subheadline || "Clean, lab-verified hemp-derived products — crafted for people who take their wellness as seriously as their ambitions.";
-  
+
   const ctaPrimary = dynamicData?.cta?.primary || { label: "Explore Products", link: "/products" };
   const ctaSecondary = dynamicData?.cta?.secondary || { label: "Our Story", link: "/about" };
-  
+
   const mediaImageUrl = dynamicData?.media?.imageUrl;
   const mediaVideoUrl = dynamicData?.media?.videoUrl;
-  
+
   const activeMediaUrl = mediaImageUrl || mediaVideoUrl || "/assets/main-hero.mp4";
-  
+
   // Auto-detect if the URL is an image by checking common extensions
   const isImage = !!mediaImageUrl || /\.(jpg|jpeg|png|webp|gif|avif)(\?.*)?$/i.test(activeMediaUrl);
-  
-  const mediaLabel = dynamicData?.media?.label || "Sharcly · Premium Hemp Collection";
-  
-  const badges = dynamicData?.badges || [
-    { type: "coa", title: "Lab Verified", description: "COA available for every batch" },
-    { type: "reviews", rating: 4.9, totalReviews: 2400 }
-  ];
 
-  const coaBadge = badges.find((b: any) => b.type === "coa");
-  const reviewsBadge = badges.find((b: any) => b.type === "reviews");
+  const mediaLabel = dynamicData?.media?.label || "Sharcly · Premium Hemp Collection";
+
+  // const badges = dynamicData?.badges || [
+  //   { type: "coa", title: "Lab Verified", description: "COA available for every batch" },
+  //   { type: "reviews", rating: 4.9, totalReviews: 2400 }
+  // ];
+
+  //const coaBadge = badges.find((b: any) => b.type === "coa");
+  //const reviewsBadge = badges.find((b: any) => b.type === "reviews");
 
   const [activeSeries, setActiveSeries] = useState(seriesList[0]);
 
@@ -176,24 +176,24 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
         {/* Trust Micro-Row */}
         <motion.div variants={itemVariants} className="flex flex-wrap justify-center lg:justify-start items-center gap-x-5 gap-y-3">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#E8C547]/60" />
-            <span className="text-[11px] font-medium text-[#eff8ee]/50">Third-Party Lab Tested</span>
+            <Target className="w-4 h-4 text-[#E8C547]/60" />
+            <span className="text-[11px] font-medium text-[#eff8ee]/50">Consistent Dosage</span>
           </div>
           <div className="w-px h-3 bg-[#eff8ee]/12" />
           <div className="flex items-center gap-2">
-            <Leaf className="w-4 h-4 text-[#E8C547]/60" />
-            <span className="text-[11px] font-medium text-[#eff8ee]/50">USDA Organic Hemp</span>
+            <Sprout className="w-4 h-4 text-[#E8C547]/60" />
+            <span className="text-[11px] font-medium text-[#eff8ee]/50">Clean Ingredients</span>
           </div>
           <div className="w-px h-3 bg-[#eff8ee]/12" />
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#E8C547]/60" />
-            <span className="text-[11px] font-medium text-[#eff8ee]/50">30-Day Guarantee</span>
+            <Sparkles className="w-4 h-4 text-[#E8C547]/60" />
+            <span className="text-[11px] font-medium text-[#eff8ee]/50">Thoughtfully Made</span>
           </div>
         </motion.div>
       </motion.div>
 
-      {/* RIGHT PANEL - Hidden on Mobile */}
-      <div className="hidden lg:flex relative z-10 items-center justify-start lg:pl-10 lg:pr-20 lg:py-16">
+      {/* RIGHT PANEL */}
+      <div className="relative z-10 flex items-center justify-center lg:justify-start px-6 pb-24 lg:pb-0 lg:pl-10 lg:pr-20 lg:py-16">
         <div className="relative w-full max-w-[580px] aspect-square">
           {/* Main Visual Container */}
           <motion.div
@@ -255,26 +255,12 @@ export function HeroSection({ dynamicData }: HeroSectionProps = {}) {
               <ShieldCheck className="w-5 h-5 text-[#E8C547]" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#E8C547]">Lab Verified</span>
-              <span className="text-[11px] text-[#eff8ee]/70 leading-tight">COA available for every batch</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#E8C547]">100% Natural Hemp</span>
+              <span className="text-[11px] text-[#eff8ee]/70 leading-tight">Certificate of Analysis available</span>
             </div>
           </motion.div>
 
-          {/* Floating Badge 2: Stars */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.05, ease: [0.22, 1, 0.36, 1] as any }}
-            className="absolute -right-4 lg:-right-10 top-12 w-[130px] p-[16px] rounded-[16px] bg-[#082f1d]/85 backdrop-blur-[20px] border border-[#E8C547]/20 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col items-center text-center"
-          >
-            <span className="font-cormorant text-2xl font-bold text-[#eff8ee] mb-1 leading-none">4.9</span>
-            <div className="flex gap-0.5 mb-1.5">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3 h-3 fill-[#E8C547] text-[#E8C547]" />
-              ))}
-            </div>
-            <span className="text-[11px] font-medium text-[#eff8ee]/55 whitespace-nowrap">2,400+ Reviews</span>
-          </motion.div>
+
 
           {/* Series Pills */}
           <div className="hidden lg:flex absolute -right-20 top-1/2 -translate-y-1/2 flex-col gap-2 z-20">
