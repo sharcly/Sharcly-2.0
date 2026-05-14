@@ -71,7 +71,7 @@ const TrustBar = () => {
 
 const WhySharclyFeature = () => {
   return (
-    <section className="relative w-full bg-[#082f1d] py-24 overflow-hidden">
+    <section className="relative w-full bg-[#082f1d] py-14 overflow-hidden">
       {/* Noise Texture Overlay */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay">
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -248,7 +248,7 @@ const LoyaltyTeaser = () => {
   ];
 
   return (
-    <section className="relative w-full bg-[#082f1d] py-24 overflow-hidden border-t border-[#E8C547]/10">
+    <section className="relative w-full bg-[#082f1d] py-14 overflow-hidden border-t border-[#E8C547]/10">
       {/* Botanical Decorations */}
       <div className="absolute left-0 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none hidden lg:block">
         <svg width="400" height="600" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -309,7 +309,7 @@ const LoyaltyTeaser = () => {
           ))}
         </div>
 
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -320,7 +320,7 @@ const LoyaltyTeaser = () => {
           >
             Join the Circle — It's Free
           </Button>
-        </motion.div>
+        </motion.div> */}
       </div>
     </section>
   );

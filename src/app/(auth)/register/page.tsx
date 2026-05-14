@@ -59,7 +59,7 @@ export default function RegisterPage() {
     try {
       const { name, email, password } = formData;
       const response = await apiClient.post("/auth/register", { name, email, password, otp });
-      login(response.data.accessToken, response.data.refreshToken, response.data.user);
+      login(response.data.user);
       toast.success("Account created successfully.");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Verification failed.");

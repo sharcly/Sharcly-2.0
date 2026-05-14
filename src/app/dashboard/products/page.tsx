@@ -69,6 +69,7 @@ export default function DashboardProductsPage() {
   const [collections, setCollections] = useState<any[]>([]);
   const [tags, setTags] = useState<any[]>([]);
   const [types, setTypes] = useState<any[]>([]);
+  const [flavours, setFlavours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Search and Pagination
@@ -91,16 +92,18 @@ export default function DashboardProductsPage() {
 
   const [categoryForm, setCategoryForm] = useState({ name: "", slug: "", description: "" });
   const [collectionForm, setCollectionForm] = useState({ name: "", slug: "", description: "" });
+  const [flavourForm, setFlavourForm] = useState({ name: "", slug: "" });
 
   const fetchData = useCallback(async (page = currentPage, search = debouncedSearch) => {
     setLoading(true);
     try {
-      const [pRes, cRes, colRes, tRes, tyRes] = await Promise.all([
+      const [pRes, cRes, colRes, tRes, tyRes, fRes] = await Promise.all([
         apiClient.get(`/products?page=${page}&limit=10${search ? `&search=${search}` : ""}`),
         apiClient.get("/products/categories"),
         apiClient.get("/products/collections"),
         apiClient.get("/products/tags"),
-        apiClient.get("/products/types")
+        apiClient.get("/products/types"),
+        apiClient.get("/products/flavours")
       ]);
       setProducts(pRes.data.products);
       setTotalPages(pRes.data.pagination?.pages || 1);
@@ -109,6 +112,7 @@ export default function DashboardProductsPage() {
       setCollections(colRes.data.collections || []);
       setTags(tRes.data.tags || []);
       setTypes(tyRes.data.types || []);
+      setFlavours(fRes.data.flavours || []);
     } catch (error: any) {
       toast.error("Failed to load store data");
     } finally {
@@ -208,6 +212,26 @@ export default function DashboardProductsPage() {
     } catch (error) { toast.error("Removal failed"); }
   };
 
+  // Flavour Actions
+  const handleCreateFlavour = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiClient.post("/products/flavours", flavourForm);
+      toast.success("Flavour created");
+      setFlavourForm({ name: "", slug: "" });
+      fetchData();
+    } catch (error) { toast.error("Create failed"); }
+  };
+
+  const handleDeleteFlavour = async (id: string) => {
+    if (!confirm("Are you sure?")) return;
+    try {
+      await apiClient.delete(`/products/flavours/${id}`);
+      toast.success("Flavour removed");
+      fetchData();
+    } catch (error) { toast.error("Removal failed"); }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -245,6 +269,9 @@ export default function DashboardProductsPage() {
             </TabsTrigger>
             <TabsTrigger value="collections" className="rounded-xl px-8 py-4 font-bold text-sm data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:text-primary transition-all gap-2">
               <Layers className="h-4 w-4" /> Collections
+            </TabsTrigger>
+            <TabsTrigger value="flavours" className="rounded-xl px-8 py-4 font-bold text-sm data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:text-primary transition-all gap-2">
+              <RefreshCw className="h-4 w-4" /> Flavours
             </TabsTrigger>
           </TabsList>
         </ScrollArea>
@@ -621,6 +648,69 @@ export default function DashboardProductsPage() {
             </Card>
           </div>
         </TabsContent>
+        <TabsContent value="flavours">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <Card className="lg:col-span-8 border-black/5 shadow-sharcly rounded-3xl overflow-hidden bg-white">
+              <CardHeader className="p-8 border-b border-black/5 bg-neutral-50/50">
+                <CardTitle className="text-2xl font-bold tracking-tight">Flavours</CardTitle>
+                <CardDescription className="text-xs font-medium">Manage product flavours and taste profiles.</CardDescription>
+              </CardHeader>
+              <ScrollArea className="w-full">
+                <Table>
+                  <TableHeader className="bg-neutral-50/50">
+                    <TableRow className="border-black/5">
+                      <TableHead className="pl-8 py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Flavour</TableHead>
+                      <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Identifier</TableHead>
+                      <TableHead className="py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Products</TableHead>
+                      <TableHead className="pr-8 text-right py-5 font-black uppercase text-[10px] tracking-widest text-black/40">Manage</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {flavours.length > 0 ? flavours.map(f => (
+                      <TableRow key={f.id} className="border-black/5 hover:bg-neutral-50 transition-all">
+                        <TableCell className="pl-8 py-6 font-bold text-lg">{f.name}</TableCell>
+                        <TableCell className="py-6 text-neutral-400 text-xs font-mono">{f.slug}</TableCell>
+                        <TableCell className="py-6 font-black text-xs">{f._count?.products || 0} Items</TableCell>
+                        <TableCell className="pr-8 text-right py-6">
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteFlavour(f.id)} className="hover:bg-rose-50 text-rose-500 h-10 w-10 rounded-xl">
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )) : (
+                      <TableRow>
+                        <TableCell colSpan={4} className="py-20 text-center text-neutral-400 font-medium">No flavours created</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </Card>
+
+            <Card className="lg:col-span-4 border-black/5 shadow-sharcly rounded-3xl overflow-hidden bg-white h-fit">
+              <CardHeader className="p-8 border-b border-black/5 bg-neutral-900 text-white">
+                <CardTitle className="text-xl font-bold">New Flavour</CardTitle>
+                <CardDescription className="text-neutral-400 text-xs">Add a new product flavour.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8">
+                <form onSubmit={handleCreateFlavour} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-black text-black/40 tracking-widest">Flavour Name</Label>
+                    <Input required value={flavourForm.name} onChange={e => {
+                      const name = e.target.value;
+                      setFlavourForm({ ...flavourForm, name, slug: name.toLowerCase().replace(/ /g, '-') });
+                    }} className="h-12 rounded-xl bg-neutral-50 border-black/5 font-bold" placeholder="e.g. Strawberry" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-black text-black/40 tracking-widest">Slug</Label>
+                    <Input required value={flavourForm.slug} onChange={e => setFlavourForm({ ...flavourForm, slug: e.target.value })} className="h-12 rounded-xl bg-neutral-50 border-black/5 font-mono text-xs" />
+                  </div>
+                  <Button type="submit" className="w-full h-12 rounded-xl premium-gradient font-bold shadow-lg">Create Flavour</Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
 
       <ProductDrawer 
@@ -631,6 +721,7 @@ export default function DashboardProductsPage() {
         collections={collections}
         tags={tags}
         types={types}
+        flavours={flavours}
         onSave={async (data: any) => {
           console.log("🔥 Frontend Product Data:", data);
           const loadingToast = toast.loading(selectedProduct ? "Updating product..." : "Creating product...");
@@ -684,6 +775,7 @@ export default function DashboardProductsPage() {
             formData.append("typeId", data.typeId || data.organization?.type || "");
             formData.append("tags", JSON.stringify(data.tags || data.organization?.tags || []));
             formData.append("collections", JSON.stringify(data.collections || data.organization?.collections || []));
+            formData.append("flavours", JSON.stringify(data.flavours || []));
 
             // Complex Structures (MUST be stringified for multer)
             // Clean variants to remove File objects before stringifying
@@ -735,9 +827,6 @@ export default function DashboardProductsPage() {
                 }
               });
             }
-
-            const fileCount = Array.from((formData as any).entries()).filter((entry: any) => entry[0].includes('image')).length;
-            console.log(`🚀 Sending Product Data with ${fileCount} images...`);
 
             if (selectedProduct) {
               await apiClient.patch(`/products/${selectedProduct.id}`, formData);

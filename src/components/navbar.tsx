@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import {
@@ -47,6 +48,7 @@ const NAV_LINKS = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isAbout = pathname === "/about";
@@ -59,6 +61,7 @@ export function Navbar() {
   const totalItems = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -71,10 +74,10 @@ export function Navbar() {
         scrolled ? "translate-y-[-40px]" : "translate-y-0"
       )}
     >
-      <div className="container mx-auto px-6 md:px-12">
+      <div className="container mx-auto px-4 md:px-12">
         <nav
           className={cn(
-            "h-16 px-6 rounded-2xl flex items-center justify-between transition-all duration-500",
+            "h-16 px-4 md:px-6 rounded-2xl flex items-center justify-between transition-all duration-500",
             scrolled
               ? "bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg shadow-black/5"
               : isDarkPage
@@ -83,14 +86,17 @@ export function Navbar() {
           )}
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="size-8 rounded-lg bg-[#062D1B] flex items-center justify-center text-white font-black text-xs group-hover:scale-110 transition-transform">S</div>
-            <span className={cn(
-              "text-[11px] font-bold uppercase tracking-[0.35em] transition-colors",
-              !scrolled && isDarkPage ? "text-white" : "text-[#062D1B]"
-            )}>
-              Sharcly
-            </span>
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/assets/final-Logo-1.png"
+              alt="Sharcly"
+              width={150}
+              height={40}
+              className={cn(
+                "h-10 w-auto transition-all duration-300",
+                !scrolled && isDarkPage ? "brightness-0 invert" : ""
+              )}
+            />
           </Link>
 
           {/* Desktop Menu */}
@@ -100,7 +106,7 @@ export function Navbar() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "nav-link transition-colors text-[10.5px] font-bold uppercase tracking-[0.18em]",
+                  "nav-link transition-colors text-[13px] font-bold uppercase tracking-[0.1em]",
                   !scrolled && isDarkPage
                     ? "text-white/60 hover:text-white"
                     : "text-[#062D1B]/60 hover:text-[#062D1B]"
@@ -202,7 +208,7 @@ export function Navbar() {
             >
               <div className="relative">
                 <ShoppingBag className="size-4 transition-transform group-hover:scale-110" />
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <div className={cn(
                     "absolute -top-1.5 -right-1.5 size-3.5 text-white text-[8px] font-bold rounded-full flex items-center justify-center animate-in zoom-in duration-300",
                     !scrolled && isDarkPage ? "bg-amber-500" : "bg-[#062D1B]"

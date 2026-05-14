@@ -3,26 +3,42 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { useFeaturedProducts } from "@/hooks/use-featured-products"
+import { apiClient } from "@/lib/api-client"
 import { Skeleton } from "@/components/ui/skeleton"
 import { FeaturedProductCard } from "@/components/product/featured-product-card"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export function FeaturedProductsSection() {
-  const { data, isFetching } = useFeaturedProducts()
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
+  const [isFetching, setIsFetching] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [itemsVisible, setItemsVisible] = useState(4)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const featuredProducts = data?.products || []
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsFetching(true)
+      try {
+        const response = await apiClient.get("/products?featured=true")
+        setFeaturedProducts(response.data.products || [])
+      } catch (err) {
+        console.error("Failed to fetch featured products:", err)
+      } finally {
+        setIsFetching(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1280) setItemsVisible(4)
-      else if (window.innerWidth >= 768) setItemsVisible(2.5)
+      else if (window.innerWidth >= 1024) setItemsVisible(3)
+      else if (window.innerWidth >= 768) setItemsVisible(2)
       else setItemsVisible(1.2)
     }
-    
+
     handleResize()
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
@@ -38,21 +54,34 @@ export function FeaturedProductsSection() {
     setCurrentIndex(prev => Math.max(prev - 1, 0))
   }
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (window.innerWidth >= 768) return
+    const scrollLeft = e.currentTarget.scrollLeft
+    const itemWidth = window.innerWidth * 0.85
+    const newIndex = Math.round(scrollLeft / itemWidth)
+    if (newIndex !== currentIndex) {
+      setCurrentIndex(newIndex)
+    }
+  }
+
   if (isFetching && featuredProducts.length === 0) {
     return (
-      <section style={{ 
+      <section className="py-24 relative overflow-hidden" style={{
         background: 'linear-gradient(180deg, #040e07 0%, #082f1d 50%, #040e07 100%)',
-        padding: '110px 0' 
       }}>
         <div className="max-w-[1440px] mx-auto px-4 md:px-8">
-          <div className="text-center mb-14">
-            <div className="h-4 w-32 bg-white/5 rounded mx-auto mb-4 animate-pulse" />
-            <div className="h-12 w-64 bg-white/5 rounded mx-auto mb-3 animate-pulse" />
-            <div className="h-4 w-80 bg-white/5 rounded mx-auto animate-pulse" />
+          <div className="flex flex-col items-center mb-16">
+            <Skeleton className="h-4 w-32 bg-white/5 rounded-full mb-6" />
+            <Skeleton className="h-14 w-80 bg-white/5 rounded-2xl mb-4" />
+            <Skeleton className="h-4 w-64 bg-white/5 rounded-full" />
           </div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="aspect-[4/5] bg-white/5 rounded-[24px] animate-pulse" />
+              <div key={i} className="aspect-[4/5] bg-white/5 rounded-[32px] border border-white/5 p-4 flex flex-col gap-4 animate-pulse">
+                <div className="flex-1 bg-white/5 rounded-[24px]" />
+                <div className="h-6 w-3/4 bg-white/5 rounded-lg" />
+                <div className="h-4 w-1/2 bg-white/5 rounded-lg" />
+              </div>
             ))}
           </div>
         </div>
@@ -60,10 +89,10 @@ export function FeaturedProductsSection() {
     )
   }
 
-  if (featuredProducts.length === 0) return null
+  if (featuredProducts.length === 0 && !isFetching) return null
 
   return (
-    <section className="relative min-h-screen flex items-center py-24 overflow-hidden" style={{ 
+    <section className="relative md:min-h-screen flex items-center py-12 md:py-14 overflow-hidden" style={{
       background: 'linear-gradient(180deg, #040e07 0%, #082f1d 50%, #040e07 100%)',
     }}>
       <style jsx>{`
@@ -87,10 +116,10 @@ export function FeaturedProductsSection() {
         zIndex: 1
       }} />
 
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-[2]">
-        
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 relative z-[2] w-full">
+
         {/* SECTION HEADER */}
-        <div className="text-center mb-14" style={{ position: 'relative', zIndex: 2 }}>
+        <div className="text-center mb-8 md:mb-14" style={{ position: 'relative', zIndex: 2 }}>
           {/* Eyebrow */}
           <div className="flex items-center justify-center gap-2 mb-4">
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#E8C547', opacity: .5 }} />
@@ -137,19 +166,33 @@ export function FeaturedProductsSection() {
 
         {/* CAROUSEL CONTAINER */}
         <div className="relative group/carousel">
-          
+
           {/* Track */}
-          <div className="relative overflow-visible md:overflow-hidden" ref={containerRef}>
+          <div
+            className="relative overflow-x-auto md:overflow-hidden no-scrollbar snap-x snap-mandatory md:snap-none px-4 md:px-0"
+            ref={containerRef}
+            onScroll={handleScroll}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             <motion.div
-              className="flex gap-5 md:gap-6 overflow-x-auto md:overflow-x-visible no-scrollbar"
-              animate={{ x: `-${(currentIndex * (100 / itemsVisible))}%` }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="flex gap-4 md:gap-6"
+              animate={typeof window !== 'undefined' && window.innerWidth >= 768 ? { x: `-${(currentIndex * (100 / itemsVisible))}%` } : {}}
+              transition={{ 
+                type: "spring", 
+                stiffness: 45, 
+                damping: 14,
+                mass: 0.8
+              }}
             >
               {featuredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="flex-shrink-0"
-                  style={{ width: `calc(${100 / itemsVisible}% - ${((Math.ceil(itemsVisible) - 1) * 24) / Math.ceil(itemsVisible)}px)` }}
+                  className="flex-shrink-0 snap-start"
+                  style={{
+                    width: typeof window !== 'undefined' && window.innerWidth >= 768
+                      ? `calc(${100 / itemsVisible}% - ${((Math.ceil(itemsVisible) - 1) * 24) / Math.ceil(itemsVisible)}px)`
+                      : '85vw' // Mobile width - 85% of viewport for peek
+                  }}
                 >
                   <FeaturedProductCard product={product} />
                 </div>
@@ -157,8 +200,8 @@ export function FeaturedProductsSection() {
             </motion.div>
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 z-20 pointer-events-none">
+          {/* Navigation Buttons - Hidden on mobile */}
+          <div className="hidden md:block absolute top-1/2 -translate-y-1/2 -left-6 z-20 pointer-events-none">
             <button
               onClick={scrollPrev}
               disabled={currentIndex === 0}
@@ -184,7 +227,7 @@ export function FeaturedProductsSection() {
             </button>
           </div>
 
-          <div className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 z-20 pointer-events-none">
+          <div className="hidden md:block absolute top-1/2 -translate-y-1/2 -right-6 z-20 pointer-events-none">
             <button
               onClick={scrollNext}
               disabled={currentIndex >= maxIndex}
@@ -212,7 +255,7 @@ export function FeaturedProductsSection() {
         </div>
 
         {/* Progress Dots */}
-        <div className="flex justify-center gap-2 mt-12">
+        <div className="flex justify-center gap-2 mt-8 md:mt-12">
           {Array.from({ length: Math.ceil(maxIndex) + 1 }).map((_, i) => (
             <button
               key={i}
@@ -228,7 +271,7 @@ export function FeaturedProductsSection() {
         </div>
 
         {/* BOTTOM CTA */}
-        <div className="mt-16 flex justify-center">
+        <div className="mt-6 md:mt-8 flex justify-center">
           <Link
             href="/products"
             style={{
@@ -259,8 +302,8 @@ export function FeaturedProductsSection() {
           >
             View All Products
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"/>
-              <polyline points="12 5 19 12 12 19"/>
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
             </svg>
           </Link>
         </div>

@@ -10,16 +10,8 @@ export function useFeaturedProducts() {
     async function fetchProducts() {
       setIsFetching(true);
       try {
-        const response = await apiClient.get("/products?limit=100");
-        // Ensure we have an array of products
-        const allProducts = Array.isArray(response.data.products) ? response.data.products : [];
-        
-        // Filter by "featured" tag
-        const featured = allProducts.filter((p: any) => 
-          p.tags?.some((t: any) => t.name.toLowerCase() === "featured")
-        ).slice(0, 8);
-
-        setData({ products: featured });
+        const response = await apiClient.get("/products?featured=true");
+        setData({ products: response.data.products || [] });
       } catch (err) {
         console.error("Failed to fetch featured products:", err);
         setError(err);

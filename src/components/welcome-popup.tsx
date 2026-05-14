@@ -130,14 +130,14 @@ export function WelcomePopup() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenPopup}
-            className="fixed bottom-12 right-8 z-[90] group flex items-center gap-4 pl-7 pr-3 py-3 bg-[#062D1B] text-white border border-[#EBB56B]/30 rounded-full shadow-[0_20px_50px_rgba(6,45,27,0.3)]"
+            className="fixed bottom-6 right-6 md:bottom-12 md:right-8 z-[90] group flex items-center gap-3 md:gap-4 pl-5 md:pl-7 pr-2 md:pr-3 py-2 md:py-3 bg-[#062D1B] text-white border border-[#EBB56B]/30 rounded-full shadow-[0_20px_50px_rgba(6,45,27,0.3)]"
           >
             <div className="flex flex-col items-start leading-none pr-2">
-               <span className="text-[9px] font-bold text-[#EBB56B] uppercase tracking-[0.4em] mb-1.5">Special Offer</span>
-               <span className="text-[11px] font-black uppercase tracking-widest text-white/90">Unlock Reward</span>
+               <span className="text-[7px] md:text-[9px] font-bold text-[#EBB56B] uppercase tracking-[0.4em] mb-1 md:mb-1.5">Special Offer</span>
+               <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-white/90">Unlock Reward</span>
             </div>
-            <div className="size-11 bg-white rounded-full flex items-center justify-center text-[#062D1B] shadow-lg relative overflow-hidden">
-               <Gift size={20} className="relative z-10 group-hover:rotate-12 transition-transform duration-500" />
+            <div className="size-9 md:size-11 bg-white rounded-full flex items-center justify-center text-[#062D1B] shadow-lg relative overflow-hidden">
+               <Gift size={16} className="md:size-5 relative z-10 group-hover:rotate-12 transition-transform duration-500" />
                <motion.div 
                  animate={{ opacity: [0.1, 0.3, 0.1] }}
                  transition={{ repeat: Infinity, duration: 2 }}
@@ -201,7 +201,7 @@ export function WelcomePopup() {
                      <div className="space-y-6">
                        <div className="space-y-3">
                          <div className="flex items-center gap-3">
-                            <span className="px-3 py-1 rounded-full bg-[#EBB56B]/10 text-[#EBB56B] text-[10px] font-black uppercase tracking-[0.3em]">Special Offer</span>
+                            <span className="px-3 py-1 rounded-full bg-[#EBB56B]/10 text-[#EBB56B] text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em]">Special Offer</span>
                          </div>
                          <h2 className="text-4xl md:text-5xl font-serif text-[#062D1B] leading-tight italic">
                            {currentOffer.title}
@@ -265,7 +265,7 @@ export function WelcomePopup() {
                      <div className="space-y-6">
                        <div className="space-y-3">
                          <div className="flex items-center gap-3">
-                            <span className="px-3 py-1 rounded-full bg-[#EBB56B]/10 text-[#EBB56B] text-[10px] font-black uppercase tracking-[0.3em]">Almost Done</span>
+                            <span className="px-3 py-1 rounded-full bg-[#EBB56B]/10 text-[#EBB56B] text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em]">Almost Done</span>
                          </div>
                          <h2 className="text-4xl md:text-5xl font-serif text-[#062D1B] leading-tight italic">
                            {currentOffer.step2Title || "Get Your Discount"}

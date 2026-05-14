@@ -81,7 +81,7 @@ export function WholesaleForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
             {/* Business Name */}
             <div className="space-y-3">
-              <Label htmlFor="businessName" className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Business Name</Label>
+              <Label htmlFor="businessName" className="text-white/40 text-[12px] font-black ml-1 uppercase tracking-[0.15em]">Business Name</Label>
               <Input
                 id="businessName"
                 name="businessName"
@@ -93,7 +93,7 @@ export function WholesaleForm() {
 
             {/* Contact Name */}
             <div className="space-y-3">
-              <Label htmlFor="contactName" className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Your Name</Label>
+              <Label htmlFor="contactName" className="text-white/40 text-[12px] font-black ml-1 uppercase tracking-[0.15em]">Your Name</Label>
               <Input
                 id="contactName"
                 name="contactName"
@@ -105,7 +105,7 @@ export function WholesaleForm() {
 
             {/* Email */}
             <div className="space-y-3">
-              <Label htmlFor="email" className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Work Email</Label>
+              <Label htmlFor="email" className="text-white/40 text-[12px] font-black ml-1 uppercase tracking-[0.15em]">Work Email</Label>
               <Input
                 id="email"
                 name="email"
@@ -118,7 +118,7 @@ export function WholesaleForm() {
 
             {/* Phone */}
             <div className="space-y-3">
-              <Label htmlFor="phone" className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Phone Number</Label>
+              <Label htmlFor="phone" className="text-white/40 text-[12px] font-black ml-1 uppercase tracking-[0.15em]">Phone Number</Label>
               <Input
                 id="phone"
                 name="phone"
@@ -131,7 +131,7 @@ export function WholesaleForm() {
 
             {/* Business Type */}
             <div className="space-y-3">
-              <Label className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Business Type</Label>
+              <Label className="text-white/40 text-[12px] font-black ml-1 uppercase tracking-[0.15em]">Business Type</Label>
               <Select name="businessType" required>
                 <SelectTrigger className="h-16 bg-white border-none text-neutral-900 rounded-2xl focus:ring-2 focus:ring-[#E8C547]/50 font-bold">
                   <SelectValue placeholder="Select type" />
@@ -148,7 +148,7 @@ export function WholesaleForm() {
 
             {/* Estimated Volume */}
             <div className="space-y-3">
-              <Label htmlFor="estimatedVolume" className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Monthly Volume</Label>
+              <Label htmlFor="estimatedVolume" className="text-white/40 text-[12px] font-black ml-1 uppercase tracking-[0.15em]">Monthly Volume</Label>
               <Input
                 id="estimatedVolume"
                 name="estimatedVolume"
@@ -160,7 +160,7 @@ export function WholesaleForm() {
 
           {/* Message */}
           <div className="space-y-3">
-            <Label htmlFor="message" className="text-white/40 text-[10px] font-black ml-1 uppercase tracking-[0.2em]">Additional Details</Label>
+            <Label htmlFor="message" className="text-white/40 text-[12px] font-black ml-1 uppercase tracking-[0.15em]">Additional Details</Label>
             <Textarea
               id="message"
               name="message"
@@ -173,7 +173,7 @@ export function WholesaleForm() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-18 bg-[#E8C547] hover:bg-[#d4b33f] text-[#040e07] font-black text-xs uppercase tracking-[0.25em] rounded-2xl transition-all duration-300 shadow-xl shadow-[#E8C547]/20 active:scale-[0.98]"
+              className="w-full h-20 bg-[#E8C547] hover:bg-[#d4b33f] text-[#040e07] font-black text-sm uppercase tracking-[0.15em] rounded-2xl transition-all duration-300 shadow-xl shadow-[#E8C547]/20 active:scale-[0.98]"
             >
               {isSubmitting ? (
                  <div className="flex items-center gap-3">

@@ -36,7 +36,7 @@ const seriesData = [
     tag: "Full Spectrum",
     description: "Whole plant, full effect.",
     imageUrl: "https://i.postimg.cc/jdQdX2HN/Full-Spectrum-Lifestyle.jpg",
-    to: "/products?series=full-spectrum",
+    to: "/products?series=entourage",
     number: "04"
   },
   {

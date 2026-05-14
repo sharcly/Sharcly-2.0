@@ -5,12 +5,17 @@ export const getImageUrl = (image: any): string => {
     return fallback;
   }
 
+<<<<<<< HEAD
   // Detect environment
   const isProd = process.env.NODE_ENV === "production";
   
   // Resolve Base URLs
   let apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8181/api";
   let baseUrl = apiUrl.split('/api')[0];
+=======
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "https://sharcly-2-0-b.vercel.app";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://sharcly-2-0-b.vercel.app/api";
+>>>>>>> ceaaeb4d661f965c43cf578652e0d9c83e13804e
 
   // Case 1: Already a full URL (external)
   if (typeof image === 'string' && (image.startsWith('http://') || image.startsWith('https://'))) {

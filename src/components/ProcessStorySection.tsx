@@ -265,13 +265,12 @@ const colors = {
     goldDim: 'rgba(232,197,71,0.14)',
 }
 
-const DURATION = 4200 // ms
+const DURATION = 4000 // ms
 
 export default function ProcessStorySection() {
     const [activeStep, setActiveStep] = useState(0)
     const [paused, setPaused] = useState(false)
     const [fillPct, setFillPct] = useState(0)
-    const [isHovered, setIsHovered] = useState(false)
 
     const fillRef = useRef<number>(0)
     const startRef = useRef<number>(0)
@@ -297,38 +296,32 @@ export default function ProcessStorySection() {
     }
 
     useEffect(() => {
-        if (paused || isHovered) {
+        if (paused) {
             if (fillRef.current) cancelAnimationFrame(fillRef.current)
             return
         }
 
-        // Reset or resume start time based on current percentage
+        // Initialize start time
         startRef.current = performance.now() - (fillPct / 100) * DURATION
 
         const tick = (now: number) => {
             const elapsed = now - startRef.current
             const pct = Math.min(100, (elapsed / DURATION) * 100)
 
-            // Update state
             setFillPct(pct)
 
             if (pct >= 100) {
-                // Use functional update to avoid capturing old state
-                setActiveStep(prev => {
-                    const nextIdx = (prev + 1) % processSteps.length
-                    // Reset for next step
-                    setFillPct(0)
-                    startRef.current = performance.now()
-                    return nextIdx
-                })
-            } else {
-                fillRef.current = requestAnimationFrame(tick)
+                setActiveStep(prev => (prev + 1) % processSteps.length)
+                setFillPct(0)
+                startRef.current = now
             }
+
+            fillRef.current = requestAnimationFrame(tick)
         }
 
         fillRef.current = requestAnimationFrame(tick)
         return () => cancelAnimationFrame(fillRef.current)
-    }, [paused, isHovered]) // Removed activeStep from dependencies to manage it internally in the tick
+    }, [paused]) // Removed activeStep from dependencies to manage it internally in the tick
 
     return (
         <section
@@ -388,8 +381,6 @@ export default function ProcessStorySection() {
 
             {/* Main Card */}
             <div
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
                 style={{
                     width: '100%',
                     maxWidth: '1100px',

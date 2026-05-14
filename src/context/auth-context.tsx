@@ -1,9 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { apiClient } from "@/lib/api-client";
 import Cookies from "js-cookie";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setUser, clearUser, setLoading } from "@/store/slices/authSlice";
 
 export type Role = "admin" | "super_admin" | "manager" | "content_manager" | "user";
 
@@ -13,13 +15,11 @@ type User = {
   name: string;
   role: Role;
   permissions: string[];
-  accessToken?: string;
-  refreshToken?: string; // Fallback for environments where cookies are blocked
 };
 
 type AuthContextType = {
   user: User | null;
-  login: (accessToken: string, refreshToken: string, user: { id: string; email: string; name: string; role: any; permissions?: string[] }) => void;
+  login: (user: { id: string; email: string; name: string; role: any; permissions?: string[] }) => void;
   logout: () => void;
   isLoading: boolean;
 };
@@ -27,22 +27,18 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { user, loading: isLoading } = useAppSelector((state) => state.auth);
   const router = useRouter();
 
   // On mount: restore session from the httpOnly cookie via /auth/me
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const storedUser = localStorage.getItem("user");
-        
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-
+        dispatch(setLoading(true));
         // Verify with backend via httpOnly cookie (source of truth)
         const response = await apiClient.get("/auth/me");
+        
         if (response.data.success) {
           const backendUser = response.data.user;
           const roleSlug =
@@ -56,28 +52,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             name: backendUser.name,
             role: roleSlug as Role,
             permissions: response.data.permissions || backendUser.permissions || [],
-            accessToken: response.data.accessToken || (JSON.parse(storedUser || '{}').accessToken),
-            refreshToken: response.data.refreshToken || (JSON.parse(storedUser || '{}').refreshToken)
           };
-          setUser(verifiedUser);
-          localStorage.setItem("user", JSON.stringify(verifiedUser));
+          
+          dispatch(setUser(verifiedUser));
           Cookies.set("role", verifiedUser.role, { expires: 1, path: "/" });
+        } else {
+          dispatch(clearUser());
+          Cookies.remove("role", { path: "/" });
         }
       } catch (error) {
-        setUser(null);
-        localStorage.removeItem("user");
+        dispatch(clearUser());
         Cookies.remove("role", { path: "/" });
       } finally {
-        setIsLoading(false);
+        dispatch(setLoading(false));
       }
     };
 
     restoreSession();
-  }, []);
+  }, [dispatch]);
 
   const login = (
-    newAccessToken: string,
-    newRefreshToken: string,
     backendUser: { id: string; email: string; name: string; role: any; permissions?: string[] }
   ) => {
     const roleSlug =
@@ -91,12 +85,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       name: backendUser.name,
       role: roleSlug as Role,
       permissions: backendUser.permissions || [],
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
     };
     
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    dispatch(setUser(newUser));
     Cookies.set("role", newUser.role, { expires: 1, path: "/" });
 
     if (newUser.role === "user") {
@@ -109,14 +100,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = React.useCallback(async () => {
     const toastId = (await import("sonner")).toast.loading("Signing out...");
     try {
-      // 1. Call backend logout first while we still have the token/session
+      // 1. Call backend logout (clears httpOnly cookies on server)
       await apiClient.post("/auth/logout").catch((err) => {
         console.error("Backend logout failed:", err);
       });
 
-      // 2. Clear local state and storage
-      setUser(null);
-      localStorage.removeItem("user");
+      // 2. Clear Redux state
+      dispatch(clearUser());
 
       // 3. Remove client-side role cookie
       Cookies.remove("role", { path: "/" });
@@ -129,14 +119,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }, 500);
     } catch (error) {
       console.error("Logout process failed:", error);
-      (await import("sonner")).toast.error("Logout failed, clearing local session...", { id: toastId });
-      // Fallback: clear what we can and redirect
-      localStorage.clear();
+      (await import("sonner")).toast.error("Logout failed, clearing session...", { id: toastId });
+      dispatch(clearUser());
       setTimeout(() => {
         window.location.href = "/login";
       }, 1000);
     }
-  }, [router]);
+  }, [dispatch]);
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoading }}>

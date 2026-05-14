@@ -109,6 +109,16 @@
   --ring: #062D1B;
   
   --radius: 0.75rem; 
+
+  /* Sharcly 2.0 Design Tokens */
+  --deep: #082f1d;
+  --deeper: #040e07;
+  --light: #eff8ee;
+  --gold: #E8C547;
+  --muted: rgba(239,248,238,0.50);
+  --border: rgba(239,248,238,0.07);
+  --card: rgba(239,248,238,0.035);
+  --green-glow: rgba(74,222,128,0.1);
 }
 
 .dark {
