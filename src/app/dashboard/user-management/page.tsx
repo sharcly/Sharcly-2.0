@@ -12,6 +12,12 @@ import {
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -191,6 +197,147 @@ export default function UserManagementPage() {
     (user.name && user.name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const staffUsers = filteredUsers.filter(user => user.userRole?.slug.toLowerCase() !== 'user');
+  const customerUsers = filteredUsers.filter(user => user.userRole?.slug.toLowerCase() === 'user');
+
+  const UserTable = ({ usersList }: { usersList: User[] }) => (
+    <Table>
+      <TableHeader className="bg-muted/30">
+        <TableRow className="hover:bg-transparent border-border/50">
+          <TableHead className="pl-6 py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Full Name</TableHead>
+          <TableHead className="py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Access Role</TableHead>
+          <TableHead className="py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Account Status</TableHead>
+          <TableHead className="py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70 text-right pr-12">Date Joined</TableHead>
+          <TableHead className="text-right pr-6 py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {loading ? (
+          [1, 2, 3, 4, 5].map((i: number) => (
+            <TableRow key={i} className="border-border/50">
+              <TableCell className="pl-6 py-6"><Skeleton className="h-4 w-32 rounded-full" /></TableCell>
+              <TableCell><Skeleton className="h-4 w-48 rounded-full" /></TableCell>
+              <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+              <TableCell className="pr-12 text-right"><Skeleton className="h-6 w-16 rounded-full ml-auto" /></TableCell>
+              <TableCell className="pr-6 text-right"><Skeleton className="h-10 w-10 ml-auto rounded-xl" /></TableCell>
+            </TableRow>
+          ))
+        ) : usersList.length === 0 ? (
+          <TableRow>
+             <TableCell colSpan={5} className="h-32 text-center text-muted-foreground font-medium italic">
+               No users found. Try adjusting your search.
+             </TableCell>
+          </TableRow>
+        ) : (
+          usersList.map((user: User) => (
+            <TableRow key={user.id} className="border-border/50 group hover:bg-muted/10 transition-colors">
+              <TableCell className="pl-6 py-5">
+                 <div className="flex items-center gap-4">
+                    <div className={cn(
+                      "h-11 w-11 rounded-full flex items-center justify-center font-bold text-lg border",
+                      user.userRole?.slug.toLowerCase() === 'admin' || user.userRole?.slug.toLowerCase() === 'super_admin' ? "bg-primary/10 text-primary border-primary/20" : "bg-muted text-muted-foreground border-border"
+                    )}>
+                       {(user.name?.[0] || user.email[0]).toUpperCase()}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-bold text-sm text-foreground truncate">{user.name || "Customer"}</span>
+                      <span className="text-xs text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
+                        <Mail className="h-3 w-3 opacity-50" /> {user.email}
+                      </span>
+                    </div>
+                 </div>
+              </TableCell>
+              <TableCell>
+                <Badge variant="outline" className={cn(
+                  "rounded-lg px-2.5 py-1 font-black text-[9px] uppercase tracking-wider",
+                  user.userRole?.slug.toLowerCase() === 'admin' || user.userRole?.slug.toLowerCase() === 'super_admin' ? "bg-primary/5 text-primary border-primary/20" :
+                  user.userRole?.slug.toLowerCase() === 'manager' ? "bg-blue-500/5 text-blue-500 border-blue-500/20" :
+                  user.userRole?.slug.toLowerCase() === 'content_manager' ? "bg-amber-500/5 text-amber-500 border-amber-500/20" :
+                  "bg-muted text-muted-foreground"
+                )}>
+                  {user.userRole?.name || "Customer"}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                {user.isBlocked ? (
+                  <div className="flex items-center gap-2 text-rose-500 font-bold text-[9px] uppercase italic">
+                    <XCircle className="h-3 w-3" /> Blocked
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
+                    <CheckCircle2 className="h-3 w-3" /> Active
+                  </div>
+                )}
+              </TableCell>
+              <TableCell className="text-muted-foreground text-[11px] font-bold text-right pr-12 italic">
+                 <div className="flex items-center justify-end gap-2">
+                    <History className="size-3 opacity-30" />
+                    {new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                 </div>
+              </TableCell>
+              <TableCell className="text-right pr-6">
+                <div className="flex items-center justify-end gap-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                        onClick={() => openEditModal(user)}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-slate-900 text-white border-none font-bold text-[10px] uppercase tracking-wider">
+                      Edit User
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className={cn(
+                          "h-8 w-8 rounded-lg transition-colors",
+                          user.isBlocked 
+                            ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" 
+                            : "hover:bg-amber-50 hover:text-amber-600"
+                        )}
+                        onClick={() => handleToggleBlock(user)}
+                      >
+                        <Ban className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-slate-900 text-white border-none font-bold text-[10px] uppercase tracking-wider">
+                      {user.isBlocked ? "Restore Access" : "Block User"}
+                    </TooltipContent>
+                  </Tooltip>
+  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 rounded-lg hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                        onClick={() => handleDeleteUser(user.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-rose-600 text-white border-none font-bold text-[10px] uppercase tracking-wider">
+                      Delete User
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
+  );
+
   return (
     <TooltipProvider>
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -212,162 +359,54 @@ export default function UserManagementPage() {
       </div>
 
       {/* Main Table Card */}
-      <Card className="border-border/50 bg-card rounded-2xl shadow-sm border overflow-hidden">
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-border/50 bg-muted/20">
-           <div>
-              <CardTitle className="text-xl font-bold">User Directory</CardTitle>
-              <CardDescription className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/60 mt-1">
-                {filteredUsers.length} Users found
-              </CardDescription>
-           </div>
-           <div className="relative w-full md:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
-              <Input 
-                placeholder="Search by name or email..." 
-                className="pl-10 h-11 rounded-xl bg-background border-border/50 focus:ring-primary/20"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-muted/30">
-              <TableRow className="hover:bg-transparent border-border/50">
-                <TableHead className="pl-6 py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Full Name</TableHead>
-                <TableHead className="py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Access Role</TableHead>
-                <TableHead className="py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Account Status</TableHead>
-                <TableHead className="py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70 text-right pr-12">Date Joined</TableHead>
-                <TableHead className="text-right pr-6 py-4 font-bold uppercase text-[10px] tracking-widest text-muted-foreground/70">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                [1, 2, 3, 4, 5].map((i: number) => (
-                  <TableRow key={i} className="border-border/50">
-                    <TableCell className="pl-6 py-6"><Skeleton className="h-4 w-32 rounded-full" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-48 rounded-full" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                    <TableCell className="pr-12 text-right"><Skeleton className="h-6 w-16 rounded-full ml-auto" /></TableCell>
-                    <TableCell className="pr-6 text-right"><Skeleton className="h-10 w-10 ml-auto rounded-xl" /></TableCell>
-                  </TableRow>
-                ))
-              ) : filteredUsers.length === 0 ? (
-                <TableRow>
-                   <TableCell colSpan={5} className="h-32 text-center text-muted-foreground font-medium italic">
-                     No users found. Try adjusting your search.
-                   </TableCell>
-                </TableRow>
-              ) : (
-                filteredUsers.map((user: User) => (
-                  <TableRow key={user.id} className="border-border/50 group hover:bg-muted/10 transition-colors">
-                    <TableCell className="pl-6 py-5">
-                       <div className="flex items-center gap-4">
-                          <div className={cn(
-                            "h-11 w-11 rounded-full flex items-center justify-center font-bold text-lg border",
-                            user.userRole?.slug === 'admin' ? "bg-primary/10 text-primary border-primary/20" : "bg-muted text-muted-foreground border-border"
-                          )}>
-                             {(user.name?.[0] || user.email[0]).toUpperCase()}
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="font-bold text-sm text-foreground truncate">{user.name || "Customer"}</span>
-                            <span className="text-xs text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
-                              <Mail className="h-3 w-3 opacity-50" /> {user.email}
-                            </span>
-                          </div>
-                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={cn(
-                        "rounded-lg px-2.5 py-1 font-black text-[9px] uppercase tracking-wider",
-                        user.userRole?.slug === 'admin' ? "bg-primary/5 text-primary border-primary/20" :
-                        user.userRole?.slug === 'manager' ? "bg-blue-500/5 text-blue-500 border-blue-500/20" :
-                        user.userRole?.slug === 'content_manager' ? "bg-amber-500/5 text-amber-500 border-amber-500/20" :
-                        "bg-muted text-muted-foreground"
-                      )}>
-                        {user.userRole?.name || "Customer"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {user.isBlocked ? (
-                        <div className="flex items-center gap-2 text-rose-500 font-bold text-[9px] uppercase italic">
-                          <XCircle className="h-3 w-3" /> Blocked
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-emerald-500 font-bold text-[9px] uppercase">
-                          <CheckCircle2 className="h-3 w-3" /> Active
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-[11px] font-bold text-right pr-12 italic">
-                       <div className="flex items-center justify-end gap-2">
-                          <History className="size-3 opacity-30" />
-                          {new Date(user.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                       </div>
-                    </TableCell>
-                    <TableCell className="text-right pr-6">
-                      <div className="flex items-center justify-end gap-2">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                              onClick={() => openEditModal(user)}
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent className="bg-slate-900 text-white border-none font-bold text-[10px] uppercase tracking-wider">
-                            Edit User
-                          </TooltipContent>
-                        </Tooltip>
-                        
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className={cn(
-                                "h-8 w-8 rounded-lg transition-colors",
-                                user.isBlocked 
-                                  ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" 
-                                  : "hover:bg-amber-50 hover:text-amber-600"
-                              )}
-                              onClick={() => handleToggleBlock(user)}
-                            >
-                              <Ban className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent className="bg-slate-900 text-white border-none font-bold text-[10px] uppercase tracking-wider">
-                            {user.isBlocked ? "Restore Access" : "Block User"}
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-8 w-8 rounded-lg hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                              onClick={() => handleDeleteUser(user.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent className="bg-rose-600 text-white border-none font-bold text-[10px] uppercase tracking-wider">
-                            Delete User
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="staff" className="w-full">
+        <Card className="border-border/50 bg-card rounded-2xl shadow-sm border overflow-hidden">
+          <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-border/50 bg-muted/20">
+            <div className="space-y-4 w-full">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <CardTitle className="text-xl font-bold">User Directory</CardTitle>
+                  <CardDescription className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/60 mt-1">
+                    Manage system access and customer accounts
+                  </CardDescription>
+                </div>
+                <div className="relative w-full md:w-80">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                  <Input 
+                    placeholder="Search by name or email..." 
+                    className="pl-10 h-11 rounded-xl bg-background border-border/50 focus:ring-primary/20"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+              
+              <TabsList className="bg-muted/50 p-1 rounded-xl h-12">
+                <TabsTrigger 
+                  value="staff" 
+                  className="rounded-lg px-6 font-bold text-xs uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary h-10 transition-all"
+                >
+                  Staff <Badge variant="secondary" className="ml-2 bg-primary/10 text-primary border-none text-[10px]">{staffUsers.length}</Badge>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="customers"
+                  className="rounded-lg px-6 font-bold text-xs uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary h-10 transition-all"
+                >
+                  Customers <Badge variant="secondary" className="ml-2 bg-muted text-muted-foreground border-none text-[10px]">{customerUsers.length}</Badge>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <TabsContent value="staff" className="m-0 border-none outline-none">
+              <UserTable usersList={staffUsers} />
+            </TabsContent>
+            <TabsContent value="customers" className="m-0 border-none outline-none">
+              <UserTable usersList={customerUsers} />
+            </TabsContent>
+          </CardContent>
+        </Card>
+      </Tabs>
 
       {/* Add User Sheet */}
       <Sheet open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
