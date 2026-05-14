@@ -724,32 +724,71 @@ export default function ProductDetailsPage() {
                   {activeTab === "lab" && (
                     <div className="space-y-8">
                       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                        <div className="space-y-2">
-                          <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">COA Available for Every Batch</h3>
-                          <p className="text-[14px] text-[#eff8ee]/50">Third-party lab results ensure potency and purity.</p>
-                        </div>
+                         <div className="space-y-2">
+                           <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">COA Available for Every Batch</h3>
+                           <p className="text-[14px] text-[#eff8ee]/50">Third-party lab results ensure potency and purity.</p>
+                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          { id: "B-8422", date: "Jan 12, 2026", status: "PASSED" },
-                          { id: "B-8421", date: "Dec 05, 2025", status: "PASSED" },
-                          { id: "B-8398", date: "Nov 18, 2025", status: "PASSED" }
-                        ].map((batch, i) => (
-                          <div key={i} className="flex items-center justify-between p-5 rounded-xl border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.02)]">
-                            <div className="space-y-1">
-                              <p className="text-[11px] font-bold text-[#eff8ee]/40 uppercase">BATCH {batch.id}</p>
-                              <p className="text-[14px] text-[#eff8ee] font-medium">Tested on {batch.date}</p>
+                      {(() => {
+                        const reports = [
+                          { name: "30mg CBD", file: "/30mg_CBD_Sharcly-1_260509_175622.pdf", batch: "260509-CBD" },
+                          { name: "25mg CBN", file: "/25mg_CBN___CBD_Sharcly-1_260509_175649.pdf", batch: "260509-CBN" },
+                          { name: "30mg Delta-8", file: "/30mg_delta8_Sharcly-1_260509_175752.pdf", batch: "260509-D8" },
+                          { name: "20mg Delta-9", file: "/20mg_Delta9_Sharcly.pdf", batch: "260509-D9" }
+                        ];
+                        
+                        const matchedReport = reports.find(r => 
+                          product.name.toLowerCase().includes(r.name.toLowerCase()) ||
+                          product.description.toLowerCase().includes(r.name.toLowerCase())
+                        );
+
+                        if (matchedReport) {
+                          return (
+                            <div className="p-8 rounded-2xl border border-[#E8C547]/30 bg-[#E8C547]/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                              <div className="flex items-center gap-6">
+                                <div className="size-16 bg-[#E8C547]/10 rounded-2xl flex items-center justify-center">
+                                  <FileText className="h-8 w-8 text-[#E8C547]" />
+                                </div>
+                                <div>
+                                  <p className="text-[10px] font-bold text-[#E8C547] uppercase tracking-widest mb-1">Latest Lab Verification</p>
+                                  <h4 className="text-xl font-bold text-[#eff8ee]">{matchedReport.name} Report</h4>
+                                  <p className="text-sm text-[#eff8ee]/50">Batch ID: {matchedReport.batch} • Tested May 09, 2026</p>
+                                </div>
+                              </div>
+                              <a 
+                                href={matchedReport.file} 
+                                target="_blank"
+                                className="w-full md:w-auto h-14 px-8 bg-[#E8C547] text-[#082f1d] rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#f0cf55] transition-all"
+                              >
+                                <ExternalLink className="size-4" /> Download PDF
+                              </a>
                             </div>
-                            <div className="flex items-center gap-4">
-                              <span className="px-2.5 py-0.5 rounded-full bg-[#4ade80]/10 text-[#4ade80] text-[10px] font-bold tracking-wider">{batch.status}</span>
-                              <button className="text-[12px] font-bold text-[#E8C547] hover:underline flex items-center gap-1.5">
-                                <ExternalLink className="size-3" /> PDF
-                              </button>
-                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {[
+                              { id: "B-260509", date: "May 09, 2026", status: "PASSED" },
+                              { id: "B-8422", date: "Jan 12, 2026", status: "PASSED" }
+                            ].map((batch, i) => (
+                              <div key={i} className="flex items-center justify-between p-5 rounded-xl border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.02)]">
+                                <div className="space-y-1">
+                                  <p className="text-[11px] font-bold text-[#eff8ee]/40 uppercase">BATCH {batch.id}</p>
+                                  <p className="text-[14px] text-[#eff8ee] font-medium">Tested on {batch.date}</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <span className="px-2.5 py-0.5 rounded-full bg-[#4ade80]/10 text-[#4ade80] text-[10px] font-bold tracking-wider">{batch.status}</span>
+                                  <Link href="/lab-results" className="text-[12px] font-bold text-[#E8C547] hover:underline flex items-center gap-1.5">
+                                    <ExternalLink className="size-3" /> PDF
+                                  </Link>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        );
+                      })()}
                     </div>
                   )}
 

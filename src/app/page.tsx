@@ -261,21 +261,23 @@ export default function Home() {
                      </div>
 
                      {/* button */}
-                     <button
-                        style={{
-                           padding: "14px 28px",
-                           borderRadius: "999px",
-                           border: "1px solid rgba(239,248,238,0.2)",
-                           background: "transparent",
-                           color: "#eff8ee",
-                           fontSize: "12px",
-                           letterSpacing: "0.12em",
-                           textTransform: "uppercase",
-                           cursor: "pointer",
-                        }}
-                     >
-                        Access Lab Results →
-                     </button>
+                     <Link href="/lab-results">
+                        <button
+                           style={{
+                              padding: "14px 28px",
+                              borderRadius: "999px",
+                              border: "1px solid rgba(239,248,238,0.2)",
+                              background: "transparent",
+                              color: "#eff8ee",
+                              fontSize: "12px",
+                              letterSpacing: "0.12em",
+                              textTransform: "uppercase",
+                              cursor: "pointer",
+                           }}
+                        >
+                           Access Lab Results →
+                        </button>
+                     </Link>
                   </div>
 
                   {/* RIGHT IMAGE */}

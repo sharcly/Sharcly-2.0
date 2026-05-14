@@ -8,8 +8,6 @@ import { useAuth } from "@/context/auth-context";
 import {
   ShoppingBag,
   Menu,
-  Search,
-  X,
   User,
   LayoutGrid,
   ChevronDown
@@ -35,7 +33,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { toggleCart } from "@/store/slices/cartSlice";
-import { MiniSearch } from "@/components/mini-search";
+
 
 const NAV_LINKS = [
   { name: "New Arrivals", href: "/products?status=new" },
@@ -47,7 +45,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -119,22 +117,7 @@ export function Navbar() {
 
           {/* Action Icons */}
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button
-                onClick={() => setSearchOpen(!searchOpen)}
-                className={cn(
-                  "p-2 rounded-full transition-all duration-300",
-                  searchOpen
-                    ? "bg-black text-white"
-                    : !scrolled && isDarkPage
-                      ? "hover:bg-white/10 text-white/60 hover:text-white"
-                      : "hover:bg-neutral-50 text-[#062D1B]/40 hover:text-[#062D1B]"
-                )}
-              >
-                {searchOpen ? <X className="size-4" /> : <Search className="size-4" />}
-              </button>
-              <MiniSearch open={searchOpen} setOpen={setSearchOpen} />
-            </div>
+
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
