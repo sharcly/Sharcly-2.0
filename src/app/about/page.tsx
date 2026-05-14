@@ -465,7 +465,7 @@ export default function AboutPage() {
                   "Sharcly is the definitive standard. The molecular precision and the sensory experience are simply in a league of their own."
                 </p>
                 <div className="flex flex-col items-center gap-4">
-                  <div className="size-16 rounded-full bg-white text-[#082f1d] flex items-center justify-center text-[20px] font-bold">JD</div>
+                  <div className="size-16 rounded-full bg-white text-[#082f1d] flex items-center justify-center text-[20px] font-bold">S</div>
                   <div className="text-center">
                     <p className="text-[20px] font-bold">Sharcly Member</p>
                     <p className="text-[12px] text-white/40 font-bold uppercase tracking-widest mt-1">Premium Wellness Community</p>
