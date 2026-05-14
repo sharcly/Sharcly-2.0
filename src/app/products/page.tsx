@@ -90,7 +90,7 @@ function ProductsContent() {
     if (rawParam) {
       setSelectedSeries(normalizeSeries(rawParam));
     }
-    
+
     // Fetch flavours
     apiClient.get("/products/flavours")
       .then(res => setFlavours(res.data.flavours || []))
@@ -241,7 +241,7 @@ function ProductsContent() {
             Shop <span className="italic text-[var(--gold)]">All</span> Series.
           </h1>
           <p className="text-[14px] text-[var(--muted)] max-w-[480px] leading-relaxed">
-            Six curated lines. Every mood, every moment. Lab-tested, organically grown, and crafted for people who take their wellness seriously.
+            Lab-tested, organically grown, and crafted for people who take their wellness seriously.
           </p>
         </div>
       </header>

@@ -35,7 +35,7 @@ const TrustBar = () => {
     },
     {
       icon: <CheckCircle2 className="w-6 h-6 text-[#E8C547]" />,
-      headline: "30-Day Guarantee",
+      headline: "30-Day Money-Back Guarantee",
       subtext: "Love it or your money back. Zero questions asked."
     }
   ];
@@ -178,16 +178,16 @@ const WhySharclyFeature = () => {
                   <div className="space-y-4">
                     <div>
                       <p className="text-[8px] uppercase tracking-widest text-[#082f1d]/40">Batch ID</p>
-                      <p className="text-xs font-bold text-[#082f1d]">SH-2024-001-A</p>
+                      <p className="text-xs font-bold text-[#082f1d]">SHC0001SLP</p>
                     </div>
                     <div>
                       <p className="text-[8px] uppercase tracking-widest text-[#082f1d]/40">Product</p>
-                      <p className="text-xs font-bold text-[#082f1d]">Chill Series Gummies</p>
+                      <p className="text-xs font-bold text-[#082f1d]">Sleep Series Gummies</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-[8px] uppercase tracking-widest text-[#082f1d]/40">THC</p>
-                        <p className="text-xs font-bold text-[#082f1d]">&lt;0.3%</p>
+                        <p className="text-xs font-bold text-[#082f1d]">&lt;0.1%</p>
                       </div>
                       <div>
                         <p className="text-[8px] uppercase tracking-widest text-[#082f1d]/40">CBD</p>
@@ -200,7 +200,7 @@ const WhySharclyFeature = () => {
                 <div className="relative pt-6 border-t border-[#082f1d]/10 flex justify-between items-end">
                   <div>
                     <p className="text-[8px] uppercase tracking-widest text-[#082f1d]/40">Tested Date</p>
-                    <p className="text-[10px] font-bold text-[#082f1d]">Oct 12, 2024</p>
+                    <p className="text-[10px] font-bold text-[#082f1d]">April 22, 2026</p>
                   </div>
                   <div className="bg-[#E8C547] text-[#082f1d] px-3 py-1 rounded text-[10px] font-bold tracking-widest uppercase">
                     PASSED

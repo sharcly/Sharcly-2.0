@@ -5,8 +5,12 @@ export const getImageUrl = (image: any): string => {
     return fallback;
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] || "https://sharcly-2-0-b.vercel.app";
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://sharcly-2-0-b.vercel.app/api";
+  // Detect environment
+  const isProd = process.env.NODE_ENV === "production";
+  
+  // Resolve Base URLs
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (isProd ? "https://sharcly-2-0-b.vercel.app/api" : "http://localhost:8181/api");
+  const baseUrl = apiUrl.split('/api')[0];
 
   // Case 1: Already a full URL (external)
   if (typeof image === 'string' && (image.startsWith('http://') || image.startsWith('https://'))) {
@@ -15,6 +19,10 @@ export const getImageUrl = (image: any): string => {
 
   // Case 2: Internal API path starting with /api
   if (typeof image === 'string' && image.startsWith('/api')) {
+    // If we're in prod but baseUrl is still localhost, try to use relative path
+    if (isProd && baseUrl.includes('localhost') && typeof window !== 'undefined') {
+       return image; // Browser will resolve relative to current domain
+    }
     return `${baseUrl}${image}`;
   }
 
@@ -34,6 +42,5 @@ export const getImageUrl = (image: any): string => {
     return getImageUrl(image.url);
   }
 
-  // Fallback
   return fallback;
 };
