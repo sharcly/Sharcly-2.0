@@ -248,7 +248,7 @@ export function Footer() {
               <Globe className="size-4 group-hover:rotate-12 transition-transform" /> United States (USD)
             </button>
             <div className="hidden md:flex gap-6">
-              <Link href="#" className="hover:text-[#eff8ee] transition-colors">Ship to: NY</Link>
+              {/* <Link href="#" className="hover:text-[#eff8ee] transition-colors">Ship to: NY</Link> */}
               <Link href="#" className="hover:text-[#eff8ee] transition-colors">Language: EN</Link>
             </div>
           </div>

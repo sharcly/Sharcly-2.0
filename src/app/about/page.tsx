@@ -110,7 +110,7 @@ export default function AboutPage() {
             >
               <motion.div variants={fadeInUp}>
                 <Badge className="px-6 py-2 rounded-full border-white/10 bg-white/5 backdrop-blur-xl text-white font-bold uppercase tracking-widest text-[12px] mb-12 shadow-sm">
-                  EST. 2024 • THE FUTURE OF WELLNESS
+                  EST. 2026 • THE FUTURE OF WELLNESS
                 </Badge>
               </motion.div>
 
@@ -467,8 +467,8 @@ export default function AboutPage() {
                 <div className="flex flex-col items-center gap-4">
                   <div className="size-16 rounded-full bg-white text-[#082f1d] flex items-center justify-center text-[20px] font-bold">JD</div>
                   <div className="text-center">
-                    <p className="text-[20px] font-bold">Julian D.</p>
-                    <p className="text-[12px] text-white/40 font-bold uppercase tracking-widest mt-1">Founding Member & Athlete</p>
+                    <p className="text-[20px] font-bold">Sharcly Member</p>
+                    <p className="text-[12px] text-white/40 font-bold uppercase tracking-widest mt-1">Premium Wellness Community</p>
                   </div>
                 </div>
               </motion.div>
