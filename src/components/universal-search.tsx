@@ -213,7 +213,12 @@ export function UniversalSearch({ open, setOpen }: { open: boolean, setOpen: (op
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="font-bold text-lg tracking-tight truncate leading-tight">{product.name}</p>
-                                <p className="text-xs font-black uppercase tracking-widest text-[#062D1B]/40 mt-1">${Number(product.price).toFixed(2)}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <p className="text-xs font-black uppercase tracking-widest text-[#062D1B]/40">${Number(product.price).toFixed(2)}</p>
+                                  {product.actualPrice && Number(product.actualPrice) > Number(product.price) && (
+                                    <p className="text-[10px] font-bold text-[#062D1B]/20 line-through">${Number(product.actualPrice).toFixed(2)}</p>
+                                  )}
+                                </div>
                               </div>
                               <ArrowRight className="size-5 opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0" />
                             </Link>

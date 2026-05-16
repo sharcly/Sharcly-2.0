@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 import { apiClient } from "@/lib/api-client";
 import {
   Heart, Truck, ShieldCheck, RotateCcw,
-  Plus, Minus, Share2, ChevronLeft, Leaf,
+  Plus, Minus, Share2, ChevronLeft, Leaf, FileText,
   Zap, Star, ShoppingCart, Link as LinkIcon,
   Instagram, Twitter, ExternalLink, AlertTriangle
 } from "lucide-react";
@@ -150,7 +150,7 @@ export default function ProductDetailsPage() {
         const response = await apiClient.get(`/products/${slug}`);
         const productData = response.data.product;
         setProduct(productData);
-        
+
         if (productData?.variants?.length > 0) {
           setSelectedVariant(productData.variants[0]);
         } else {
@@ -199,6 +199,9 @@ export default function ProductDetailsPage() {
   });
 
   const displayPrice = selectedVariant ? Number(selectedVariant.price) : Number(product?.price || 0);
+  const displayActualPrice = (selectedVariant && Number(selectedVariant.actualPrice) > 0)
+    ? Number(selectedVariant.actualPrice)
+    : Number(product?.actualPrice || 0);
   const isOutOfStock = (selectedVariant ? selectedVariant.inventoryQuantity : product?.stock) === 0;
 
   const handleAddToCart = () => {
@@ -297,7 +300,7 @@ export default function ProductDetailsPage() {
               </div>
 
               {/* Main Image Card */}
-              <div 
+              <div
                 ref={zoom.imgRef}
                 onMouseEnter={zoom.onMouseEnter}
                 onMouseLeave={zoom.onMouseLeave}
@@ -462,14 +465,45 @@ export default function ProductDetailsPage() {
 
               {/* 3. Rating Row */}
               <motion.div variants={itemVariants} className="flex items-center gap-2.5 pb-7 border-b border-[rgba(239,248,238,0.08)]">
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map(s => <Star key={s} className="size-3.5 fill-[#E8C547] text-[#E8C547]" />)}
-                </div>
-                <span className="font-serif font-semibold text-lg text-[#eff8ee]">4.9</span>
-                <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
-                <span className="text-[12px] text-[#eff8ee]/52">48 Reviews</span>
-                <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
-                <button className="text-[12px] text-[#E8C547] hover:underline transition-all">Read Reviews</button>
+                {(() => {
+                  const testimonials = Array.isArray(product.testimonials) ? product.testimonials : [];
+                  const reviews = Array.isArray(product.reviews) ? product.reviews : [];
+                  const allRatings = [
+                    ...testimonials.map((t: any) => t.rating || 5),
+                    ...reviews.map((r: any) => r.rating || 5)
+                  ];
+                  
+                  const avgRating = allRatings.length > 0 
+                    ? (allRatings.reduce((a, b) => a + b, 0) / allRatings.length).toFixed(1) 
+                    : "5.0";
+                  const count = allRatings.length > 0 ? allRatings.length : 1;
+
+                  return (
+                    <>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <Star key={s} className={cn("size-3.5", Number(avgRating) >= s ? "fill-[#E8C547] text-[#E8C547]" : "text-[#eff8ee]/10")} />
+                        ))}
+                      </div>
+                      <span className="font-serif font-semibold text-lg text-[#eff8ee]">{avgRating}</span>
+                      <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
+                      <span className="text-[12px] text-[#eff8ee]/52">{count} {count === 1 ? 'Review' : 'Reviews'}</span>
+                      <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
+                      <button 
+                        onClick={() => {
+                          const el = document.getElementById('product-tabs');
+                          if (el) {
+                            el.scrollIntoView({ behavior: 'smooth' });
+                            setActiveTab('reviews');
+                          }
+                        }}
+                        className="text-[12px] text-[#E8C547] hover:underline transition-all"
+                      >
+                        Read Reviews
+                      </button>
+                    </>
+                  );
+                })()}
               </motion.div>
 
               {/* 4. Price Block */}
@@ -478,6 +512,11 @@ export default function ProductDetailsPage() {
                   <span className="font-serif font-bold text-[36px] md:text-[48px] text-[#E8C547] tracking-[-0.02em]">
                     ${displayPrice}
                   </span>
+                  {displayActualPrice > 0 && displayActualPrice !== displayPrice && (
+                    <span className="text-[20px] md:text-[28px] text-[#eff8ee]/30 line-through decoration-[#E8C547]/40 font-medium">
+                      ${displayActualPrice}
+                    </span>
+                  )}
                   <span className="text-[14px] md:text-[16px] font-semibold font-body text-[#eff8ee]/52">USD</span>
                 </div>
                 <p className="text-[10px] md:text-[11px] text-[#eff8ee]/40">
@@ -499,19 +538,19 @@ export default function ProductDetailsPage() {
                 </span>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                   {(() => {
-                    const variants = product.variants && product.variants.length > 0 
+                    const variants = product.variants && product.variants.length > 0
                       ? [...product.variants].sort((a: any, b: any) => {
-                          const aNum = parseInt(a.title.match(/\d+/)?.[0] || "0");
-                          const bNum = parseInt(b.title.match(/\d+/)?.[0] || "0");
-                          return aNum - bNum;
-                        })
+                        const aNum = parseInt(a.title.match(/\d+/)?.[0] || "0");
+                        const bNum = parseInt(b.title.match(/\d+/)?.[0] || "0");
+                        return aNum - bNum;
+                      })
                       : [
-                          { id: '1', title: 'Pack of 1', price: product.price },
-                          { id: '2', title: 'Pack of 2', price: (Number(product.price) * 2 * 0.95).toFixed(2), save: '5%' },
-                          { id: '3', title: 'Pack of 3', price: (Number(product.price) * 3 * 0.9).toFixed(2), save: '10%' },
-                          { id: '4', title: 'Pack of 4', price: (Number(product.price) * 4 * 0.85).toFixed(2), save: '15%' }
-                        ];
-                    
+                        { id: '1', title: 'Pack of 1', price: product.price },
+                        { id: '2', title: 'Pack of 2', price: (Number(product.price) * 2 * 0.95).toFixed(2), save: '5%' },
+                        { id: '3', title: 'Pack of 3', price: (Number(product.price) * 3 * 0.9).toFixed(2), save: '10%' },
+                        { id: '4', title: 'Pack of 4', price: (Number(product.price) * 4 * 0.85).toFixed(2), save: '15%' }
+                      ];
+
                     return variants.map((variant: any) => {
                       const isSelected = selectedVariant?.id === variant.id;
                       return (
@@ -618,7 +657,7 @@ export default function ProductDetailsPage() {
               </motion.div>
 
               {/* ⚠️ Prop 65 Warning */}
-              <motion.div 
+              <motion.div
                 variants={itemVariants}
                 className="p-4 rounded-xl border border-red-500/20 bg-red-500/5 flex gap-3 items-start"
               >
@@ -716,31 +755,55 @@ export default function ProductDetailsPage() {
                     <div className="max-w-[700px] space-y-4">
                       <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">Transparency in every drop</h3>
                       <p className="text-[15px] leading-[1.8] text-[#eff8ee]/60">
-                        Hemp-Derived Delta-8 THC Distillate, Organic Terpene Blend, Natural Flavorings. No PG, VG, PEG, Vitamin E Acetate, or heavy metals. Just the essentials for a clean, elevated experience.
+                        {product.ingredients || "Hemp-Derived Delta-8 THC Distillate, Organic Terpene Blend, Natural Flavorings. No PG, VG, PEG, Vitamin E Acetate, or heavy metals. Just the essentials for a clean, elevated experience."}
                       </p>
+
+                      <div className="pt-10 space-y-6">
+                        <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">Product Testimonials</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {(product.testimonials && Array.isArray(product.testimonials) && product.testimonials.length > 0 ? product.testimonials : [
+                            { name: "Julian R.", date: "2 days ago", text: "Absolute game changer. The flavor is incredibly clean and the effects are exactly as described. Best I've had.", rating: 5 }
+                          ]).map((rev: any, i: number) => (
+                            <div key={i} className="p-6 rounded-2xl bg-[rgba(239,248,238,0.03)] border border-[rgba(239,248,238,0.08)] space-y-3">
+                              <div className="flex justify-between items-start">
+                                <div className="space-y-0.5">
+                                  <p className="font-bold text-[#eff8ee]">{rev.name}</p>
+                                  <p className="text-[11px] text-[#eff8ee]/40">{rev.date}</p>
+                                </div>
+                                <div className="flex gap-0.5">
+                                  {[1, 2, 3, 4, 5].map(s => (
+                                    <Star key={s} className={`size-3 ${s <= rev.rating ? 'fill-[#E8C547] text-[#E8C547]' : 'text-[#eff8ee]/10'}`} />
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-[13px] leading-relaxed text-[#eff8ee]/70 italic">"{rev.text}"</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   )}
 
                   {activeTab === "lab" && (
                     <div className="space-y-8">
                       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                         <div className="space-y-2">
-                           <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">COA Available for Every Batch</h3>
-                           <p className="text-[14px] text-[#eff8ee]/50">Third-party lab results ensure potency and purity.</p>
-                         </div>
+                        <div className="space-y-2">
+                          <h3 className="font-serif text-2xl font-bold text-[#eff8ee]">COA Available for Every Batch</h3>
+                          <p className="text-[14px] text-[#eff8ee]/50">Third-party lab results ensure potency and purity.</p>
+                        </div>
                       </div>
 
                       {(() => {
                         const reports = [
-                          { name: "30mg CBD", file: "/30mg_CBD_Sharcly-1_260509_175622.pdf", batch: "260509-CBD" },
-                          { name: "25mg CBN", file: "/25mg_CBN___CBD_Sharcly-1_260509_175649.pdf", batch: "260509-CBN" },
-                          { name: "30mg Delta-8", file: "/30mg_delta8_Sharcly-1_260509_175752.pdf", batch: "260509-D8" },
-                          { name: "20mg Delta-9", file: "/20mg_Delta9_Sharcly.pdf", batch: "260509-D9" }
+                          { name: "30mg CBD Full Spectrum", file: "/30mg_CBD_Sharcly-1_260509_175622.pdf", batch: "SHC0001CBD" },
+                          { name: "25mg CBN + CBD Sleep", file: "/25mg_CBN___CBD_Sharcly-1_260509_175649.pdf", batch: "SHC0001SLP" },
+                          { name: "30mg Delta-8 THC", file: "/30mg_delta8_Sharcly-1_260509_175752.pdf", batch: "SHC0001D8" },
+                          { name: "20mg Delta-9 THC", file: "/20mg_Delta9_Sharcly.pdf", batch: "SHC0001D9" }
                         ];
-                        
-                        const matchedReport = reports.find(r => 
-                          product.name.toLowerCase().includes(r.name.toLowerCase()) ||
-                          product.description.toLowerCase().includes(r.name.toLowerCase())
+
+                        const matchedReport = reports.find(r =>
+                          product.name.toLowerCase().includes(r.name.split(' ')[1].toLowerCase()) || // e.g. "CBD"
+                          product.description.toLowerCase().includes(r.name.split(' ')[1].toLowerCase())
                         );
 
                         if (matchedReport) {
@@ -756,8 +819,8 @@ export default function ProductDetailsPage() {
                                   <p className="text-sm text-[#eff8ee]/50">Batch ID: {matchedReport.batch} • Tested May 09, 2026</p>
                                 </div>
                               </div>
-                              <a 
-                                href={matchedReport.file} 
+                              <a
+                                href={matchedReport.file}
                                 target="_blank"
                                 className="w-full md:w-auto h-14 px-8 bg-[#E8C547] text-[#082f1d] rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#f0cf55] transition-all"
                               >
@@ -768,24 +831,22 @@ export default function ProductDetailsPage() {
                         }
 
                         return (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {[
-                              { id: "B-260509", date: "May 09, 2026", status: "PASSED" },
-                              { id: "B-8422", date: "Jan 12, 2026", status: "PASSED" }
-                            ].map((batch, i) => (
-                              <div key={i} className="flex items-center justify-between p-5 rounded-xl border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.02)]">
-                                <div className="space-y-1">
-                                  <p className="text-[11px] font-bold text-[#eff8ee]/40 uppercase">BATCH {batch.id}</p>
-                                  <p className="text-[14px] text-[#eff8ee] font-medium">Tested on {batch.date}</p>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                  <span className="px-2.5 py-0.5 rounded-full bg-[#4ade80]/10 text-[#4ade80] text-[10px] font-bold tracking-wider">{batch.status}</span>
-                                  <Link href="/lab-results" className="text-[12px] font-bold text-[#E8C547] hover:underline flex items-center gap-1.5">
-                                    <ExternalLink className="size-3" /> PDF
-                                  </Link>
-                                </div>
+                          <div className="p-8 rounded-2xl border border-[rgba(239,248,238,0.1)] bg-[rgba(239,248,238,0.02)] flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-6">
+                              <div className="size-16 bg-[#E8C547]/10 rounded-2xl flex items-center justify-center">
+                                <FileText className="h-8 w-8 text-[#E8C547]" />
                               </div>
-                            ))}
+                              <div>
+                                <h4 className="text-xl font-bold text-[#eff8ee]">View All Lab Results</h4>
+                                <p className="text-sm text-[#eff8ee]/50">Access our complete database of third-party COAs.</p>
+                              </div>
+                            </div>
+                            <Link
+                              href="/lab-results"
+                              className="w-full md:w-auto h-14 px-8 bg-[#E8C547] text-[#082f1d] rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#f0cf55] transition-all"
+                            >
+                              Go to Lab Page <ExternalLink className="size-4" />
+                            </Link>
                           </div>
                         );
                       })()}
@@ -794,46 +855,77 @@ export default function ProductDetailsPage() {
 
                   {activeTab === "reviews" && (
                     <div className="space-y-10">
-                      <div className="flex flex-col md:flex-row gap-10">
-                        <div className="space-y-4">
-                          <div className="text-5xl font-serif font-bold text-[#eff8ee]">4.9</div>
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map(s => <Star key={s} className="size-4 fill-[#E8C547] text-[#E8C547]" />)}
-                          </div>
-                          <p className="text-[14px] text-[#eff8ee]/50">Based on 48 verified reviews</p>
-                        </div>
+                      {(() => {
+                        const testimonials = Array.isArray(product.testimonials) ? product.testimonials : [];
+                        const reviews = (product.reviews || []).map((r: any) => ({
+                          name: r.user?.name || "Verified Buyer",
+                          date: new Date(r.createdAt).toLocaleDateString(),
+                          text: r.comment,
+                          rating: r.rating
+                        }));
 
-                        <div className="flex-1 max-w-[400px] space-y-2.5">
-                          {[5, 4, 3, 2, 1].map((rating, i) => (
-                            <div key={i} className="flex items-center gap-4">
-                              <span className="text-[11px] font-bold text-[#eff8ee]/40 w-3">{rating}</span>
-                              <div className="flex-1 h-1.5 rounded-full bg-[rgba(239,248,238,0.04)] overflow-hidden">
-                                <div className="h-full bg-[#E8C547]" style={{ width: rating === 5 ? '92%' : rating === 4 ? '6%' : '1%' }} />
+                        const allReviews = [...testimonials, ...reviews];
+                        const displayReviews = allReviews.length > 0 ? allReviews : [
+                          { name: "Julian R.", date: "2 days ago", text: "Absolute game changer. The flavor is incredibly clean and the effects are exactly as described. Best I've had.", rating: 5 }
+                        ];
+
+                        const avgRating = allReviews.length > 0 
+                          ? (allReviews.reduce((a: number, b: any) => a + (b.rating || 5), 0) / allReviews.length).toFixed(1) 
+                          : "5.0";
+
+                        const ratingCounts = [5, 4, 3, 2, 1].map(r => ({
+                          rating: r,
+                          count: allReviews.filter(rev => rev.rating === r).length,
+                          percentage: allReviews.length > 0 ? (allReviews.filter(rev => rev.rating === r).length / allReviews.length) * 100 : (r === 5 ? 100 : 0)
+                        }));
+
+                        return (
+                          <>
+                            <div className="flex flex-col md:flex-row gap-10">
+                              <div className="space-y-4">
+                                <div className="text-5xl font-serif font-bold text-[#eff8ee]">{avgRating}</div>
+                                <div className="flex gap-1">
+                                  {[1, 2, 3, 4, 5].map(s => (
+                                    <Star key={s} className={cn("size-4", Number(avgRating) >= s ? "fill-[#E8C547] text-[#E8C547]" : "text-[#eff8ee]/10")} />
+                                  ))}
+                                </div>
+                                <p className="text-[14px] text-[#eff8ee]/50">Based on {allReviews.length || 1} verified reviews</p>
+                              </div>
+
+                              <div className="flex-1 max-w-[400px] space-y-2.5">
+                                {ratingCounts.map((item, i) => (
+                                  <div key={i} className="flex items-center gap-4">
+                                    <span className="text-[11px] font-bold text-[#eff8ee]/40 w-3">{item.rating}</span>
+                                    <div className="flex-1 h-1.5 rounded-full bg-[rgba(239,248,238,0.04)] overflow-hidden">
+                                      <div className="h-full bg-[#E8C547]" style={{ width: `${item.percentage}%` }} />
+                                    </div>
+                                    <span className="text-[11px] font-bold text-[#eff8ee]/20 w-8">{item.count}</span>
+                                  </div>
+                                ))}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          { name: "Julian R.", date: "2 days ago", text: "Absolute game changer. The flavor is incredibly clean and the effects are exactly as described. Best I've had.", rating: 5 },
-                          { name: "Sarah M.", date: "1 week ago", text: "I was skeptical about the price but honestly, it's worth every penny. You can really feel the quality difference.", rating: 5 }
-                        ].map((rev, i) => (
-                          <div key={i} className="p-6 rounded-2xl bg-[rgba(239,248,238,0.03)] border border-[rgba(239,248,238,0.08)] space-y-3">
-                            <div className="flex justify-between items-start">
-                              <div className="space-y-0.5">
-                                <p className="font-bold text-[#eff8ee]">{rev.name}</p>
-                                <p className="text-[11px] text-[#eff8ee]/40">{rev.date}</p>
-                              </div>
-                              <div className="flex gap-0.5">
-                                {[1, 2, 3, 4, 5].map(s => <Star key={s} className={cn("size-3", s <= rev.rating ? "fill-[#E8C547] text-[#E8C547]" : "text-[#eff8ee]/10")} />)}
-                              </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {displayReviews.map((rev, i) => (
+                                <div key={i} className="p-6 rounded-2xl bg-[rgba(239,248,238,0.03)] border border-[rgba(239,248,238,0.08)] space-y-3">
+                                  <div className="flex justify-between items-start">
+                                    <div className="space-y-0.5">
+                                      <p className="font-bold text-[#eff8ee]">{rev.name}</p>
+                                      <p className="text-[11px] text-[#eff8ee]/40">{rev.date}</p>
+                                    </div>
+                                    <div className="flex gap-0.5">
+                                      {[1, 2, 3, 4, 5].map(s => (
+                                        <Star key={s} className={cn("size-3", s <= rev.rating ? "fill-[#E8C547] text-[#E8C547]" : "text-[#eff8ee]/10")} />
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <p className="text-[14px] leading-relaxed text-[#eff8ee]/60 italic">"{rev.text}"</p>
+                                </div>
+                              ))}
                             </div>
-                            <p className="text-[14px] leading-relaxed text-[#eff8ee]/60">"{rev.text}"</p>
-                          </div>
-                        ))}
-                      </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
                 </motion.div>
