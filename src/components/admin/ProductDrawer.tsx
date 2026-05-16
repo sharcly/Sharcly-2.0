@@ -124,9 +124,9 @@ export default function ProductDrawer({
       thumbnail: null,
       galleryFiles: [],
       variants: [
-         { title: "Pack of 1", sku: "", price: "", stock: 0, image: null },
-         { title: "Pack of 3", sku: "", price: "", stock: 0, image: null },
-         { title: "Pack of 5", sku: "", price: "", stock: 0, image: null }
+         { title: "Pack of 1", sku: "", price: "", actualPrice: "", stock: 0, image: null },
+         { title: "Pack of 3", sku: "", price: "", actualPrice: "", stock: 0, image: null },
+         { title: "Pack of 5", sku: "", price: "", actualPrice: "", stock: 0, image: null }
       ],
       // Storefront features
       subtitle: "", // Narrative Section Heading
@@ -141,7 +141,10 @@ export default function ProductDrawer({
       canonicalUrl: "",
       ogImage: null,
       changefreq: "monthly",
-      flavours: []
+      flavours: [],
+      actualPrice: "",
+      ingredients: "",
+      testimonials: []
    });
 
    const updateForm = (updates: any) => setForm((prev: any) => ({ ...prev, ...updates }));
@@ -197,7 +200,12 @@ export default function ProductDrawer({
                thumbnail: thumbnailImg ? thumbnailImg.id : null,
                galleryFiles: galleryImgs ? galleryImgs.map((img: any) => img.id) : [],
                isAuthenticated: initialData.isAuthenticated !== undefined ? initialData.isAuthenticated : true,
-               variants: initialData.variants?.length > 0 ? initialData.variants : [],
+               variants: initialData.variants?.map((v: any) => ({
+                  ...v,
+                  price: v.price || "",
+                  actualPrice: v.actualPrice || "",
+                  stock: v.inventoryQuantity || v.stock || 0
+               })) || [],
                contentSections: initialData.contentSections || [],
                metadata: initialData.metadata || [],
                // SEO Sync
@@ -207,7 +215,10 @@ export default function ProductDrawer({
                canonicalUrl: initialData.canonicalUrl || "",
                ogImage: initialData.ogImage || null,
                changefreq: initialData.changefreq || "monthly",
-               flavours: initialData.flavours?.map((f: any) => f.id) || []
+               flavours: initialData.flavours?.map((f: any) => f.id) || [],
+               actualPrice: initialData.actualPrice || "",
+               ingredients: initialData.ingredients || "",
+               testimonials: Array.isArray(initialData.testimonials) ? initialData.testimonials : []
             });
          } else {
             setForm({
@@ -222,9 +233,9 @@ export default function ProductDrawer({
                thumbnail: null,
                galleryFiles: [],
                variants: [
-                  { title: "Pack of 1", sku: "", price: "", stock: 0, image: null },
-                  { title: "Pack of 3", sku: "", price: "", stock: 0, image: null },
-                  { title: "Pack of 5", sku: "", price: "", stock: 0, image: null }
+                  { title: "Pack of 1", sku: "", price: "", actualPrice: "", stock: 0, image: null },
+                  { title: "Pack of 3", sku: "", price: "", actualPrice: "", stock: 0, image: null },
+                  { title: "Pack of 5", sku: "", price: "", actualPrice: "", stock: 0, image: null }
                ],
                subtitle: "",
                contentSections: ["99.8% Synthesis Purity", "Ethanol-Free Extraction", "Terpene Matrix Locked", "Certified Organic Base"],
@@ -243,7 +254,12 @@ export default function ProductDrawer({
                canonicalUrl: "",
                ogImage: null,
                changefreq: "monthly",
-               flavours: []
+               flavours: [],
+               actualPrice: "",
+               ingredients: "",
+               testimonials: [
+                  { name: "Julian R.", date: "2 days ago", text: "Absolute game changer. The flavor is incredibly clean and the effects are exactly as described. Best I've had.", rating: 5 }
+               ]
             });
          }
       }
@@ -312,10 +328,13 @@ export default function ProductDrawer({
                               <Field label="SKU / Ident">
                                  <input value={form.sku || ""} onChange={e => updateForm({ sku: e.target.value })} placeholder="SKU-..." className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
                               </Field>
-                              <Field label="Base Price ($)" required>
-                                 <input type="number" value={form.price} onChange={e => updateForm({ price: e.target.value })} placeholder="0.00" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
+                              <Field label="Base Price ($)" required hint="The price the user will pay.">
+                                 <input type="number" value={form.price} onChange={e => updateForm({ price: e.target.value })} placeholder="49.00" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
                               </Field>
-                              <Field label="Stock Status">
+                              <Field label="Actual Price ($)" hint="The original price (will be crossed out).">
+                                 <input type="number" value={form.actualPrice} onChange={e => updateForm({ actualPrice: e.target.value })} placeholder="79.00" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
+                              </Field>
+                              <Field label="Stock Units">
                                  <input type="number" value={form.stock} onChange={e => updateForm({ stock: e.target.value })} placeholder="0" className="w-full h-12 px-5 bg-white border border-neutral-200 rounded-xl outline-none font-bold text-sm" />
                               </Field>
                            </div>
@@ -507,15 +526,16 @@ export default function ProductDrawer({
                                        const n = [...form.variants]; n[i].image = e.target.files?.[0]; updateForm({ variants: n });
                                     }} />
                                  </label>
-                                 <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <input value={v.title || ""} onChange={e => { const n = [...form.variants]; n[i].title = e.target.value; updateForm({ variants: n }); }} placeholder="Pack of 1..." className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
-                                    <input value={v.sku || ""} onChange={e => { const n = [...form.variants]; n[i].sku = e.target.value; updateForm({ variants: n }); }} placeholder="SKU" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
-                                    <input type="number" value={v.price ?? ""} onChange={e => { const n = [...form.variants]; n[i].price = e.target.value; updateForm({ variants: n }); }} placeholder="Price" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
-                                    <input type="number" value={v.stock ?? ""} onChange={e => { const n = [...form.variants]; n[i].stock = e.target.value; updateForm({ variants: n }); }} placeholder="Stock" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" />
+                                 <div className="flex-1 grid grid-cols-2 md:grid-cols-5 gap-4">
+                                    <input value={v.title || ""} onChange={e => { const n = [...form.variants]; n[i].title = e.target.value; updateForm({ variants: n }); }} placeholder="Pack of 1..." className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" title="Title" />
+                                    <input value={v.sku || ""} onChange={e => { const n = [...form.variants]; n[i].sku = e.target.value; updateForm({ variants: n }); }} placeholder="SKU" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" title="SKU" />
+                                    <input type="number" value={v.price ?? ""} onChange={e => { const n = [...form.variants]; n[i].price = e.target.value; updateForm({ variants: n }); }} placeholder="Price" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" title="Buying Price" />
+                                    <input type="number" value={v.actualPrice ?? ""} onChange={e => { const n = [...form.variants]; n[i].actualPrice = e.target.value; updateForm({ variants: n }); }} placeholder="Actual" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" title="Actual/Crossed Price" />
+                                    <input type="number" value={v.stock ?? ""} onChange={e => { const n = [...form.variants]; n[i].stock = e.target.value; updateForm({ variants: n }); }} placeholder="Stock" className="h-10 px-3 bg-white border border-transparent rounded-lg outline-none font-bold text-xs" title="Stock Units" />
                                  </div>
                               </div>
                            ))}
-                           <button onClick={() => updateForm({ variants: [...form.variants, { title: "", sku: "", price: "", stock: 0, image: null }] })} className="w-full py-3 border-2 border-dashed border-neutral-100 rounded-xl text-[10px] font-black uppercase text-neutral-300 hover:text-emerald-500 hover:border-emerald-500 transition-all font-sans">+ Add another variant</button>
+                           <button onClick={() => updateForm({ variants: [...form.variants, { title: "", sku: "", price: "", actualPrice: "", stock: 0, image: null }] })} className="w-full py-3 border-2 border-dashed border-neutral-100 rounded-xl text-[10px] font-black uppercase text-neutral-300 hover:text-emerald-500 hover:border-emerald-500 transition-all font-sans">+ Add another variant</button>
                         </div>
                      </FormSection>
 
@@ -526,6 +546,14 @@ export default function ProductDrawer({
                                  value={form.description}
                                  onChange={e => updateForm({ description: e.target.value })}
                                  placeholder="Primary product description..."
+                                 className="w-full min-h-[100px] p-5 bg-white border border-neutral-200 rounded-xl outline-none font-medium leading-relaxed text-sm"
+                              />
+                           </Field>
+                           <Field label="Product Ingredients" hint="What's inside your product?">
+                              <textarea
+                                 value={form.ingredients}
+                                 onChange={e => updateForm({ ingredients: e.target.value })}
+                                 placeholder="Hemp-Derived Delta-8 THC Distillate, Organic Terpene Blend, Natural Flavorings. No PG, VG, PEG, Vitamin E Acetate, or heavy metals. Just the essentials for a clean, elevated experience"
                                  className="w-full min-h-[100px] p-5 bg-white border border-neutral-200 rounded-xl outline-none font-medium leading-relaxed text-sm"
                               />
                            </Field>
@@ -573,6 +601,47 @@ export default function ProductDrawer({
                            <button onClick={() => updateForm({ metadata: [...form.metadata, { key: "", value: "" }] })} className="h-16 border-2 border-dashed border-neutral-100 rounded-xl flex items-center justify-center text-[9px] font-black uppercase text-neutral-300 hover:text-emerald-500 transition-all">+ Add Row</button>
                         </div>
                      </FormSection>
+
+                      <FormSection title="Product Testimonials" id="testimonials">
+                         <div className="space-y-4">
+                            {(form.testimonials || []).map((t: any, i: number) => (
+                               <div key={i} className="p-4 bg-neutral-50 rounded-xl border border-neutral-100 space-y-3 relative group">
+                                  <button onClick={() => updateForm({ testimonials: form.testimonials.filter((_: any, idx: number) => idx !== i) })} className="absolute top-2 right-2 p-1.5 bg-white shadow-sm rounded-full text-rose-500 border border-neutral-100 opacity-0 group-hover:opacity-100 transition-all"><X size={12} /></button>
+                                  <div className="grid grid-cols-2 gap-3">
+                                     <Field label="Author Name">
+                                        <input value={t.name} onChange={e => { const n = [...form.testimonials]; n[i].name = e.target.value; updateForm({ testimonials: n }); }} className="w-full h-10 px-3 bg-white border border-neutral-200 rounded-lg outline-none text-xs font-bold" />
+                                     </Field>
+                                     <Field label="Relative Date (e.g. '2 days ago')">
+                                        <input value={t.date} onChange={e => { const n = [...form.testimonials]; n[i].date = e.target.value; updateForm({ testimonials: n }); }} className="w-full h-10 px-3 bg-white border border-neutral-200 rounded-lg outline-none text-xs font-bold" />
+                                     </Field>
+                                  </div>
+                                  <Field label="Testimonial Text">
+                                     <textarea value={t.text} onChange={e => { const n = [...form.testimonials]; n[i].text = e.target.value; updateForm({ testimonials: n }); }} className="w-full min-h-[60px] p-3 bg-white border border-neutral-200 rounded-lg outline-none text-xs font-medium" />
+                                  </Field>
+                                  <div className="flex items-center gap-4">
+                                     <span className="text-[10px] font-black uppercase text-neutral-400">Rating</span>
+                                     <div className="flex gap-1">
+                                        {[1, 2, 3, 4, 5].map(r => (
+                                           <button 
+                                              key={r} 
+                                              onClick={() => { const n = [...form.testimonials]; n[i].rating = r; updateForm({ testimonials: n }); }}
+                                              className={`size-6 rounded flex items-center justify-center transition-all ${t.rating >= r ? 'bg-amber-100 text-amber-600' : 'bg-neutral-100 text-neutral-300'}`}
+                                           >
+                                              <Star size={12} fill={t.rating >= r ? 'currentColor' : 'none'} />
+                                           </button>
+                                        ))}
+                                     </div>
+                                  </div>
+                               </div>
+                            ))}
+                            <button 
+                               onClick={() => updateForm({ testimonials: [...(form.testimonials || []), { name: "", date: "", text: "", rating: 5 }] })}
+                               className="w-full h-12 border-2 border-dashed border-neutral-100 rounded-xl flex items-center justify-center text-[10px] font-black uppercase text-neutral-300 hover:text-indigo-500 transition-all"
+                            >
+                               + Add Testimonial
+                            </button>
+                         </div>
+                      </FormSection>
 
                      <FormSection title="Search Engine Optimization" id="seo">
                         <div className="space-y-8">

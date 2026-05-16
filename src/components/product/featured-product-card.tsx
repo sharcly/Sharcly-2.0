@@ -132,19 +132,32 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
               </p>
             )}
           </div>
-          <div style={{
-            fontSize: 16,
-            fontWeight: 900,
-            color: '#E8C547',
-            background: 'rgba(232,197,71,0.1)',
-            border: '1px solid rgba(232,197,71,0.2)',
-            padding: '4px 12px',
-            borderRadius: 10,
-            letterSpacing: '-0.03em',
-            flexShrink: 0,
-            fontFamily: 'var(--font-dm-sans), sans-serif',
-          }}>
-            {formatPrice(price)}
+          <div className="flex items-center gap-2">
+            <div style={{
+              fontSize: 16,
+              fontWeight: 900,
+              color: '#E8C547',
+              background: 'rgba(232,197,71,0.1)',
+              border: '1px solid rgba(232,197,71,0.2)',
+              padding: '4px 12px',
+              borderRadius: 10,
+              letterSpacing: '-0.03em',
+              flexShrink: 0,
+              fontFamily: 'var(--font-dm-sans), sans-serif',
+            }}>
+              {formatPrice(price)}
+            </div>
+            {product.actualPrice && Number(product.actualPrice) > Number(price) && (
+              <span style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'rgba(239,248,238,0.25)',
+                textDecoration: 'line-through',
+                whiteSpace: 'nowrap'
+              }}>
+                {formatPrice(product.actualPrice)}
+              </span>
+            )}
           </div>
         </div>
 

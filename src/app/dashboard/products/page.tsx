@@ -52,7 +52,8 @@ import {
   FileText,
   ChevronDown,
   Box,
-  ChevronRight
+  ChevronRight,
+  Star
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -321,7 +322,15 @@ export default function DashboardProductsPage() {
                         </TableCell>
                         <TableCell className="py-6">
                           <div className="flex flex-col gap-1">
-                            <span className="font-bold text-neutral-900 text-base">{p.name}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-neutral-900 text-base">{p.name}</span>
+                              {p.featured && (
+                                <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter border border-amber-100">
+                                  <Star className="h-2.5 w-2.5 fill-amber-600" />
+                                  Featured
+                                </div>
+                              )}
+                            </div>
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 font-mono">{p.sku || "NO-SKU"}</span>
                           </div>
                         </TableCell>
@@ -745,10 +754,16 @@ export default function DashboardProductsPage() {
             formData.append("description", data.description?.trim() || "No description provided.");
             formData.append("status", data.status?.toUpperCase() || "DRAFT");
             formData.append("discountable", String(data.discountable ?? true));
+            formData.append("featured", String(data.featured ?? false));
+            formData.append("ingredients", data.ingredients || "");
+            formData.append("testimonials", JSON.stringify(data.testimonials || []));
             
             // Normalized metrics
             const basePrice = data.price || data.variants?.[0]?.price || 0;
             formData.append("price", String(parseFloat(basePrice as string) || 0));
+
+            const actualPrice = data.actualPrice || data.variants?.[0]?.actualPrice || "";
+            formData.append("actualPrice", String(actualPrice || ""));
             
             const totalStock = (data.stock && data.stock !== "0") 
               ? data.stock 
@@ -781,8 +796,13 @@ export default function DashboardProductsPage() {
             // Clean variants to remove File objects before stringifying
             const cleanedVariants = (data.variants || []).map((v: any) => {
               const { image, imageUrl, ...rest } = v;
-              // If image is a string (existing URL), keep it, otherwise null (new file is sent separately)
-              return { ...rest, image: typeof image === 'string' ? image : null };
+              // If variant actualPrice is missing, fallback to main actualPrice
+              const vActualPrice = (v.actualPrice && v.actualPrice !== "0") ? v.actualPrice : (data.actualPrice || "");
+              return { 
+                ...rest, 
+                actualPrice: vActualPrice,
+                image: typeof image === 'string' ? image : null 
+              };
             });
             formData.append("variants", JSON.stringify(cleanedVariants));
             formData.append("options", JSON.stringify(data.options || []));

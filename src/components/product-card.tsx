@@ -23,6 +23,7 @@ interface ProductCardProps {
     name: string;
     slug: string;
     price: number;
+    actualPrice?: number;
     stock?: number;
     description?: string;
     images?: any[];
@@ -121,12 +122,22 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = "g
           </div>
 
           <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-4">
-            <span className={cn(
-              "font-serif font-bold text-[var(--gold)] leading-none shrink-0",
-              isList ? "text-[28px] sm:text-[32px]" : "text-[20px]"
-            )}>
-              ${product.price}
-            </span>
+            <div className="flex items-center gap-2.5">
+              <span className={cn(
+                "font-serif font-bold text-[var(--gold)] leading-none shrink-0",
+                isList ? "text-[28px] sm:text-[32px]" : "text-[20px]"
+              )}>
+                ${product.price}
+              </span>
+              {product.actualPrice && Number(product.actualPrice) > Number(product.price) && (
+                <span className={cn(
+                  "text-[#eff8ee]/30 line-through decoration-[var(--gold)]/30 font-medium",
+                  isList ? "text-[18px] sm:text-[22px]" : "text-[14px]"
+                )}>
+                  ${product.actualPrice}
+                </span>
+              )}
+            </div>
 
             <button 
               onClick={(e) => {
