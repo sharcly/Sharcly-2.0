@@ -10,7 +10,8 @@ import {
   Menu,
   User,
   LayoutGrid,
-  ChevronDown
+  ChevronDown,
+  Search
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { toggleCart } from "@/store/slices/cartSlice";
+import { MiniSearch } from "./mini-search";
 
 
 const NAV_LINKS = [
@@ -45,6 +47,7 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -117,7 +120,20 @@ export function Navbar() {
 
           {/* Action Icons */}
           <div className="flex items-center gap-3">
-
+            <div className="relative">
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                className={cn(
+                  "p-2 rounded-full transition-colors flex items-center justify-center",
+                  !scrolled && isDarkPage
+                    ? "hover:bg-white/10 text-white"
+                    : "hover:bg-neutral-50 text-[#062D1B]"
+                )}
+              >
+                <Search className="size-4" />
+              </button>
+              <MiniSearch open={searchOpen} setOpen={setSearchOpen} />
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
