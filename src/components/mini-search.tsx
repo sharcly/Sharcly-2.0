@@ -95,8 +95,8 @@ export function MiniSearch({ open, setOpen }: { open: boolean, setOpen: (open: b
           initial={{ opacity: 0, y: 10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-          className="absolute top-full right-0 mt-3 w-[250px] bg-white dark:bg-neutral-900 border border-black/5 dark:border-white/5 rounded-3xl shadow-2xl z-[100] overflow-hidden flex flex-col"
-          style={{ height: "250px" }}
+          className="fixed left-4 right-4 top-[80px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-3 w-auto sm:w-[350px] bg-white dark:bg-neutral-900 border border-black/5 dark:border-white/5 rounded-3xl shadow-2xl z-[100] overflow-hidden flex flex-col origin-top sm:origin-top-right"
+          style={{ height: "300px" }}
         >
           {/* Search Input Area */}
           <div className="p-3 border-b border-black/5 dark:border-white/5">
@@ -107,7 +107,7 @@ export function MiniSearch({ open, setOpen }: { open: boolean, setOpen: (open: b
                 placeholder="Search..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="flex-1 h-6 bg-transparent border-none text-xs focus-visible:ring-0 placeholder:text-black/20 pl-2 pr-2"
+                className="flex-1 h-6 bg-transparent border-none text-xs text-black dark:text-white focus-visible:ring-0 placeholder:text-black/20 pl-2 pr-2"
               />
               {query && (
                 <button onClick={() => setQuery("")}>
@@ -163,7 +163,7 @@ export function MiniSearch({ open, setOpen }: { open: boolean, setOpen: (open: b
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[11px] font-bold truncate leading-none">{product.name}</p>
+                              <p className="text-[11px] font-bold truncate leading-none text-black dark:text-white">{product.name}</p>
                               <div className="flex items-center gap-2 mt-1">
                                 <p className="text-[11px] font-bold text-black dark:text-white">${Number(product.price).toFixed(2)}</p>
                                 {product.actualPrice && Number(product.actualPrice) > Number(product.price) && (
@@ -199,7 +199,7 @@ export function MiniSearch({ open, setOpen }: { open: boolean, setOpen: (open: b
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-[11px] font-bold truncate leading-none">{blog.title}</p>
+                              <p className="text-[11px] font-bold truncate leading-none text-black dark:text-white">{blog.title}</p>
                               <p className="text-[9px] text-black/40 dark:text-white/40 mt-0.5 uppercase tracking-tighter">Article</p>
                             </div>
                             <ArrowRight className="size-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
