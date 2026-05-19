@@ -171,20 +171,20 @@ export function WelcomePopup() {
               initial={{ opacity: 0, scale: 0.9, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              className="relative w-full max-w-5xl bg-white rounded-[3rem] overflow-hidden shadow-[0_100px_150px_rgba(0,0,0,0.25)] flex flex-col md:flex-row border border-white/20"
+              className="relative w-full max-w-5xl bg-white rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-[0_100px_150px_rgba(0,0,0,0.25)] flex flex-col md:flex-row border border-white/20 max-h-[90vh] md:max-h-[85vh]"
             >
               {/* Close Button */}
               <button 
                 onClick={handleClose}
-                className="absolute top-8 right-8 z-30 size-12 rounded-full bg-white/10 backdrop-blur-md hover:bg-[#062D1B] hover:text-white flex items-center justify-center text-[#062D1B]/40 transition-all border border-[#062D1B]/5 group"
+                className="absolute top-4 right-4 md:top-8 md:right-8 z-50 size-10 md:size-12 rounded-full bg-black/5 md:bg-white/10 backdrop-blur-md hover:bg-[#062D1B] hover:text-white flex items-center justify-center text-[#062D1B] md:text-white/80 transition-all border border-black/10 md:border-white/20 group"
               >
                 <X size={20} className="group-hover:rotate-90 transition-transform" />
               </button>
 
               {/* Left Side: Boutique Experience */}
-              <div className="w-full md:w-[55%] p-8 md:p-12 flex flex-col justify-center bg-white relative">
+              <div className="w-full md:w-[55%] px-6 py-10 md:p-12 flex flex-col justify-center bg-white relative overflow-y-auto min-h-[500px] md:min-h-[600px]">
                 {/* Subtle Background Text */}
-                <div className="absolute top-8 left-8 text-[100px] font-serif font-black text-black/[0.02] select-none pointer-events-none leading-none uppercase">
+                <div className="absolute top-4 left-4 md:top-8 md:left-8 text-[60px] md:text-[100px] font-serif font-black text-black/[0.02] select-none pointer-events-none leading-none uppercase">
                    WELCOME
                 </div>
 
@@ -321,7 +321,7 @@ export function WelcomePopup() {
               </div>
 
               {/* Right Side: Visual Archive */}
-              <div className="w-full md:w-[45%] relative min-h-[350px] md:min-h-full overflow-hidden bg-[#062D1B]">
+              <div className="hidden md:block w-full md:w-[45%] relative min-h-[350px] md:min-h-full overflow-hidden bg-[#062D1B]">
                 <motion.img 
                   animate={{ scale: [1.1, 1.15, 1.1] }}
                   transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
