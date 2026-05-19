@@ -14,6 +14,7 @@ import { apiClient } from "@/lib/api-client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { getImageUrl } from "@/lib/image-utils";
 
 interface SearchResult {
   products: any[];
@@ -117,7 +118,7 @@ export function MiniSearch({ open, setOpen }: { open: boolean, setOpen: (open: b
           </div>
 
           {/* Results Area (Scrollable) */}
-          <div className="flex-1 overflow-y-auto p-2 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-black/10 dark:[&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent">
             {loading ? (
               <div className="space-y-4 p-2">
                 <div className="space-y-1">
@@ -146,31 +147,34 @@ export function MiniSearch({ open, setOpen }: { open: boolean, setOpen: (open: b
                   <div className="space-y-1">
                     <p className="px-2 text-[9px] font-black uppercase tracking-widest text-black/30 dark:text-white/30">Products</p>
                     <div className="grid gap-1">
-                      {results.products.map((product) => (
-                        <Link 
-                          key={product.id} 
-                          href={`/products/${product.slug}`}
-                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
-                        >
-                          <div className="size-8 rounded-lg bg-white border border-black/5 overflow-hidden shrink-0">
-                            {product.images?.[0]?.url ? (
-                              <img src={product.images[0].url} alt="" className="size-full object-cover" />
-                            ) : (
-                              <div className="size-full flex items-center justify-center opacity-10"><Package className="size-4" /></div>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-bold truncate leading-none">{product.name}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <p className="text-[11px] font-bold text-black dark:text-white">${Number(product.price).toFixed(2)}</p>
-                              {product.actualPrice && Number(product.actualPrice) > Number(product.price) && (
-                                <p className="text-[10px] text-black/40 dark:text-white/40 line-through">${Number(product.actualPrice).toFixed(2)}</p>
+                      {results.products.map((product) => {
+                        const imageUrl = getImageUrl(product.imageUrls?.[0] || product.images?.[0]);
+                        return (
+                          <Link 
+                            key={product.id} 
+                            href={`/products/${product.slug}`}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
+                          >
+                            <div className="size-8 rounded-lg bg-white border border-black/5 overflow-hidden shrink-0">
+                              {imageUrl ? (
+                                <img src={imageUrl} alt="" className="size-full object-cover" />
+                              ) : (
+                                <div className="size-full flex items-center justify-center opacity-10"><Package className="size-4" /></div>
                               )}
                             </div>
-                          </div>
-                          <ArrowRight className="size-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
-                        </Link>
-                      ))}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] font-bold truncate leading-none">{product.name}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <p className="text-[11px] font-bold text-black dark:text-white">${Number(product.price).toFixed(2)}</p>
+                                {product.actualPrice && Number(product.actualPrice) > Number(product.price) && (
+                                  <p className="text-[10px] text-black/40 dark:text-white/40 line-through">${Number(product.actualPrice).toFixed(2)}</p>
+                                )}
+                              </div>
+                            </div>
+                            <ArrowRight className="size-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -179,26 +183,29 @@ export function MiniSearch({ open, setOpen }: { open: boolean, setOpen: (open: b
                   <div className="space-y-1">
                     <p className="px-2 text-[9px] font-black uppercase tracking-widest text-black/30 dark:text-white/30">Journal</p>
                     <div className="grid gap-1">
-                      {results.blogs.map((blog) => (
-                        <Link 
-                          key={blog.id} 
-                          href={`/blog/${blog.slug}`}
-                          className="flex items-center gap-3 p-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
-                        >
-                          <div className="size-8 rounded-lg bg-white flex items-center justify-center border border-black/5 shrink-0">
-                            {blog.featuredImage ? (
-                               <img src={blog.featuredImage} alt="" className="size-full object-cover" />
-                            ) : (
-                               <FileText className="size-3.5 text-black/10" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[11px] font-bold truncate leading-none">{blog.title}</p>
-                            <p className="text-[9px] text-black/40 dark:text-white/40 mt-0.5 uppercase tracking-tighter">Article</p>
-                          </div>
-                          <ArrowRight className="size-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
-                        </Link>
-                      ))}
+                      {results.blogs.map((blog) => {
+                        const blogImageUrl = getImageUrl(blog.featuredImage);
+                        return (
+                          <Link 
+                            key={blog.id} 
+                            href={`/blog/${blog.slug}`}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group"
+                          >
+                            <div className="size-8 rounded-lg bg-white flex items-center justify-center border border-black/5 shrink-0 overflow-hidden">
+                              {blogImageUrl ? (
+                                 <img src={blogImageUrl} alt="" className="size-full object-cover" />
+                              ) : (
+                                 <FileText className="size-3.5 text-black/10" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] font-bold truncate leading-none">{blog.title}</p>
+                              <p className="text-[9px] text-black/40 dark:text-white/40 mt-0.5 uppercase tracking-tighter">Article</p>
+                            </div>
+                            <ArrowRight className="size-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-1 group-hover:translate-x-0" />
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
