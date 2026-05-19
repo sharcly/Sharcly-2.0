@@ -25,6 +25,118 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+const ORDER_STAGES = [
+  { id: 'PENDING', label: 'Order Placed', icon: Package },
+  { id: 'CONFIRMED', label: 'Confirmed', icon: ShieldCheck },
+  { id: 'PREPARING', label: 'Preparing', icon: Loader2 },
+  { id: 'SHIPPED', label: 'Shipped', icon: Truck },
+  { id: 'DELIVERED', label: 'Delivered', icon: MapPin }
+];
+
+const OrderTracker = ({ order }: { order: any }) => {
+  const status = order.status;
+  if (status === 'CANCELLED') {
+    return (
+      <div className="w-full bg-[#0d2518] border border-red-500/20 rounded-[2.5rem] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(239,68,68,0.05),transparent_70%)]" />
+         <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
+            <div className="size-16 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+               <XCircle className="size-8" />
+            </div>
+            <h3 className="text-2xl font-serif italic text-red-400">Order Voided</h3>
+            <p className="text-[10px] font-black uppercase tracking-widest text-[#eff8ee]/40 max-w-md mx-auto">
+               This order has been securely cancelled and will not be processed further.
+            </p>
+         </div>
+      </div>
+    );
+  }
+
+  const activeIndex = ORDER_STAGES.findIndex(s => s.id === status);
+  const safeActiveIndex = activeIndex === -1 ? 0 : activeIndex;
+
+  return (
+    <div className="w-full bg-[#0d2518] border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl overflow-hidden relative">
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,rgba(235,181,107,0.03),transparent_70%)] pointer-events-none" />
+      
+      <div className="relative z-10">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-10">
+           <h3 className="text-xl font-serif italic text-[#eff8ee] flex items-center gap-4">
+              Progress Tracker
+           </h3>
+           
+           {order.trackingNumber && (
+              <div className="text-left md:text-right p-4 rounded-2xl bg-white/5 border border-white/5">
+                 <p className="text-[9px] font-black uppercase tracking-widest text-[#eff8ee]/40 mb-2">Shipping Details</p>
+                 <div className="flex items-center gap-3">
+                    <Badge className="bg-[#EBB56B] text-[#040e07] hover:bg-[#EBB56B] text-[9px] font-black border-none uppercase tracking-widest">
+                       {order.carrier || 'CARRIER'}
+                    </Badge>
+                    <span className="text-sm font-mono text-[#eff8ee] tracking-widest">{order.trackingNumber}</span>
+                 </div>
+              </div>
+           )}
+        </div>
+        
+        <div className="relative flex justify-between">
+           <div className="absolute top-6 md:top-7 left-0 w-full h-[2px] bg-white/5 -z-10" />
+           
+           <motion.div 
+             initial={{ width: 0 }}
+             animate={{ width: `${(safeActiveIndex / (ORDER_STAGES.length - 1)) * 100}%` }}
+             transition={{ duration: 1, ease: "easeInOut" }}
+             className="absolute top-6 md:top-7 left-0 h-[2px] bg-gradient-to-r from-[#EBB56B]/20 to-[#EBB56B] -z-10 shadow-[0_0_10px_rgba(235,181,107,0.5)]" 
+           />
+
+           {ORDER_STAGES.map((stage, index) => {
+             const isCompleted = index <= safeActiveIndex;
+             const isActive = index === safeActiveIndex;
+             const isPending = index > safeActiveIndex;
+             const Icon = stage.icon;
+
+             return (
+               <div key={stage.id} className="flex flex-col items-center relative group w-16 md:w-24">
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: index * 0.15 }}
+                    className={cn(
+                      "size-12 md:size-14 rounded-full flex items-center justify-center transition-all duration-500 bg-[#040e07]",
+                      isCompleted && !isActive ? "bg-[#EBB56B] text-[#040e07] shadow-[0_0_20px_rgba(235,181,107,0.3)]" : 
+                      isActive ? "border-2 border-[#EBB56B] text-[#EBB56B] shadow-[0_0_30px_rgba(235,181,107,0.4)]" : 
+                      "border border-white/10 text-[#eff8ee]/20"
+                    )}
+                  >
+                     {isActive && <div className="absolute inset-0 rounded-full border border-[#EBB56B] animate-ping opacity-20" />}
+                     <Icon className={cn("size-5 md:size-6", isActive && stage.id === 'PREPARING' && "animate-spin")} />
+                  </motion.div>
+                  
+                  <div className="mt-4 flex flex-col items-center text-center space-y-1">
+                     <span className={cn(
+                       "text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] transition-colors",
+                       isCompleted ? "text-[#EBB56B]" : "text-[#eff8ee]/20"
+                     )}>
+                       {stage.label}
+                     </span>
+                     {isActive && (
+                       <motion.span 
+                         initial={{ opacity: 0, y: 5 }} 
+                         animate={{ opacity: 1, y: 0 }} 
+                         className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest text-[#eff8ee]/40 hidden md:block"
+                       >
+                         Current Phase
+                       </motion.span>
+                     )}
+                  </div>
+               </div>
+             );
+           })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function OrderDetailsPage() {
   const { id } = useParams();
   const [order, setOrder] = useState<any>(null);
@@ -151,6 +263,8 @@ export default function OrderDetailsPage() {
       <div className="grid lg:grid-cols-3 gap-12">
         {/* Items List */}
         <div className="lg:col-span-2 space-y-12">
+           <OrderTracker order={order} />
+
            <section className="space-y-6">
               <h3 className="text-xl font-serif italic text-[#eff8ee] flex items-center gap-4">
                 <Package className="size-6 text-[#EBB56B]" /> Items Summary
@@ -239,17 +353,6 @@ export default function OrderDetailsPage() {
                      </div>
                    </>
                  )}
-              </div>
-              <div className="pt-8 border-t border-white/5 space-y-4">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-[#eff8ee]/30">Live Status Feed</p>
-                 <div className="flex items-center gap-4 px-6 py-3 rounded-full bg-[#040e07] border border-white/5">
-                    <div className={cn(
-                      "size-2.5 rounded-full shadow-[0_0_10px_currentColor]",
-                      order.status === 'DELIVERED' ? "bg-emerald-500 text-emerald-500" : 
-                      order.status === 'CANCELLED' ? "bg-red-500 text-red-500" : "bg-amber-400 text-amber-400 animate-pulse"
-                    )} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#eff8ee]">{order.status}</span>
-                 </div>
               </div>
            </section>
 

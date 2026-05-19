@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Loader2, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { Loader2, ShieldCheck, Eye, EyeOff, CheckCircle2, Circle } from "lucide-react";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -27,6 +27,15 @@ export default function RegisterPage() {
   useEffect(() => {
     apiClient.get("/health").catch(() => {});
   }, []);
+
+  const pw = formData.password;
+  const pwReqs = [
+    { label: "Uppercase", met: /[A-Z]/.test(pw) },
+    { label: "Lowercase", met: /[a-z]/.test(pw) },
+    { label: "Number", met: /[0-9]/.test(pw) },
+    { label: "Special Char", met: /[^A-Za-z0-9]/.test(pw) },
+    { label: "8+ Chars", met: pw.length >= 8 }
+  ];
 
   const handleSendOtp = async () => {
     if (!formData.email || !formData.name || !formData.password) {
@@ -161,6 +170,17 @@ export default function RegisterPage() {
                       className="h-12 px-4 rounded-xl border-gray-200 focus:border-[#062D1B]"
                     />
                   </div>
+
+                  {formData.password.length > 0 && (
+                    <div className="col-span-1 md:col-span-2 mt-1 p-4 bg-gray-50/50 rounded-xl border border-gray-100 flex flex-wrap gap-x-4 gap-y-3">
+                      {pwReqs.map((req, i) => (
+                        <div key={i} className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-300 ${req.met ? 'text-[#062D1B]' : 'text-gray-400'}`}>
+                          {req.met ? <CheckCircle2 className="size-3.5 text-[#EBB56B]" /> : <Circle className="size-3.5 text-gray-300" />}
+                          {req.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
