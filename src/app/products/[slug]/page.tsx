@@ -472,9 +472,9 @@ export default function ProductDetailsPage() {
                     ...testimonials.map((t: any) => t.rating || 5),
                     ...reviews.map((r: any) => r.rating || 5)
                   ];
-                  
-                  const avgRating = allRatings.length > 0 
-                    ? (allRatings.reduce((a, b) => a + b, 0) / allRatings.length).toFixed(1) 
+
+                  const avgRating = allRatings.length > 0
+                    ? (allRatings.reduce((a, b) => a + b, 0) / allRatings.length).toFixed(1)
                     : "5.0";
                   const count = allRatings.length > 0 ? allRatings.length : 1;
 
@@ -489,7 +489,7 @@ export default function ProductDetailsPage() {
                       <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
                       <span className="text-[12px] text-[#eff8ee]/52">{count} {count === 1 ? 'Review' : 'Reviews'}</span>
                       <div className="w-[1px] h-3.5 bg-[rgba(239,248,238,0.08)]" />
-                      <button 
+                      <button
                         onClick={() => {
                           const el = document.getElementById('product-tabs');
                           if (el) {
@@ -513,7 +513,7 @@ export default function ProductDetailsPage() {
                     ${displayPrice}
                   </span>
                   {displayActualPrice > 0 && displayActualPrice !== displayPrice && (
-                    <span className="text-[20px] md:text-[28px] text-[#eff8ee]/30 line-through decoration-[#E8C547]/40 font-medium">
+                    <span className="text-[20px] md:text-[28px] text-[#eff8ee]/60 line-through decoration-[#E8C547]/60 font-medium">
                       ${displayActualPrice}
                     </span>
                   )}
@@ -869,8 +869,8 @@ export default function ProductDetailsPage() {
                           { name: "Julian R.", date: "2 days ago", text: "Absolute game changer. The flavor is incredibly clean and the effects are exactly as described. Best I've had.", rating: 5 }
                         ];
 
-                        const avgRating = allReviews.length > 0 
-                          ? (allReviews.reduce((a: number, b: any) => a + (b.rating || 5), 0) / allReviews.length).toFixed(1) 
+                        const avgRating = allReviews.length > 0
+                          ? (allReviews.reduce((a: number, b: any) => a + (b.rating || 5), 0) / allReviews.length).toFixed(1)
                           : "5.0";
 
                         const ratingCounts = [5, 4, 3, 2, 1].map(r => ({

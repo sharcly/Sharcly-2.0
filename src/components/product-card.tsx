@@ -8,13 +8,13 @@ import { getImageUrl } from "@/lib/image-utils";
 import { motion } from "framer-motion";
 
 const SERIES_COLORS: Record<string, { bg: string; text: string }> = {
-  chill:      { bg: 'rgba(220,38,38,0.85)',   text: '#fff' },
-  lift:       { bg: 'rgba(124,58,237,0.85)',  text: '#fff' },
-  balance:    { bg: 'rgba(217,119,6,0.85)',   text: '#fff' },
-  entourage:  { bg: 'rgba(234,88,12,0.85)',   text: '#fff' },
-  sleep:      { bg: 'rgba(30,64,175,0.85)',   text: '#fff' },
-  vape:       { bg: 'rgba(15,23,42,0.9)',     text: '#eff8ee' },
-  default:    { bg: 'rgba(232,197,71,0.85)',  text: '#082f1d' },
+  chill: { bg: 'rgba(220,38,38,0.85)', text: '#fff' },
+  lift: { bg: 'rgba(124,58,237,0.85)', text: '#fff' },
+  balance: { bg: 'rgba(217,119,6,0.85)', text: '#fff' },
+  entourage: { bg: 'rgba(234,88,12,0.85)', text: '#fff' },
+  sleep: { bg: 'rgba(30,64,175,0.85)', text: '#fff' },
+  vape: { bg: 'rgba(15,23,42,0.9)', text: '#eff8ee' },
+  default: { bg: 'rgba(232,197,71,0.85)', text: '#082f1d' },
 }
 
 interface ProductCardProps {
@@ -46,7 +46,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = "g
   const isList = viewMode === "list";
 
   return (
-    <Link 
+    <Link
       href={`/products/${product.slug}`}
       className={cn(
         "group relative flex bg-[var(--card)] border border-[var(--border)] rounded-[20px] overflow-hidden transition-all duration-[450ms] cubic-bezier(0.22,1,0.36,1) hover:border-[rgba(232,197,71,0.22)] hover:-translate-y-1.5 hover:shadow-[0_28px_60px_rgba(0,0,0,0.45),0_0_0_1px_rgba(232,197,71,0.08)]",
@@ -64,14 +64,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = "g
         <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(232,197,71,0.06)_0%,transparent_65%)] pointer-events-none z-[1]" />
         <div className="absolute top-0 left-0 right-0 h-[40%] bg-gradient-to-b from-white/5 to-transparent z-[2] pointer-events-none" />
 
-        <img 
-          src={imageUrl} 
+        <img
+          src={imageUrl}
           alt={product.name}
           className="absolute inset-0 w-full h-full object-contain p-5 drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] transition-transform duration-[650ms] cubic-bezier(0.22,1,0.36,1) group-hover:scale-[1.08] z-[1]"
         />
 
         {/* Series Badge */}
-        <div 
+        <div
           className="absolute top-[13px] left-[13px] px-[10px] py-[4px] rounded-full backdrop-blur-[8px] z-[4] text-[8.5px] font-bold uppercase tracking-[0.16em]"
           style={{ backgroundColor: seriesStyle.bg, color: seriesStyle.text }}
         >
@@ -99,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = "g
             )}>
               {product.name}
             </h3>
-            
+
             {/* Stars */}
             <div className="flex items-center gap-1.5">
               <div className="flex items-center">
@@ -131,7 +131,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = "g
               </span>
               {product.actualPrice && Number(product.actualPrice) > Number(product.price) && (
                 <span className={cn(
-                  "text-[#eff8ee]/30 line-through decoration-[var(--gold)]/30 font-medium",
+                  "text-[#eff8ee]/60 line-through decoration-[var(--gold)]/60 font-medium",
                   isList ? "text-[18px] sm:text-[22px]" : "text-[14px]"
                 )}>
                   ${product.actualPrice}
@@ -139,7 +139,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = "g
               )}
             </div>
 
-            <button 
+            <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
