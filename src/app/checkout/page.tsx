@@ -59,7 +59,7 @@ import usePlacesAutocomplete, {
    getLatLng,
 } from "use-places-autocomplete";
 
-function CheckoutContent() {
+function CheckoutContent({ gatewayId }: { gatewayId?: string }) {
    const cartItems = useSelector((state: RootState) => state.cart.items);
    const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
    const dispatch = useDispatch();
@@ -298,7 +298,8 @@ function CheckoutContent() {
             paymentMethod: formData.paymentMethod,
             couponCode: appliedCoupon?.code,
             password: (!user && formData.createAccount) ? formData.password : undefined,
-            name: `${formData.shipping.firstName} ${formData.shipping.lastName}`.trim()
+            name: `${formData.shipping.firstName} ${formData.shipping.lastName}`.trim(),
+            gatewayId
          });
 
          if (response.data.success) {
@@ -806,9 +807,38 @@ function CheckoutContent() {
 }
 
 export default function CheckoutPage() {
+   const [activeKey, setActiveKey] = useState<string>("");
+   const [gatewayId, setGatewayId] = useState<string>("");
+   const [loading, setLoading] = useState(true);
+
+   useEffect(() => {
+      const getActiveKey = async () => {
+         try {
+            const { data } = await apiClient.get("/payments/active-key");
+            if (data.success) {
+               setActiveKey(data.publishableKey);
+               setGatewayId(data.gatewayId);
+            }
+         } catch (error) {
+            console.error("Failed to load active payment gateway:", error);
+         } finally {
+            setLoading(false);
+         }
+      };
+      getActiveKey();
+   }, []);
+
+   if (loading) {
+      return (
+         <div className="flex items-center justify-center min-h-screen bg-[#062D1B]">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+         </div>
+      );
+   }
+
    return (
-      <StripeWrapper>
-         <CheckoutContent />
+      <StripeWrapper publishableKey={activeKey}>
+         <CheckoutContent gatewayId={gatewayId} />
       </StripeWrapper>
    );
 }
