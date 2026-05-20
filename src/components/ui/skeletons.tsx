@@ -234,24 +234,24 @@ export function ProductDetailSkeleton() {
 export function OrderRowSkeleton() {
   return (
     <tr className="border-b border-white/5">
-      <td className="px-10 py-8"><Shimmer className="h-3.5 w-28 rounded-md" /></td>
-      <td className="px-10 py-8"><Shimmer className="h-3.5 w-24 rounded-md" /></td>
-      <td className="px-10 py-8"><Shimmer className="h-6 w-20 rounded-full" /></td>
-      <td className="px-10 py-8"><Shimmer className="h-3.5 w-16 rounded-md" /></td>
-      <td className="px-10 py-8 text-right flex justify-end"><Shimmer className="h-3.5 w-16 rounded-md" /></td>
+      <td className="px-4 py-5 md:px-10 md:py-8"><Shimmer className="h-3.5 w-28 rounded-md" /></td>
+      <td className="px-4 py-5 md:px-10 md:py-8"><Shimmer className="h-3.5 w-24 rounded-md" /></td>
+      <td className="px-4 py-5 md:px-10 md:py-8"><Shimmer className="h-6 w-20 rounded-full" /></td>
+      <td className="px-4 py-5 md:px-10 md:py-8"><Shimmer className="h-3.5 w-16 rounded-md" /></td>
+      <td className="px-4 py-5 md:px-10 md:py-8 text-right flex justify-end"><Shimmer className="h-3.5 w-16 rounded-md" /></td>
     </tr>
   );
 }
 
 export function OrderTableSkeleton({ rows = 4 }: { rows?: number }) {
   return (
-    <div className="bg-[#0d2518] rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl">
-      <div className="overflow-x-auto">
+    <div className="bg-[#0d2518] rounded-3xl md:rounded-[2.5rem] overflow-hidden border border-white/5 shadow-2xl">
+      <div className="overflow-x-auto scrollbar-none">
         <table className="w-full text-left border-collapse">
           <thead className="bg-[#040e07]/50 border-b border-white/5">
             <tr>
               {["Reference", "Date", "Status", "Investment", "Actions"].map((h) => (
-                <th key={h} className="px-10 py-6">
+                <th key={h} className="px-4 py-4 md:px-10 md:py-6">
                   <Shimmer className="h-2.5 w-16 rounded" />
                 </th>
               ))}

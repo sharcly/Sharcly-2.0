@@ -56,7 +56,7 @@ const OrderTracker = ({ order }: { order: any }) => {
   const safeActiveIndex = activeIndex === -1 ? 0 : activeIndex;
 
   return (
-    <div className="w-full bg-[#0d2518] border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl overflow-hidden relative">
+    <div className="w-full bg-[#0d2518] border border-white/5 rounded-3xl md:rounded-[2.5rem] p-4 sm:p-6 md:p-12 shadow-2xl overflow-hidden relative">
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,rgba(235,181,107,0.03),transparent_70%)] pointer-events-none" />
       
       <div className="relative z-10">
@@ -78,14 +78,25 @@ const OrderTracker = ({ order }: { order: any }) => {
            )}
         </div>
         
-        <div className="relative flex justify-between">
-           <div className="absolute top-6 md:top-7 left-0 w-full h-[2px] bg-white/5 -z-10" />
+        <div className="relative flex flex-col md:flex-row justify-between gap-8 md:gap-0 pl-4 md:pl-0">
+           {/* Connecting Line (Desktop) */}
+           <div className="hidden md:block absolute top-7 left-0 w-full h-[2px] bg-white/5 -z-10" />
            
            <motion.div 
              initial={{ width: 0 }}
              animate={{ width: `${(safeActiveIndex / (ORDER_STAGES.length - 1)) * 100}%` }}
              transition={{ duration: 1, ease: "easeInOut" }}
-             className="absolute top-6 md:top-7 left-0 h-[2px] bg-gradient-to-r from-[#EBB56B]/20 to-[#EBB56B] -z-10 shadow-[0_0_10px_rgba(235,181,107,0.5)]" 
+             className="hidden md:block absolute top-7 left-0 h-[2px] bg-gradient-to-r from-[#EBB56B]/20 to-[#EBB56B] -z-10 shadow-[0_0_10px_rgba(235,181,107,0.5)]" 
+           />
+
+           {/* Connecting Line (Mobile) */}
+           <div className="md:hidden absolute left-[36px] top-5 bottom-5 w-[2px] bg-white/5 -z-10" />
+           
+           <motion.div 
+             initial={{ height: 0 }}
+             animate={{ height: `${(safeActiveIndex / (ORDER_STAGES.length - 1)) * 100}%` }}
+             transition={{ duration: 1, ease: "easeInOut" }}
+             className="md:hidden absolute left-[36px] top-5 w-[2px] bg-gradient-to-b from-[#EBB56B]/20 to-[#EBB56B] -z-10 shadow-[0_0_10px_rgba(235,181,107,0.5)]" 
            />
 
            {ORDER_STAGES.map((stage, index) => {
@@ -95,13 +106,13 @@ const OrderTracker = ({ order }: { order: any }) => {
              const Icon = stage.icon;
 
              return (
-               <div key={stage.id} className="flex flex-col items-center relative group w-16 md:w-24">
+               <div key={stage.id} className="flex flex-row md:flex-col items-center gap-4 md:gap-0 md:justify-center relative group w-full md:w-24">
                   <motion.div 
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: index * 0.15 }}
                     className={cn(
-                      "size-12 md:size-14 rounded-full flex items-center justify-center transition-all duration-500 bg-[#040e07]",
+                      "size-10 md:size-14 rounded-full flex items-center justify-center transition-all duration-500 bg-[#040e07] shrink-0",
                       isCompleted && !isActive ? "bg-[#EBB56B] text-[#040e07] shadow-[0_0_20px_rgba(235,181,107,0.3)]" : 
                       isActive ? "border-2 border-[#EBB56B] text-[#EBB56B] shadow-[0_0_30px_rgba(235,181,107,0.4)]" : 
                       "border border-white/10 text-[#eff8ee]/20"
@@ -111,9 +122,9 @@ const OrderTracker = ({ order }: { order: any }) => {
                      <Icon className={cn("size-5 md:size-6", isActive && stage.id === 'PREPARING' && "animate-spin")} />
                   </motion.div>
                   
-                  <div className="mt-4 flex flex-col items-center text-center space-y-1">
+                  <div className="mt-0 md:mt-4 flex flex-col items-start md:items-center text-left md:text-center space-y-0.5 md:space-y-1">
                      <span className={cn(
-                       "text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] transition-colors",
+                       "text-[9px] md:text-[9px] font-black uppercase tracking-[0.2em] transition-colors",
                        isCompleted ? "text-[#EBB56B]" : "text-[#eff8ee]/20"
                      )}>
                        {stage.label}
@@ -122,7 +133,7 @@ const OrderTracker = ({ order }: { order: any }) => {
                        <motion.span 
                          initial={{ opacity: 0, y: 5 }} 
                          animate={{ opacity: 1, y: 0 }} 
-                         className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest text-[#eff8ee]/40 hidden md:block"
+                         className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest text-[#eff8ee]/40"
                        >
                          Current Phase
                        </motion.span>
@@ -216,7 +227,7 @@ export default function OrderDetailsPage() {
   );
 
   return (
-    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 max-w-full overflow-hidden">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 pb-8 border-b border-white/5">
         <div className="space-y-4">
@@ -260,7 +271,7 @@ export default function OrderDetailsPage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-12">
+      <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8 lg:gap-12 w-full max-w-full overflow-hidden">
         {/* Items List */}
         <div className="lg:col-span-2 space-y-12">
            <OrderTracker order={order} />
@@ -268,25 +279,24 @@ export default function OrderDetailsPage() {
            <section className="space-y-6">
               <h3 className="text-xl font-serif italic text-[#eff8ee] flex items-center gap-4">
                 <Package className="size-6 text-[#EBB56B]" /> Items Summary
-              </h3>
-              <div className="bg-[#0d2518] border border-white/5 rounded-[2.5rem] overflow-hidden shadow-2xl">
+              </h3>              <div className="bg-[#0d2518] border border-white/5 rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-2xl">
                 {order.items?.map((item: any, i: number) => (
                   <div key={item.id} className={cn(
-                    "p-8 flex items-center gap-8",
+                    "p-4 md:p-8 flex items-center gap-4 md:gap-8",
                     i !== 0 && "border-t border-white/5"
                   )}>
-                    <div className="size-24 rounded-2xl bg-[#040e07] overflow-hidden shrink-0 border border-white/5 shadow-inner">
+                    <div className="size-16 md:size-24 rounded-2xl bg-[#040e07] overflow-hidden shrink-0 border border-white/5 shadow-inner">
                        <img src={item.product?.image || "https://i.postimg.cc/K8nwpV4T/Premium-Hemp-Essentials-Sharcly.jpg"} alt={item.product?.name} className="w-full h-full object-cover saturate-[1.2] brightness-90" />
                     </div>
                     <div className="flex-1 min-w-0">
-                       <p className="text-xl font-serif italic text-[#eff8ee] tracking-tight truncate">{item.product?.name || "Product"}</p>
-                       <div className="flex gap-4 mt-2">
-                          <p className="text-[9px] font-black uppercase tracking-widest text-[#eff8ee]/30">Qty: {item.quantity}</p>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-[#EBB56B]">Unit Price: ${Number(item.price).toFixed(2)}</p>
+                       <p className="text-base md:text-xl font-serif italic text-[#eff8ee] tracking-tight truncate">{item.product?.name || "Product"}</p>
+                       <div className="flex gap-4 mt-1 md:mt-2">
+                          <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-[#eff8ee]/30">Qty: {item.quantity}</p>
+                          <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-[#EBB56B]">Unit Price: ${Number(item.price).toFixed(2)}</p>
                        </div>
                     </div>
                     <div className="text-right">
-                       <p className="text-xl font-black text-[#eff8ee] font-mono tracking-tighter">${(Number(item.price) * item.quantity).toFixed(2)}</p>
+                       <p className="text-base md:text-xl font-black text-[#eff8ee] font-mono tracking-tighter">${(Number(item.price) * item.quantity).toFixed(2)}</p>
                     </div>
                   </div>
                 ))}
@@ -294,26 +304,26 @@ export default function OrderDetailsPage() {
            </section>
 
            {/* Financial Summary */}
-           <section className="bg-[#0d2518] rounded-[2.5rem] p-10 text-[#eff8ee] space-y-8 relative overflow-hidden shadow-2xl border border-white/5">
+           <section className="bg-[#0d2518] rounded-3xl md:rounded-[2.5rem] p-4 sm:p-6 md:p-10 text-[#eff8ee] space-y-8 relative overflow-hidden shadow-2xl border border-white/5">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(235,181,107,0.05),transparent_70%)]" />
               <div className="relative z-10 space-y-5">
-                 <div className="flex justify-between text-[#eff8ee]/40 text-[10px] font-black uppercase tracking-widest">
+                 <div className="flex justify-between text-[#eff8ee]/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest">
                     <span>Subtotal</span>
                     <span className="text-[#eff8ee] font-mono tracking-tighter">${(Number(order.totalAmount) - Number(order.taxAmount) - Number(order.shippingAmount)).toFixed(2)}</span>
                  </div>
-                 <div className="flex justify-between text-[#eff8ee]/40 text-[10px] font-black uppercase tracking-widest">
+                 <div className="flex justify-between text-[#eff8ee]/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest">
                     <span>Shipping Hub Fee</span>
                     <span className="text-[#eff8ee] font-mono tracking-tighter">${Number(order.shippingAmount).toFixed(2)}</span>
                  </div>
-                 <div className="flex justify-between text-[#eff8ee]/40 text-[10px] font-black uppercase tracking-widest">
+                 <div className="flex justify-between text-[#eff8ee]/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest">
                     <span>Government Surcharge (Tax)</span>
                     <span className="text-[#eff8ee] font-mono tracking-tighter">${Number(order.taxAmount).toFixed(2)}</span>
                  </div>
-                 <div className="h-px w-full bg-white/5 my-8" />
+                 <div className="h-px w-full bg-white/5 my-6 md:my-8" />
                  <div className="flex justify-between items-end">
                     <div className="space-y-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#EBB56B]">Total Investment</p>
-                      <p className="text-5xl font-black tracking-tighter text-[#eff8ee] font-mono">${Number(order.totalAmount).toFixed(2)}</p>
+                       <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] text-[#EBB56B]">Total Investment</p>
+                       <p className="text-3xl md:text-5xl font-black tracking-tighter text-[#eff8ee] font-mono">${Number(order.totalAmount).toFixed(2)}</p>
                     </div>
                     <div className="text-right hidden sm:block space-y-2">
                        <p className="text-[10px] font-black uppercase tracking-widest text-[#eff8ee]/40">Payment Asset</p>
@@ -326,9 +336,9 @@ export default function OrderDetailsPage() {
            </section>
 
            {order.status === 'CANCELLED' && order.cancelReason && (
-              <section className="p-10 bg-red-400/5 border border-red-400/10 rounded-[2.5rem] space-y-4">
-                 <p className="text-[10px] font-black uppercase tracking-widest text-red-400">Voiding Authority Reason</p>
-                 <p className="text-lg font-serif italic text-red-400/60 leading-relaxed">"{order.cancelReason}"</p>
+              <section className="p-4 sm:p-6 md:p-10 bg-red-400/5 border border-red-400/10 rounded-3xl md:rounded-[2.5rem] space-y-4">
+                 <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-red-400">Voiding Authority Reason</p>
+                 <p className="text-base md:text-lg font-serif italic text-red-400/60 leading-relaxed">"{order.cancelReason}"</p>
               </section>
            )}
         </div>
@@ -336,7 +346,7 @@ export default function OrderDetailsPage() {
         {/* Sidebar Info */}
         <div className="space-y-8">
            {/* Shipping Info */}
-           <section className="p-8 bg-[#0d2518] border border-white/5 rounded-[2.5rem] space-y-8 shadow-2xl">
+           <section className="p-4 sm:p-6 md:p-8 bg-[#0d2518] border border-white/5 rounded-3xl md:rounded-[2.5rem] space-y-8 shadow-2xl">
               <h4 className="text-[10px] font-black uppercase tracking-widest text-[#eff8ee]/30 flex items-center gap-3">
                 <Truck className="size-4 text-[#EBB56B]" /> Shipping Manifest
               </h4>
@@ -357,7 +367,7 @@ export default function OrderDetailsPage() {
            </section>
 
            {/* Security Verification */}
-           <div className="p-8 rounded-[2.5rem] bg-white/5 flex items-center gap-6 border border-white/5 group hover:bg-white/10 transition-all">
+           <div className="p-4 sm:p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] bg-white/5 flex items-center gap-6 border border-white/5 group hover:bg-white/10 transition-all">
               <div className="size-14 rounded-2xl bg-[#040e07] flex items-center justify-center text-emerald-400 shadow-2xl group-hover:scale-110 transition-transform">
                  <ShieldCheck className="size-7" />
               </div>
@@ -368,7 +378,7 @@ export default function OrderDetailsPage() {
            </div>
 
            {/* Need Help? */}
-           <div className="p-8 rounded-[2.5rem] bg-[#EBB56B]/5 border border-[#EBB56B]/10 space-y-6">
+           <div className="p-4 sm:p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] bg-[#EBB56B]/5 border border-[#EBB56B]/10 space-y-6">
               <h4 className="font-serif italic text-xl text-[#eff8ee]">Need Assistance?</h4>
               <p className="text-xs font-medium text-[#eff8ee]/40 leading-relaxed">Our botanical concierge team is available to help with your order.</p>
               <button className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl text-[9px] font-black uppercase tracking-[0.2em] text-[#eff8ee] hover:bg-[#EBB56B] hover:text-[#040e07] hover:border-[#EBB56B] transition-all shadow-xl">

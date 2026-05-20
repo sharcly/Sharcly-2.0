@@ -159,7 +159,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground selection:bg-primary/10 selection:text-primary relative font-body;
+    @apply bg-background text-foreground selection:bg-primary/10 selection:text-primary relative font-body overflow-x-hidden max-w-full;
   }
   
   /* Subtle Organic Grain Overlay */
@@ -170,7 +170,7 @@
   }
 
   html {
-    @apply font-sans antialiased scroll-smooth;
+    @apply font-sans antialiased scroll-smooth overflow-x-hidden max-w-full;
   }
 
   /* Refined High-End Scrollbar */
@@ -182,5 +182,18 @@
   }
   ::-webkit-scrollbar-thumb {
     @apply bg-primary/20 rounded-full hover:bg-primary/40;
+  }
+}
+
+/* Chatwoot Mobile Spacing Adjustment */
+@media (max-width: 768px) {
+  .woot-widget-bubble {
+    bottom: 96px !important;
+    right: 20px !important;
+  }
+  .woot-widget-holder {
+    bottom: 160px !important;
+    right: 20px !important;
+    max-height: calc(100% - 180px) !important;
   }
 }
