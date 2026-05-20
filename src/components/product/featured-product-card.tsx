@@ -162,8 +162,8 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
         </div>
 
         {/* Bottom Row: Stars + Add to Cart */}
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex flex-col">
+        <div className="flex items-center justify-between mt-2 gap-2">
+          <div className="hidden sm:flex flex-col">
             <div className="flex gap-0.5">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} size={13} fill="#C9A84C" stroke="none" />
@@ -174,6 +174,7 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
 
           <button
             onClick={handleAddToCart}
+            className="w-full sm:w-auto text-center"
             style={{
               padding: '8px 18px',
               background: hovered ? '#E8C547' : 'transparent',
