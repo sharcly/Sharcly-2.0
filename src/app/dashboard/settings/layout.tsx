@@ -16,7 +16,8 @@ import {
   MapPin, 
   Type,
   ChevronRight,
-  User
+  User,
+  CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const settingsGroups = [
       { label: "Design & Themes", href: "/dashboard/settings/design", icon: Globe },
       { label: "Shipping Rates", href: "/dashboard/settings/shipping", icon: MapPin },
       { label: "Tax Configuration", href: "/dashboard/settings/taxes", icon: Receipt },
+      { label: "Payment Gateways", href: "/dashboard/settings/payment-gateways", icon: CreditCard },
     ]
   },
   {

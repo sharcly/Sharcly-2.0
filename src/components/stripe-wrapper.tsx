@@ -1,15 +1,25 @@
 "use client";
 
+import React, { useMemo } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useThemeSettings } from "@/components/theme-provider";
 
-// Placeholder Publishable Key - Should be in .env
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder");
-
-export function StripeWrapper({ children }: { children: React.ReactNode }) {
+export function StripeWrapper({ 
+  children, 
+  publishableKey 
+}: { 
+  children: React.ReactNode; 
+  publishableKey?: string;
+}) {
   const { settings } = useThemeSettings();
   
+  // Re-initialize stripePromise dynamically when the publishable key changes
+  const stripePromise = useMemo(() => {
+    const key = publishableKey || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder";
+    return loadStripe(key);
+  }, [publishableKey]);
+
   const options = {
     appearance: {
       theme: 'none' as const,
