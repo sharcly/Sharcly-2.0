@@ -116,14 +116,7 @@ export const navigationConfig: NavItem[] = [
     requiredPermission: "seo.view",
     category: "Content"
   },
-  {
-    label: "Contact Messages",
-    href: "/dashboard/messages",
-    icon: Mail,
-    allowedRoles: ["admin", "super_admin"],
-    requiredPermission: "messages.view",
-    category: "Content"
-  },
+
   {
     label: "Testimonials",
     href: "/dashboard/testimonials",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -30,7 +30,13 @@ import {
   Plus,
   Trash2,
   LayoutGrid,
-  ShieldCheck
+  ShieldCheck,
+  ChevronDown,
+  Compass,
+  BookOpen,
+  MessageSquare,
+  BadgeCheck,
+  Sparkles
 } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,7 +48,6 @@ const PAGES = [
   { id: "about", label: "About Us", path: "/about" },
   { id: "wholesale", label: "Wholesale Partner", path: "/wholesale" },
   { id: "blog", label: "Blog Listing", path: "/blog" },
-  { id: "contact", label: "Contact Us", path: "/contact" },
   { id: "chill", label: "Chill Series Landing", path: "/chill" },
   { id: "lift", label: "Lift Series Landing", path: "/lift" },
   { id: "balance", label: "Balance Series Landing", path: "/balance" },
@@ -55,6 +60,49 @@ const PAGES = [
   { id: "shipping", label: "Shipping & Returns", path: "/shipping" },
   { id: "cookies", label: "Cookie Policy", path: "/cookies" },
 ];
+
+const PAGE_ICONS: Record<string, React.ReactNode> = {
+  home: <Globe className="w-4 h-4 text-emerald-600" />,
+  products: <LayoutGrid className="w-4 h-4 text-emerald-600" />,
+  about: <Compass className="w-4 h-4 text-emerald-600" />,
+  wholesale: <BadgeCheck className="w-4 h-4 text-emerald-600" />,
+  blog: <BookOpen className="w-4 h-4 text-emerald-600" />,
+  "lab-results": <ShieldCheck className="w-4 h-4 text-emerald-600" />,
+  faqs: <MessageSquare className="w-4 h-4 text-emerald-600" />,
+  
+  chill: <Sparkles className="w-4 h-4 text-amber-500" />,
+  lift: <Sparkles className="w-4 h-4 text-purple-500" />,
+  balance: <Sparkles className="w-4 h-4 text-orange-500" />,
+  sleep: <Sparkles className="w-4 h-4 text-blue-500" />,
+  vapes: <Sparkles className="w-4 h-4 text-gray-700" />,
+  
+  privacy: <FileText className="w-4 h-4 text-gray-500" />,
+  terms: <FileText className="w-4 h-4 text-gray-500" />,
+  shipping: <FileText className="w-4 h-4 text-gray-500" />,
+  cookies: <FileText className="w-4 h-4 text-gray-500" />,
+};
+
+const PAGE_CATEGORIES = [
+  {
+    id: "core",
+    title: "Core Pages",
+    icon: <Globe className="w-3.5 h-3.5 text-emerald-600" />,
+    pages: ["home", "products", "about", "wholesale", "blog", "lab-results", "faqs"]
+  },
+  {
+    id: "series",
+    title: "Series Landings",
+    icon: <Sparkles className="w-3.5 h-3.5 text-amber-500" />,
+    pages: ["chill", "lift", "balance", "sleep", "vapes"]
+  },
+  {
+    id: "legal",
+    title: "Legal & Policies",
+    icon: <FileText className="w-3.5 h-3.5 text-gray-500" />,
+    pages: ["privacy", "terms", "shipping", "cookies"]
+  }
+];
+
 
 const DEFAULT_HERO_JSON = JSON.stringify({
   announcement: {
@@ -164,6 +212,28 @@ function ContentManagementContent() {
   const [activePage, setActivePage] = useState("home");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    setDropdownOpen(false);
+    setSearchQuery("");
+  }, [activePage]);
+
+  const activePageData = PAGES.find(p => p.id === activePage) || PAGES[0];
 
   useEffect(() => {
     const pageParam = searchParams.get("p");
@@ -346,19 +416,150 @@ function ContentManagementContent() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-          <div className="flex flex-col gap-1.5 w-full sm:w-64">
-            <Select value={activePage} onValueChange={setActivePage}>
-              <SelectTrigger className="h-10 rounded-lg bg-black/[0.03] border-black/5 font-bold text-black px-4">
-                <SelectValue placeholder="Select Page" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl border-black/5 shadow-xl">
-                {PAGES.map((page) => (
-                  <SelectItem key={page.id} value={page.id} className="font-bold py-2 px-4 focus:bg-[#062D1B]/5 cursor-pointer text-xs">
-                    {page.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div ref={dropdownRef} className="relative w-full sm:w-72">
+            <button
+              type="button"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center justify-between w-full h-12 px-4 bg-white/80 hover:bg-white border border-black/5 hover:border-black/10 rounded-xl shadow-sm text-left transition-all duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#062D1B]/10"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex-shrink-0 size-7 rounded-lg bg-sage/5 border border-[#062D1B]/5 flex items-center justify-center">
+                  {PAGE_ICONS[activePageData.id] || <Globe className="w-4 h-4 text-emerald-600" />}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[7.5px] text-primary/30 font-black uppercase tracking-[0.2em] leading-none mb-0.5">Active Context</span>
+                  <span className="text-xs font-black text-primary truncate leading-tight">{activePageData.label}</span>
+                </div>
+              </div>
+              <motion.div
+                animate={{ rotate: dropdownOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex-shrink-0 ml-2"
+              >
+                <ChevronDown className="w-4 h-4 text-primary/40" />
+              </motion.div>
+            </button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                  transition={{ duration: 0.15, ease: "easeOut" }}
+                  className="absolute top-14 left-0 right-0 sm:left-auto sm:w-[320px] bg-white border border-black/10 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col max-h-[400px] focus:outline-none"
+                >
+                  {/* Search Header */}
+                  <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-black/5 bg-black/[0.01]">
+                    <Search className="w-3.5 h-3.5 text-primary/30 flex-shrink-0" />
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-none outline-none text-xs text-primary font-bold placeholder:text-primary/30"
+                      placeholder="Search or filter pages..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* Options List */}
+                  <div className="overflow-y-auto p-2 max-h-[300px] scrollbar-thin">
+                    {(() => {
+                      const filtered = PAGES.filter(p =>
+                        p.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        p.path.toLowerCase().includes(searchQuery.toLowerCase())
+                      );
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="py-8 px-4 text-center text-primary/30 font-bold text-xs uppercase tracking-wider">
+                            No matching pages
+                          </div>
+                        );
+                      }
+
+                      if (searchQuery.trim() !== "") {
+                        return (
+                          <div className="space-y-0.5">
+                            {filtered.map(p => (
+                              <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => setActivePage(p.id)}
+                                className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-left transition-all ${
+                                  activePage === p.id
+                                    ? "bg-[#062D1B]/5 text-primary"
+                                    : "hover:bg-[#062D1B]/5 text-primary/70 hover:text-primary"
+                                }`}
+                              >
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <div className="flex-shrink-0 size-7 rounded-md bg-sage/5 border border-primary/5 flex items-center justify-center">
+                                    {PAGE_ICONS[p.id] || <Globe className="w-3.5 h-3.5 text-emerald-600" />}
+                                  </div>
+                                  <div className="flex flex-col min-w-0">
+                                    <span className="text-xs font-bold truncate">{p.label}</span>
+                                    <span className="text-[9px] font-mono text-primary/40 truncate">{p.path}</span>
+                                  </div>
+                                </div>
+                                {activePage === p.id && (
+                                  <div className="size-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      }
+
+                      return PAGE_CATEGORIES.map(category => {
+                        const catPages = filtered.filter(p => category.pages.includes(p.id));
+                        if (catPages.length === 0) return null;
+
+                        return (
+                          <div key={category.id} className="mb-3 last:mb-0">
+                            <div className="flex items-center gap-2 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-primary/30">
+                              {category.icon}
+                              <span>{category.title}</span>
+                            </div>
+                            <div className="space-y-0.5">
+                              {catPages.map(p => (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onClick={() => setActivePage(p.id)}
+                                  className={`flex items-center justify-between w-full px-3 py-2 rounded-xl text-left transition-all ${
+                                    activePage === p.id
+                                      ? "bg-[#062D1B]/5 text-primary"
+                                      : "hover:bg-[#062D1B]/5 text-primary/70 hover:text-primary"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3 min-w-0">
+                                    <div className="flex-shrink-0 size-7 rounded-md bg-sage/5 border border-primary/5 flex items-center justify-center">
+                                      {PAGE_ICONS[p.id] || <Globe className="w-3.5 h-3.5 text-emerald-600" />}
+                                    </div>
+                                    <div className="flex flex-col min-w-0">
+                                      <span className="text-xs font-bold truncate">{p.label}</span>
+                                      <span className="text-[9px] font-mono text-primary/40 truncate">{p.path}</span>
+                                    </div>
+                                  </div>
+                                  {activePage === p.id && (
+                                    <div className="size-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+
+                  {/* Dropdown Footer */}
+                  <div className="px-4 py-2 border-t border-black/5 bg-black/[0.01] text-[8px] text-center font-bold uppercase tracking-wider text-primary/20">
+                    Select page context to customize content
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <Button
             disabled={isSaving || isLoading}
@@ -462,199 +663,313 @@ function ContentManagementContent() {
                             Reset to Defaults
                           </button>
                         </CardHeader>
-                        <CardContent className="p-10 space-y-8">
+                        <CardContent className="p-10 space-y-10">
                           {(() => {
                             const heroData = getHeroJson();
                             return (
-                              <>
-                                <div className="grid grid-cols-2 gap-8">
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Announcement Pill</Label>
-                                    <Input
-                                      value={heroData.announcement?.text || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.announcement = d.announcement || {}; d.announcement.text = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                  </div>
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Kicker</Label>
-                                    <Input
-                                      value={heroData.kicker || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.kicker = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="space-y-4 pt-4 border-t border-black/5">
-                                  <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Headline</Label>
-                                  <div className="grid grid-cols-3 gap-4">
-                                    <Input
-                                      placeholder="Line 1"
-                                      value={heroData.headline?.line1 || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.line1 = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                    <Input
-                                      placeholder="Highlighted Word"
-                                      value={heroData.headline?.highlight || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.highlight = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8 text-[#E8C547]"
-                                    />
-                                    <Input
-                                      placeholder="Line 2"
-                                      value={heroData.headline?.line2 || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.line2 = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="space-y-4 pt-4 border-t border-black/5">
-                                  <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Subheadline</Label>
-                                  <Textarea
-                                    value={heroData.subheadline || ""}
-                                    onChange={(e) => updateHeroJson(d => { d.subheadline = e.target.value; })}
-                                    className="min-h-[120px] rounded-[1.5rem] bg-sage/5 border-none font-medium px-8 py-6"
-                                  />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Primary CTA Label</Label>
-                                    <Input
-                                      value={heroData.cta?.primary?.label || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.primary = d.cta.primary || {}; d.cta.primary.label = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                  </div>
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Primary CTA Link</Label>
-                                    <Input
-                                      value={heroData.cta?.primary?.link || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.primary = d.cta.primary || {}; d.cta.primary.link = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                  </div>
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Secondary CTA Label</Label>
-                                    <Input
-                                      value={heroData.cta?.secondary?.label || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.secondary = d.cta.secondary || {}; d.cta.secondary.label = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                  </div>
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Secondary CTA Link</Label>
-                                    <Input
-                                      value={heroData.cta?.secondary?.link || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.secondary = d.cta.secondary || {}; d.cta.secondary.link = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Media URL (Video or Image)</Label>
-                                    <Input
-                                      value={heroData.media?.videoUrl || heroData.media?.imageUrl || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.media = d.media || {}; d.media.videoUrl = e.target.value; delete d.media.imageUrl; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8 italic"
-                                    />
-                                  </div>
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Media Overlay Label</Label>
-                                    <Input
-                                      value={heroData.media?.label || ""}
-                                      onChange={(e) => updateHeroJson(d => { d.media = d.media || {}; d.media.label = e.target.value; })}
-                                      className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                      placeholder="e.g. Sharcly · Premium Hemp"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Marquee Ticker (Comma Separated)</Label>
-                                    <Textarea
-                                      value={(heroData.marquee || []).join(", ")}
-                                      onChange={(e) => updateHeroJson(d => { d.marquee = e.target.value.split(",").map(s => s.trim()).filter(Boolean); })}
-                                      className="min-h-[100px] rounded-[1.5rem] bg-sage/5 border-none font-medium px-8 py-6"
-                                      placeholder="Better Sleep, Lab Verified, Plant-Based..."
-                                    />
-                                  </div>
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Hero Series Tags (Comma Separated)</Label>
-                                    <Textarea
-                                      value={(heroData.series || []).join(", ")}
-                                      onChange={(e) => updateHeroJson(d => { d.series = e.target.value.split(",").map(s => s.trim()).filter(Boolean); })}
-                                      className="min-h-[100px] rounded-[1.5rem] bg-sage/5 border-none font-medium px-8 py-6"
-                                      placeholder="Chill, Lift, Balance, Sleep, Vape"
-                                    />
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-8 pt-4 border-t border-black/5">
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">COA Badge</Label>
-                                    <div className="grid grid-cols-2 gap-4">
-                                      <Input
-                                        value={heroData.badges?.find((b: any) => b.type === "coa")?.title || ""}
-                                        onChange={(e) => updateHeroJson(d => {
-                                          d.badges = d.badges || [];
-                                          let b = d.badges.find((x: any) => x.type === "coa");
-                                          if (!b) { b = { type: "coa" }; d.badges.push(b); }
-                                          b.title = e.target.value;
-                                        })}
-                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                        placeholder="e.g. Lab Verified"
-                                      />
-                                      <Input
-                                        value={heroData.badges?.find((b: any) => b.type === "coa")?.description || ""}
-                                        onChange={(e) => updateHeroJson(d => {
-                                          d.badges = d.badges || [];
-                                          let b = d.badges.find((x: any) => x.type === "coa");
-                                          if (!b) { b = { type: "coa" }; d.badges.push(b); }
-                                          b.description = e.target.value;
-                                        })}
-                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                        placeholder="e.g. COA available for every batch"
-                                      />
+                              <div className="space-y-10">
+                                {/* Group 1: Announcement & Intro Kicker */}
+                                <div className="space-y-6 p-8 rounded-[2rem] border border-black/5 bg-black/[0.01]">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+                                      <Sparkles className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-xs font-black uppercase tracking-wider text-primary">Announcement & Intro</h4>
+                                      <p className="text-[10px] text-primary/40 font-medium">Header and teaser text displayed at the absolute top of the page.</p>
                                     </div>
                                   </div>
-                                  <div className="space-y-4">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/30 ml-2">Reviews Badge</Label>
-                                    <div className="grid grid-cols-2 gap-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Announcement Pill Text</Label>
                                       <Input
-                                        type="number"
-                                        step="0.1"
-                                        value={heroData.badges?.find((b: any) => b.type === "reviews")?.rating || ""}
-                                        onChange={(e) => updateHeroJson(d => {
-                                          d.badges = d.badges || [];
-                                          let b = d.badges.find((x: any) => x.type === "reviews");
-                                          if (!b) { b = { type: "reviews" }; d.badges.push(b); }
-                                          b.rating = parseFloat(e.target.value) || 0;
-                                        })}
-                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                        placeholder="e.g. 4.9"
+                                        value={heroData.announcement?.text || ""}
+                                        onChange={(e) => updateHeroJson(d => { d.announcement = d.announcement || {}; d.announcement.text = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                        placeholder="e.g. 21+ · Farm Bill Compliant"
                                       />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Teaser Kicker</Label>
                                       <Input
-                                        type="number"
-                                        value={heroData.badges?.find((b: any) => b.type === "reviews")?.totalReviews || ""}
-                                        onChange={(e) => updateHeroJson(d => {
-                                          d.badges = d.badges || [];
-                                          let b = d.badges.find((x: any) => x.type === "reviews");
-                                          if (!b) { b = { type: "reviews" }; d.badges.push(b); }
-                                          b.totalReviews = parseInt(e.target.value) || 0;
-                                        })}
-                                        className="h-16 rounded-[1.25rem] bg-sage/5 border-none font-bold px-8"
-                                        placeholder="e.g. 2400"
+                                        value={heroData.kicker || ""}
+                                        onChange={(e) => updateHeroJson(d => { d.kicker = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                        placeholder="e.g. Premium Hemp-Derived Wellness"
                                       />
                                     </div>
                                   </div>
                                 </div>
-                              </>
+
+                                {/* Group 2: Headline & Subheadline */}
+                                <div className="space-y-6 p-8 rounded-[2rem] border border-black/5 bg-black/[0.01]">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+                                      <Layout className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-xs font-black uppercase tracking-wider text-primary">Main Headline Copy</h4>
+                                      <p className="text-[10px] text-primary/40 font-medium">The hero statement, featuring an emphasized highlighted word.</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="space-y-4">
+                                    <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Headline Segments</Label>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                      <div className="space-y-1">
+                                        <span className="text-[9px] font-semibold text-primary/30 ml-1">First Line</span>
+                                        <Input
+                                          placeholder="Line 1"
+                                          value={heroData.headline?.line1 || ""}
+                                          onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.line1 = e.target.value; })}
+                                          className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <span className="text-[9px] font-bold text-[#E8C547]/80 ml-1">Highlighted Word</span>
+                                        <Input
+                                          placeholder="Gold Emphasized Word"
+                                          value={heroData.headline?.highlight || ""}
+                                          onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.highlight = e.target.value; })}
+                                          className="h-11 rounded-xl border border-[#E8C547]/30 bg-white hover:border-[#E8C547]/50 focus:border-[#E8C547] focus:ring-2 focus:ring-[#E8C547]/5 px-4 text-xs font-bold text-[#E8C547] transition-all"
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <span className="text-[9px] font-semibold text-primary/30 ml-1">Second Line</span>
+                                        <Input
+                                          placeholder="Line 2"
+                                          value={heroData.headline?.line2 || ""}
+                                          onChange={(e) => updateHeroJson(d => { d.headline = d.headline || {}; d.headline.line2 = e.target.value; })}
+                                          className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-2 pt-2 border-t border-black/5">
+                                    <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Subheadline Narrative</Label>
+                                    <Textarea
+                                      value={heroData.subheadline || ""}
+                                      onChange={(e) => updateHeroJson(d => { d.subheadline = e.target.value; })}
+                                      className="min-h-[100px] rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 py-3 text-xs font-semibold text-black transition-all leading-relaxed"
+                                      placeholder="Write a descriptive subheadline..."
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Group 3: Primary & Secondary CTA Actions */}
+                                <div className="space-y-6 p-8 rounded-[2rem] border border-black/5 bg-black/[0.01]">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+                                      <MousePointer2 className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-xs font-black uppercase tracking-wider text-primary">Interactive CTAs</h4>
+                                      <p className="text-[10px] text-primary/40 font-medium">Modify button labels and target links for your visitors.</p>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="p-5 rounded-xl border border-black/5 bg-white space-y-4 shadow-sm">
+                                      <span className="text-[10px] font-black uppercase tracking-widest text-[#062D1B] bg-[#062D1B]/5 px-2 py-0.5 rounded">Primary Button</span>
+                                      <div className="space-y-3">
+                                        <div className="space-y-1">
+                                          <span className="text-[9px] font-semibold text-primary/30 ml-1">Button Label</span>
+                                          <Input
+                                            value={heroData.cta?.primary?.label || ""}
+                                            onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.primary = d.cta.primary || {}; d.cta.primary.label = e.target.value; })}
+                                            className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                          />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <span className="text-[9px] font-semibold text-primary/30 ml-1">Button Link</span>
+                                          <Input
+                                            value={heroData.cta?.primary?.link || ""}
+                                            onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.primary = d.cta.primary || {}; d.cta.primary.link = e.target.value; })}
+                                            className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-semibold text-black/60 font-mono transition-all"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="p-5 rounded-xl border border-black/5 bg-white space-y-4 shadow-sm">
+                                      <span className="text-[10px] font-black uppercase tracking-widest text-primary/45 bg-black/[0.03] px-2 py-0.5 rounded">Secondary Button</span>
+                                      <div className="space-y-3">
+                                        <div className="space-y-1">
+                                          <span className="text-[9px] font-semibold text-primary/30 ml-1">Button Label</span>
+                                          <Input
+                                            value={heroData.cta?.secondary?.label || ""}
+                                            onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.secondary = d.cta.secondary || {}; d.cta.secondary.label = e.target.value; })}
+                                            className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                          />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <span className="text-[9px] font-semibold text-primary/30 ml-1">Button Link</span>
+                                          <Input
+                                            value={heroData.cta?.secondary?.link || ""}
+                                            onChange={(e) => updateHeroJson(d => { d.cta = d.cta || {}; d.cta.secondary = d.cta.secondary || {}; d.cta.secondary.link = e.target.value; })}
+                                            className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-semibold text-black/60 font-mono transition-all"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Group 4: Media URL & Configuration */}
+                                <div className="space-y-6 p-8 rounded-[2rem] border border-black/5 bg-black/[0.01]">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+                                      <ImageIcon className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-xs font-black uppercase tracking-wider text-primary">Hero Media Assets</h4>
+                                      <p className="text-[10px] text-primary/40 font-medium">Link video background or splash images to the hero section.</p>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Media URL (Video or Image path)</Label>
+                                      <Input
+                                        value={heroData.media?.videoUrl || heroData.media?.imageUrl || ""}
+                                        onChange={(e) => updateHeroJson(d => { d.media = d.media || {}; d.media.videoUrl = e.target.value; delete d.media.imageUrl; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-semibold text-black/60 font-mono transition-all"
+                                        placeholder="/assets/main-hero.mp4"
+                                      />
+                                      <p className="text-[9px] text-primary/30 font-medium ml-1">Supports relative public directory files or absolute links.</p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Accessibility Overlay Label</Label>
+                                      <Input
+                                        value={heroData.media?.label || ""}
+                                        onChange={(e) => updateHeroJson(d => { d.media = d.media || {}; d.media.label = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                        placeholder="e.g. Sharcly · Premium Hemp Collection"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Group 5: Marquees & Tags lists */}
+                                <div className="space-y-6 p-8 rounded-[2rem] border border-black/5 bg-black/[0.01]">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+                                      <ListRestart className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-xs font-black uppercase tracking-wider text-primary">Lists & Tag Arrays</h4>
+                                      <p className="text-[10px] text-primary/40 font-medium">Manage comma-separated text loops that scroll or filter on screen.</p>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Marquee Ticker (Comma Separated)</Label>
+                                      <Textarea
+                                        value={(heroData.marquee || []).join(", ")}
+                                        onChange={(e) => updateHeroJson(d => { d.marquee = e.target.value.split(",").map(s => s.trim()).filter(Boolean); })}
+                                        className="min-h-[90px] rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 py-3 text-xs font-semibold text-black transition-all leading-relaxed"
+                                        placeholder="Sleep, Lab Verified, Plant-Based..."
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Hero Featured Series (Comma Separated)</Label>
+                                      <Textarea
+                                        value={(heroData.series || []).join(", ")}
+                                        onChange={(e) => updateHeroJson(d => { d.series = e.target.value.split(",").map(s => s.trim()).filter(Boolean); })}
+                                        className="min-h-[90px] rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 py-3 text-xs font-semibold text-black transition-all leading-relaxed"
+                                        placeholder="Chill, Lift, Balance, Sleep, Vape"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Group 6: Verification & Trust Badges */}
+                                <div className="space-y-6 p-8 rounded-[2rem] border border-black/5 bg-black/[0.01]">
+                                  <div className="flex items-center gap-3">
+                                    <div className="size-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+                                      <ShieldCheck className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                      <h4 className="text-xs font-black uppercase tracking-wider text-primary">Trust & Credibility Badges</h4>
+                                      <p className="text-[10px] text-primary/40 font-medium">Manage customer trust indicators, certificates, and ratings.</p>
+                                    </div>
+                                  </div>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="p-5 rounded-xl border border-black/5 bg-white space-y-4 shadow-sm">
+                                      <span className="text-[10px] font-black uppercase tracking-widest text-[#062D1B] bg-[#062D1B]/5 px-2 py-0.5 rounded">Lab/COA Badge</span>
+                                      <div className="space-y-3">
+                                        <div className="space-y-1">
+                                          <span className="text-[9px] font-semibold text-primary/30 ml-1">Badge Title</span>
+                                          <Input
+                                            value={heroData.badges?.find((b: any) => b.type === "coa")?.title || ""}
+                                            onChange={(e) => updateHeroJson(d => {
+                                              d.badges = d.badges || [];
+                                              let b = d.badges.find((x: any) => x.type === "coa");
+                                              if (!b) { b = { type: "coa" }; d.badges.push(b); }
+                                              b.title = e.target.value;
+                                            })}
+                                            className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                            placeholder="e.g. Lab Verified"
+                                          />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <span className="text-[9px] font-semibold text-primary/30 ml-1">Subtext / Description</span>
+                                          <Input
+                                            value={heroData.badges?.find((b: any) => b.type === "coa")?.description || ""}
+                                            onChange={(e) => updateHeroJson(d => {
+                                              d.badges = d.badges || [];
+                                              let b = d.badges.find((x: any) => x.type === "coa");
+                                              if (!b) { b = { type: "coa" }; d.badges.push(b); }
+                                              b.description = e.target.value;
+                                            })}
+                                            className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-semibold text-black/75 transition-all"
+                                            placeholder="e.g. COA available for every batch"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="p-5 rounded-xl border border-black/5 bg-white space-y-4 shadow-sm">
+                                      <span className="text-[10px] font-black uppercase tracking-widest text-[#062D1B] bg-[#062D1B]/5 px-2 py-0.5 rounded">Reviews Badge</span>
+                                      <div className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div className="space-y-1">
+                                            <span className="text-[9px] font-semibold text-primary/30 ml-1">Rating Score</span>
+                                            <Input
+                                              type="number"
+                                              step="0.1"
+                                              value={heroData.badges?.find((b: any) => b.type === "reviews")?.rating || ""}
+                                              onChange={(e) => updateHeroJson(d => {
+                                                d.badges = d.badges || [];
+                                                let b = d.badges.find((x: any) => x.type === "reviews");
+                                                if (!b) { b = { type: "reviews" }; d.badges.push(b); }
+                                                b.rating = parseFloat(e.target.value) || 0;
+                                              })}
+                                              className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                              placeholder="4.9"
+                                            />
+                                          </div>
+                                          <div className="space-y-1">
+                                            <span className="text-[9px] font-semibold text-primary/30 ml-1">Total Reviews</span>
+                                            <Input
+                                              type="number"
+                                              value={heroData.badges?.find((b: any) => b.type === "reviews")?.totalReviews || ""}
+                                              onChange={(e) => updateHeroJson(d => {
+                                                d.badges = d.badges || [];
+                                                let b = d.badges.find((x: any) => x.type === "reviews");
+                                                if (!b) { b = { type: "reviews" }; d.badges.push(b); }
+                                                b.totalReviews = parseInt(e.target.value) || 0;
+                                              })}
+                                              className="h-10 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                              placeholder="2400"
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                             );
                           })()}
                         </CardContent>
@@ -683,9 +998,9 @@ function ContentManagementContent() {
                                   number: `0${d.length + 1}`
                                 });
                               })}
-                              className="rounded-full h-12 px-6 bg-primary text-white hover:bg-primary/90"
+                              className="rounded-xl h-11 px-5 bg-[#062D1B] hover:bg-[#084228] text-white font-bold uppercase tracking-wider text-[10px] shadow-sm transition-all"
                             >
-                              <Plus className="w-4 h-4 mr-2" /> Add Series
+                              <Plus className="w-4 h-4 mr-2" /> Add New Series Card
                             </Button>
                             <button
                               type="button"
@@ -696,59 +1011,97 @@ function ContentManagementContent() {
                             </button>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-10 space-y-6">
+                        <CardContent className="p-10 space-y-8">
                           {(() => {
                             const seriesData = getSeriesJson();
                             return seriesData.map((item: any, index: number) => (
-                              <div key={index} className="p-8 rounded-[2rem] bg-sage/5 border border-black/5 relative group transition-all hover:border-black/10">
-                                <button
-                                  type="button"
-                                  onClick={() => updateSeriesJson(d => { d.splice(index, 1); })}
-                                  className="absolute top-6 right-6 p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
-                                >
-                                  <Trash2 className="w-5 h-5" />
-                                </button>
+                              <div key={index} className="p-8 rounded-[2rem] bg-black/[0.01] border border-black/5 relative group transition-all hover:border-black/10 hover:bg-white/50">
+                                {/* Header block with Index Badge and Delete action */}
+                                <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-[#062D1B] px-2.5 py-1 rounded-lg border border-emerald-100">
+                                      Series #{item.number || `0${index + 1}`}
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateSeriesJson(d => { d.splice(index, 1); })}
+                                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50/50 rounded-lg transition-colors flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider"
+                                  >
+                                    <Trash2 className="w-4 h-4" /> Remove
+                                  </button>
+                                </div>
 
-                                <div className="grid grid-cols-2 gap-6 pr-12">
-                                  <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Label</Label>
-                                    <Input
-                                      value={item.label || ""}
-                                      onChange={(e) => updateSeriesJson(d => { d[index].label = e.target.value; })}
-                                      className="h-12 rounded-xl bg-white border-none font-bold px-6"
-                                    />
+                                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                  {/* Column 1: Image Preview */}
+                                  <div className="lg:col-span-1 flex flex-col gap-3">
+                                    <span className="text-[9px] font-black uppercase tracking-wider text-primary/45 ml-1">Card Preview</span>
+                                    <div className="relative aspect-[4/3] rounded-2xl bg-black/[0.02] border border-black/5 overflow-hidden flex items-center justify-center group/img">
+                                      {item.imageUrl ? (
+                                        <img
+                                          src={item.imageUrl}
+                                          alt={item.label || "Series Image"}
+                                          className="object-cover w-full h-full"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80";
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="flex flex-col items-center justify-center p-4 text-center">
+                                          <ImageIcon className="w-8 h-8 text-primary/20 mb-2" />
+                                          <span className="text-[8px] font-bold text-primary/30 uppercase tracking-wider">No Image Configured</span>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
-                                  <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Tag</Label>
-                                    <Input
-                                      value={item.tag || ""}
-                                      onChange={(e) => updateSeriesJson(d => { d[index].tag = e.target.value; })}
-                                      className="h-12 rounded-xl bg-white border-none font-bold px-6"
-                                    />
-                                  </div>
-                                  <div className="space-y-3 col-span-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Description</Label>
-                                    <Input
-                                      value={item.description || ""}
-                                      onChange={(e) => updateSeriesJson(d => { d[index].description = e.target.value; })}
-                                      className="h-12 rounded-xl bg-white border-none font-medium px-6"
-                                    />
-                                  </div>
-                                  <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Image URL</Label>
-                                    <Input
-                                      value={item.imageUrl || ""}
-                                      onChange={(e) => updateSeriesJson(d => { d[index].imageUrl = e.target.value; })}
-                                      className="h-12 rounded-xl bg-white border-none font-mono text-xs px-6"
-                                    />
-                                  </div>
-                                  <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 ml-2">Link To</Label>
-                                    <Input
-                                      value={item.to || ""}
-                                      onChange={(e) => updateSeriesJson(d => { d[index].to = e.target.value; })}
-                                      className="h-12 rounded-xl bg-white border-none font-mono text-xs px-6"
-                                    />
+
+                                  {/* Column 2: Form inputs */}
+                                  <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Card Heading</Label>
+                                      <Input
+                                        value={item.label || ""}
+                                        onChange={(e) => updateSeriesJson(d => { d[index].label = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                        placeholder="e.g. Chill Series"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Category Tag</Label>
+                                      <Input
+                                        value={item.tag || ""}
+                                        onChange={(e) => updateSeriesJson(d => { d[index].tag = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-bold text-black transition-all"
+                                        placeholder="e.g. Relax"
+                                      />
+                                    </div>
+                                    <div className="space-y-2 col-span-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Short Description</Label>
+                                      <Input
+                                        value={item.description || ""}
+                                        onChange={(e) => updateSeriesJson(d => { d[index].description = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-semibold text-black transition-all"
+                                        placeholder="e.g. Find your calm with our premium selection"
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Image URL</Label>
+                                      <Input
+                                        value={item.imageUrl || ""}
+                                        onChange={(e) => updateSeriesJson(d => { d[index].imageUrl = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-semibold text-black/60 font-mono transition-all"
+                                        placeholder="https://..."
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label className="text-[10px] font-black uppercase tracking-wider text-primary/50 ml-1">Navigation Target (URL/Link)</Label>
+                                      <Input
+                                        value={item.to || ""}
+                                        onChange={(e) => updateSeriesJson(d => { d[index].to = e.target.value; })}
+                                        className="h-11 rounded-xl border border-black/10 bg-white hover:border-black/20 focus:border-[#062D1B] focus:ring-2 focus:ring-[#062D1B]/5 px-4 text-xs font-semibold text-black/60 font-mono transition-all"
+                                        placeholder="/products?series=chill"
+                                      />
+                                    </div>
                                   </div>
                                 </div>
                               </div>

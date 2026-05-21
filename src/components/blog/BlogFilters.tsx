@@ -111,36 +111,20 @@ export function BlogFilters({
           </button>
           {categories.map((cat) => (
             <button
-              onClick={() => setSelectedCategory("")}
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
               className={cn(
                 "px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 border",
                 selectedCategory === cat
                   ? "bg-[#0d2719] text-white border-transparent shadow-lg"
                   : "bg-white text-[#0d2719] border-[#0d2719]/5 hover:border-[#0d2719]/20"
               )}
-              style={selectedCategory === "" 
-                ? { backgroundColor: '#E8C547', color: '#040e07' } 
-                : { backgroundColor: 'rgba(239,248,238,0.04)', color: 'rgba(239,248,238,0.6)', border: '1px solid rgba(239,248,238,0.06)' }
-              }
             >
-              All
+              {cat}
             </button>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className="px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-300"
-                style={selectedCategory === cat 
-                  ? { backgroundColor: '#E8C547', color: '#040e07' } 
-                  : { backgroundColor: 'rgba(239,248,238,0.04)', color: 'rgba(239,248,238,0.6)', border: '1px solid rgba(239,248,238,0.06)' }
-                }
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Tags */}
       {allTags.length > 0 && (
