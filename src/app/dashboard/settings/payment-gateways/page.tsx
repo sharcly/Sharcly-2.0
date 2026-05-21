@@ -23,7 +23,7 @@ import {
   ChevronRight,
   TrendingUp
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 interface PaymentGateway {
@@ -337,20 +337,20 @@ export default function PaymentGatewaysPage() {
         </div>
       )}
 
-      {/* Dynamic Add / Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-xl rounded-3xl p-8 bg-white border border-black/5 shadow-2xl">
-          <DialogHeader className="space-y-2">
-            <DialogTitle className="text-xl font-bold text-neutral-950">
+      {/* Dynamic Add / Edit Side Drawer */}
+      <Sheet open={dialogOpen} onOpenChange={setDialogOpen}>
+        <SheetContent className="bg-white border-l border-black/5 shadow-2xl p-8 sm:max-w-md w-full h-full overflow-y-auto">
+          <SheetHeader className="space-y-2 p-0 mb-6">
+            <SheetTitle className="text-xl font-bold text-neutral-950">
               {editingGateway ? "Edit Gateway Details" : "Add Payment Gateway"}
-            </DialogTitle>
-            <DialogDescription className="text-xs text-neutral-400 font-medium">
+            </SheetTitle>
+            <SheetDescription className="text-xs text-neutral-400 font-medium">
               Enter your API keys and cycle rotation limits. Ensure webhook signatures match for dynamic validation.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
-            <div className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-5">
               {/* Name */}
               <div className="space-y-1.5">
                 <Label htmlFor="form-name" className="text-[10px] uppercase font-black text-black/40 tracking-wider">Gateway Configuration Name</Label>
@@ -365,7 +365,7 @@ export default function PaymentGatewaysPage() {
               </div>
 
               {/* Provider & Rotation Limit grid */}
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="form-provider" className="text-[10px] uppercase font-black text-black/40 tracking-wider">Provider Type</Label>
                   <select
@@ -380,7 +380,7 @@ export default function PaymentGatewaysPage() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="form-rotation" className="text-[10px] uppercase font-black text-black/40 tracking-wider">Rotation Transaction Limit</Label>
+                  <Label htmlFor="form-rotation" className="text-[10px] uppercase font-black text-black/40 tracking-wider">Transaction Limit</Label>
                   <Input 
                     id="form-rotation"
                     value={formRotationLimit} 
@@ -446,27 +446,27 @@ export default function PaymentGatewaysPage() {
               </div>
             </div>
 
-            <DialogFooter className="gap-2 pt-4 border-t border-black/5">
+            <SheetFooter className="gap-2 pt-6 border-t border-black/5 p-0 mt-6 flex flex-row justify-end">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => setDialogOpen(false)} 
-                className="h-11 rounded-xl border-neutral-200 font-bold hover:bg-neutral-50"
+                className="h-11 rounded-xl border-neutral-200 font-bold hover:bg-neutral-50 flex-1 sm:flex-initial"
               >
                 Cancel
               </Button>
               <Button 
                 type="submit" 
                 disabled={submitting} 
-                className="h-11 px-8 rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 font-bold gap-2 shadow-md"
+                className="h-11 px-8 rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 font-bold gap-2 shadow-md flex-1 sm:flex-initial"
               >
                 {submitting ? <RefreshCw className="size-4 animate-spin" /> : null}
-                {submitting ? "Saving Config..." : (editingGateway ? "Update Gateway" : "Create Gateway")}
+                {submitting ? "Saving..." : (editingGateway ? "Update" : "Create")}
               </Button>
-            </DialogFooter>
+            </SheetFooter>
           </form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

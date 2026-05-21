@@ -524,116 +524,120 @@ export default function ProductDetailsPage() {
                 </p>
               </motion.div>
 
-              {/* 5. Description Card */}
-              <motion.div variants={itemVariants} className="relative p-5 rounded-[14px] bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] before:absolute before:top-0 before:left-5 before:right-5 before:h-[1px] before:bg-linear-to-r before:from-transparent before:via-[#E8C547]/15 before:to-transparent">
-                <p className="text-[14.5px] leading-[1.78] text-[#eff8ee]/52">
-                  {product.description || "Experience zesty relief with Sharcly's premium Delta-8. Our extra-large tank is lab-tested and pure. Get your long-lasting, legal chill today."}
-                </p>
-              </motion.div>
-
               {/* 6. Configuration Selector */}
               <motion.div variants={itemVariants} className="space-y-3">
                 <span className="text-[10px] font-bold font-body uppercase tracking-[0.18em] text-[#eff8ee]/52">
                   CONFIGURATION
                 </span>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                  {(() => {
-                    const variants = product.variants && product.variants.length > 0
-                      ? [...product.variants].sort((a: any, b: any) => {
-                        const aNum = parseInt(a.title.match(/\d+/)?.[0] || "0");
-                        const bNum = parseInt(b.title.match(/\d+/)?.[0] || "0");
-                        return aNum - bNum;
-                      })
-                      : [
-                        { id: '1', title: 'Pack of 1', price: product.price },
-                        { id: '2', title: 'Pack of 2', price: (Number(product.price) * 2 * 0.95).toFixed(2), save: '5%' },
-                        { id: '3', title: 'Pack of 3', price: (Number(product.price) * 3 * 0.9).toFixed(2), save: '10%' },
-                        { id: '4', title: 'Pack of 4', price: (Number(product.price) * 4 * 0.85).toFixed(2), save: '15%' }
-                      ];
+                {(() => {
+                  const variants = product.variants && product.variants.length > 0
+                    ? [...product.variants].sort((a: any, b: any) => {
+                      const aNum = parseInt(a.title.match(/\d+/)?.[0] || "0");
+                      const bNum = parseInt(b.title.match(/\d+/)?.[0] || "0");
+                      return aNum - bNum;
+                    })
+                    : [
+                      { id: '1', title: 'Pack of 1', price: product.price },
+                      { id: '2', title: 'Pack of 2', price: (Number(product.price) * 2 * 0.95).toFixed(2), save: '5%' },
+                      { id: '3', title: 'Pack of 3', price: (Number(product.price) * 3 * 0.9).toFixed(2), save: '10%' },
+                      { id: '4', title: 'Pack of 4', price: (Number(product.price) * 4 * 0.85).toFixed(2), save: '15%' }
+                    ];
 
-                    return variants.map((variant: any) => {
-                      const isSelected = selectedVariant?.id === variant.id;
-                      return (
-                        <button
-                          key={variant.id}
-                          onClick={() => setSelectedVariant(variant)}
-                          className={cn(
-                            "relative p-[16px_18px] rounded-[14px] text-left transition-all duration-300 group overflow-hidden",
-                            isSelected
-                              ? "bg-[#E8C547]/7 border-[#E8C547] shadow-[0_0_0_1px_rgba(232,197,71,0.2),0_8px_24px_rgba(232,197,71,0.1)]"
-                              : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] hover:border-[#E8C547]/25 hover:-translate-y-[1px]"
-                          )}
-                        >
-                          {/* Hover radial glow */}
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(232,197,71,0.12),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                  return (
+                    <div className={cn(
+                      "grid gap-2.5",
+                      variants.length === 3 ? "grid-cols-3" : "grid-cols-2 md:grid-cols-3"
+                    )}>
+                      {variants.map((variant: any) => {
+                        const isSelected = selectedVariant?.id === variant.id;
+                        return (
+                          <button
+                            key={variant.id}
+                            onClick={() => setSelectedVariant(variant)}
+                            className={cn(
+                              "relative p-[12px_14px] sm:p-[16px_18px] rounded-[14px] text-left transition-all duration-300 group overflow-hidden",
+                              isSelected
+                                ? "bg-[#E8C547]/7 border-[#E8C547] shadow-[0_0_0_1px_rgba(232,197,71,0.2),0_8px_24px_rgba(232,197,71,0.1)]"
+                                : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] hover:border-[#E8C547]/25 hover:-translate-y-[1px]"
+                            )}
+                          >
+                            {/* Hover radial glow */}
+                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(232,197,71,0.12),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-                          <div className="relative z-10">
-                            <p className="text-[13px] font-bold font-body text-[#eff8ee] mb-1">{variant.title}</p>
-                            <p className="text-[14px] font-bold font-body text-[#E8C547]">${variant.price}</p>
-                          </div>
-
-                          {variant.save && (
-                            <div className="absolute top-2 right-2.5 bg-[#E8C547] text-[#082f1d] text-[9px] font-bold font-body uppercase tracking-[0.1em] px-2 py-0.5 rounded-full">
-                              SAVE {variant.save}
+                            <div className="relative z-10">
+                              <p className="text-[11px] sm:text-[13px] font-bold font-body text-[#eff8ee] mb-1">{variant.title}</p>
+                              <p className="text-[12px] sm:text-[14px] font-bold font-body text-[#E8C547]">${variant.price}</p>
                             </div>
-                          )}
-                        </button>
-                      );
-                    });
-                  })()}
-                </div>
+
+                            {variant.save && (
+                              <div className="absolute top-1.5 right-1.5 bg-[#E8C547] text-[#082f1d] text-[8px] sm:text-[9px] font-bold font-body uppercase tracking-[0.1em] px-1.5 py-0.5 rounded-full">
+                                SAVE {variant.save}
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </motion.div>
 
               {/* 7. Qty + Add to Cart + Wishlist */}
-              <motion.div variants={itemVariants} className="flex items-center gap-3" ref={atcRef}>
-                <div className="flex items-center bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] rounded-[14px] overflow-hidden">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-[44px] h-[52px] flex items-center justify-center text-[#eff8ee] hover:bg-[#E8C547]/8 hover:text-[#E8C547] transition-all"
-                  >
-                    <Minus className="size-3.5" />
-                  </button>
-                  <div className="min-w-[44px] h-[52px] flex items-center justify-center font-serif font-semibold text-[20px] text-[#eff8ee] border-x border-[rgba(239,248,238,0.08)]">
-                    {quantity}
+              <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3" ref={atcRef}>
+                {/* Row 1: Qty + Add to Cart */}
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="flex items-center bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] rounded-[14px] overflow-hidden shrink-0">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-[44px] h-[52px] flex items-center justify-center text-[#eff8ee] hover:bg-[#E8C547]/8 hover:text-[#E8C547] transition-all"
+                    >
+                      <Minus className="size-3.5" />
+                    </button>
+                    <div className="min-w-[44px] h-[52px] flex items-center justify-center font-sans font-bold text-[18px] text-[#eff8ee] border-x border-[rgba(239,248,238,0.08)]">
+                      {quantity}
+                    </div>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-[44px] h-[52px] flex items-center justify-center text-[#eff8ee] hover:bg-[#E8C547]/8 hover:text-[#E8C547] transition-all"
+                    >
+                      <Plus className="size-3.5" />
+                    </button>
                   </div>
+
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-[44px] h-[52px] flex items-center justify-center text-[#eff8ee] hover:bg-[#E8C547]/8 hover:text-[#E8C547] transition-all"
+                    onClick={handleAddToCart}
+                    disabled={isOutOfStock}
+                    className="flex-1 h-[52px] relative overflow-hidden bg-[#E8C547] text-[#082f1d] rounded-[14px] font-bold font-body text-[13px] uppercase tracking-[0.12em] shadow-[0_8px_28px_rgba(232,197,71,0.28)] hover:bg-[#f0cf55] hover:-translate-y-[1px] active:translate-y-0 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap"
                   >
-                    <Plus className="size-3.5" />
+                    <ShoppingCart className="size-4 shrink-0" />
+                    <span className="truncate">{addedToCart ? "Added!" : "Add to Cart"}</span>
+
+                    {/* Shimmer Effect */}
+                    <div className="absolute top-0 -left-full w-full h-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-all duration-700 ease-in-out group-hover:left-full" />
                   </button>
                 </div>
 
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isOutOfStock}
-                  className="flex-1 h-[52px] relative overflow-hidden bg-[#E8C547] text-[#082f1d] rounded-[14px] font-bold font-body text-[13px] uppercase tracking-[0.1em] shadow-[0_8px_28px_rgba(232,197,71,0.28)] hover:bg-[#f0cf55] hover:-translate-y-[1px] active:translate-y-0 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  <ShoppingCart className="size-4" />
-                  {addedToCart ? "Added!" : "Add to Cart"}
+                {/* Row 2: Wishlist + Share */}
+                <div className="flex items-center gap-3 sm:w-auto">
+                  <button
+                    onClick={() => setLiked(!liked)}
+                    className={cn(
+                      "flex-1 sm:flex-initial w-full sm:w-[52px] h-[52px] rounded-[14px] border flex items-center justify-center transition-all",
+                      liked
+                        ? "bg-[#E8C547]/10 border-[#E8C547] text-[#E8C547]"
+                        : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] text-[#eff8ee]/50 hover:border-[#E8C547]/30 hover:text-[#E8C547]"
+                    )}
+                  >
+                    <Heart className={cn("size-[18px]", liked && "fill-current")} />
+                  </button>
 
-                  {/* Shimmer Effect */}
-                  <div className="absolute top-0 -left-full w-full h-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-all duration-700 ease-in-out group-hover:left-full" />
-                </button>
-
-                <button
-                  onClick={() => setLiked(!liked)}
-                  className={cn(
-                    "w-[52px] h-[52px] rounded-[14px] border flex items-center justify-center transition-all",
-                    liked
-                      ? "bg-[#E8C547]/10 border-[#E8C547] text-[#E8C547]"
-                      : "bg-[rgba(239,248,238,0.04)] border-[rgba(239,248,238,0.08)] text-[#eff8ee]/50 hover:border-[#E8C547]/30 hover:text-[#E8C547]"
-                  )}
-                >
-                  <Heart className={cn("size-[18px]", liked && "fill-current")} />
-                </button>
-
-                <button
-                  onClick={handleShare}
-                  className="w-[52px] h-[52px] rounded-[14px] border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.04)] text-[#eff8ee]/50 flex items-center justify-center hover:border-[#E8C547]/30 hover:text-[#E8C547] transition-all"
-                >
-                  <Share2 className="size-[18px]" />
-                </button>
+                  <button
+                    onClick={handleShare}
+                    className="flex-1 sm:flex-initial w-full sm:w-[52px] h-[52px] rounded-[14px] border border-[rgba(239,248,238,0.08)] bg-[rgba(239,248,238,0.04)] text-[#eff8ee]/50 flex items-center justify-center hover:border-[#E8C547]/30 hover:text-[#E8C547] transition-all"
+                  >
+                    <Share2 className="size-[18px]" />
+                  </button>
+                </div>
               </motion.div>
 
               {/* 8. Trust Chips */}
@@ -654,6 +658,13 @@ export default function ProductDetailsPage() {
                     </div>
                   </div>
                 ))}
+              </motion.div>
+
+              {/* 5. Description Card */}
+              <motion.div variants={itemVariants} className="relative p-5 rounded-[14px] bg-[rgba(239,248,238,0.04)] border border-[rgba(239,248,238,0.08)] before:absolute before:top-0 before:left-5 before:right-5 before:h-[1px] before:bg-linear-to-r before:from-transparent before:via-[#E8C547]/15 before:to-transparent">
+                <p className="text-[14.5px] leading-[1.78] text-[#eff8ee]/52">
+                  {product.description || "Experience zesty relief with Sharcly's premium Delta-8. Our extra-large tank is lab-tested and pure. Get your long-lasting, legal chill today."}
+                </p>
               </motion.div>
 
               {/* ⚠️ Prop 65 Warning */}
@@ -939,17 +950,21 @@ export default function ProductDetailsPage() {
               <h2 className="font-serif text-3xl font-bold text-[#eff8ee]">You May Also Like</h2>
               <Link href="/products" className="text-[12px] font-bold text-[#E8C547] uppercase tracking-wider hover:underline">View All</Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <div className="flex overflow-x-auto md:grid md:grid-cols-4 gap-4 md:gap-6 no-scrollbar snap-x snap-mandatory md:snap-none pb-4 md:pb-0">
               {relatedLoading ? (
                 Array.from({ length: 4 }).map((_, i) => (
-                  <FeaturedProductCardSkeleton key={i} />
+                  <div key={i} className="w-[280px] md:w-auto shrink-0 snap-start">
+                    <FeaturedProductCardSkeleton key={i} />
+                  </div>
                 ))
               ) : (
                 relatedProducts
                   .filter((p: any) => p.slug !== slug)
                   .slice(0, 4)
                   .map((p: any) => (
-                    <FeaturedProductCard key={p.id} product={p} />
+                    <div key={p.id} className="w-[280px] md:w-auto shrink-0 snap-start">
+                      <FeaturedProductCard key={p.id} product={p} />
+                    </div>
                   ))
               )}
             </div>
