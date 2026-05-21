@@ -102,7 +102,15 @@ export default function Home() {
    }
 
    return (
-      <div className="min-h-screen bg-white text-[#062D1B] flex flex-col font-sans antialiased selection:bg-[#062D1B] selection:text-white">
+      <div 
+         className="min-h-screen bg-white text-[#062D1B] flex flex-col font-serif antialiased selection:bg-[#062D1B] selection:text-white"
+         style={{
+            ["--font-sans" as any]: "var(--font-cormorant)",
+            ["--font-body" as any]: "var(--font-cormorant)",
+            ["--font-dm-sans" as any]: "var(--font-cormorant)",
+            fontFamily: "var(--font-cormorant), serif"
+         }}
+      >
          <AnnouncementBar />
          <Navbar />
 
@@ -174,7 +182,7 @@ export default function Home() {
                      {/* headline */}
                      <h2
                         style={{
-                           fontFamily: "serif",
+                           fontFamily: "var(--font-cormorant), serif",
                            fontSize: "clamp(36px, 4vw, 58px)",
                            lineHeight: 1.1,
                            marginBottom: "24px",
@@ -217,7 +225,7 @@ export default function Home() {
                         <div>
                            <div
                               style={{
-                                 fontFamily: "serif",
+                                 fontFamily: "var(--font-cormorant), serif",
                                  fontSize: "30px",
                                  color: "#E8C547",
                               }}
@@ -232,7 +240,7 @@ export default function Home() {
                         <div>
                            <div
                               style={{
-                                 fontFamily: "serif",
+                                 fontFamily: "var(--font-cormorant), serif",
                                  fontSize: "30px",
                                  color: "#E8C547",
                               }}
@@ -247,7 +255,7 @@ export default function Home() {
                         <div>
                            <div
                               style={{
-                                 fontFamily: "serif",
+                                 fontFamily: "var(--font-cormorant), serif",
                                  fontSize: "30px",
                                  color: "#E8C547",
                               }}
